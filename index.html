@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="MELD 哼唱作曲工作台：把哼唱的旋律实时转成电吉他、木吉他、钢琴、萨克斯、弦乐或合成器演奏。"
+    />
+    <meta name="theme-color" content="#121615" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23121615'/%3E%3Cg stroke='%23c6ed8f' stroke-width='4' stroke-linecap='round'%3E%3Cpath d='M18 28v8M25 20v24M32 15v34M39 23v18M46 29v6'/%3E%3C/g%3E%3C/svg%3E"
+    />
+    <title>MELD — 哼唱作曲工作台</title>
+    <link rel="stylesheet" href="styles.css?v=20261023-14" />
+  </head>
+  <body>
+    <div class="page-noise" aria-hidden="true"></div>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="MELD 首页">
+          <span class="brand-mark" aria-hidden="true">
+            <i></i><i></i><i></i><i></i><i></i>
+          </span>
+          <span class="brand-copy">
+            <strong>MELD</strong>
+            <small>哼唱作曲工作台</small>
+          </span>
+        </a>
+
+        <nav class="main-nav" aria-label="主导航">
+          <button class="nav-item active" type="button" data-view="studio">创作台</button>
+          <button class="nav-item" type="button" data-view="works">我的作品</button>
+          <button class="nav-item" type="button" data-view="lab">音色实验室</button>
+          <button class="nav-item" type="button" data-view="arrangement">编曲台</button>
+        </nav>
+
+        <div class="top-actions">
+          <span class="save-state" id="cloudStatus"><i></i> 未连接云端</span>
+          <button class="icon-button" id="helpBtn" type="button" aria-label="使用帮助">?</button>
+          <button class="save-project-button" id="saveProjectBtn" type="button" disabled>
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M4 3.5h10.5l1.5 1.5v11H4v-12.5ZM7 3.5v4h6v-4M7 16v-5h6v5" />
+            </svg>
+            保存作品
+          </button>
+          <button class="export-button" id="exportBtn" type="button" disabled>
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M10 13V3m0 0L6.5 6.5M10 3l3.5 3.5M4 12v4h12v-4" />
+            </svg>
+            导出 MIDI
+          </button>
+          <button class="avatar" id="authBtn" type="button" aria-label="登录云端">登录</button>
+        </div>
+      </header>
+
+      <main>
+        <section class="view-panel active" id="studioView" aria-label="创作台">
+          <section class="page-heading">
+            <div class="heading-copy">
+              <p class="eyebrow"><span>NEW SESSION</span> / TAKE 01</p>
+              <h1>把哼唱，<em>织成一首歌。</em></h1>
+              <p class="lede">
+                哼出脑海中的旋律，MELD 会听见音高、找到调性，再把它交给喜欢的乐器。
+              </p>
+            </div>
+
+            <button class="key-summary" id="keySummary" type="button" aria-label="查看调性分析">
+              <span class="key-summary-label">当前调性</span>
+              <span class="key-summary-main">
+                <strong id="headerKey">等待哼唱</strong>
+                <i id="keyConfidenceDial" aria-hidden="true"></i>
+              </span>
+              <span class="key-summary-note" id="headerKeyNote">音高识别后自动填入</span>
+            </button>
+          </section>
+
+          <section class="studio-deck" aria-label="哼唱编曲工作台">
+          <aside class="track-rail">
+            <div class="rail-heading">
+              <span>主奏音色</span>
+              <small id="railCountLabel">06 TRACKS</small>
+            </div>
+            <div class="instrument-rail" id="instrumentRail" role="listbox" aria-label="选择主奏乐器"></div>
+            <div class="rail-tip">
+              <span class="rail-tip-icon">⌁</span>
+              <p>选择音色后，按播放试听你的旋律。</p>
+            </div>
+          </aside>
+
+          <section class="main-stage">
+            <header class="stage-header">
+              <div class="take-info">
+                <span class="live-status"><i></i><span id="stageStateText">准备录音</span></span>
+                <span class="take-divider"></span>
+                <span id="stageDetail">尚无旋律片段</span>
+              </div>
+              <div class="view-switch" aria-label="可视化视图">
+                <button class="active" id="pitchViewBtn" type="button">音高</button>
+                <button id="waveViewBtn" type="button">波形</button>
+              </div>
+              <button class="scale-snap-toggle active" id="scaleSnapBtn" type="button" aria-pressed="true">
+                <i></i>仅调内音
+              </button>
+            </header>
+
+            <div class="visualizer-wrap">
+              <canvas id="melodyCanvas" aria-label="旋律音高与波形可视化"></canvas>
+              <div class="canvas-scale-rail" id="canvasScaleRail" aria-label="当前音阶"></div>
+              <div class="canvas-empty" id="canvasEmpty">
+                <span class="empty-orbit" aria-hidden="true">
+                  <i></i><i></i><i></i>
+                  <svg viewBox="0 0 28 28">
+                    <path d="M11 5v11.2a4.2 4.2 0 1 0 2 3.6V9l8-2v8.2a4.2 4.2 0 1 0 2 3.6V3l-12 2Z" />
+                  </svg>
+                </span>
+                <strong>轻哼一段旋律</strong>
+                <p>点击右侧录音，或载入一段示例开始</p>
+                <button class="text-button" id="demoBtn" type="button">载入示例旋律 <span>↗</span></button>
+              </div>
+
+              <div class="live-note" id="liveNote" aria-live="polite">
+                <span class="note-name" id="noteName">—</span>
+                <span class="note-octave" id="noteOctave"></span>
+                <span class="note-cents" id="noteCents">等待音高</span>
+              </div>
+
+              <div class="scale-legend">
+                <span><i class="legend-dot detected"></i> 已吸附音符</span>
+                <span><i class="legend-dot scale"></i> 当前音阶</span>
+              </div>
+            </div>
+
+            <div class="timeline-strip" aria-hidden="true">
+              <span>00:00</span>
+              <div class="timeline-ticks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              <span id="durationLabel">00:08</span>
+            </div>
+
+            <footer class="transport">
+              <div class="transport-left">
+                <button class="play-button" id="playBtn" type="button" aria-label="播放旋律" disabled>
+                  <svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M8.5 5.3 19 12 8.5 18.7V5.3Z" />
+                  </svg>
+                  <svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M8 5h3v14H8zm5 0h3v14h-3z" />
+                  </svg>
+                </button>
+                <div class="play-copy">
+                  <span id="playLabel">试听旋律</span>
+                  <small id="playSubLabel">先录入一段哼唱</small>
+                </div>
+              </div>
+
+              <label class="tempo-control">
+                <span>速度</span>
+                <input id="tempoInput" type="number" value="84" min="50" max="160" step="1" aria-label="速度 BPM" />
+                <small>BPM</small>
+              </label>
+
+              <div class="transport-actions">
+                <button class="ghost-button" id="loopBtn" type="button" aria-pressed="false">
+                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                    <path d="M4 6h9.5L11 3.5M16 14H6.5L9 16.5M14 6l2 2-2 2M6 14l-2-2 2-2" />
+                  </svg>
+                  循环
+                </button>
+                <button class="ghost-button" id="metronomeBtn" type="button" aria-pressed="false">
+                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                    <path d="M7 3h6l3 14H4L7 3Zm0 8h6M10 3l-2 8" />
+                  </svg>
+                  节拍器
+                </button>
+              </div>
+            </footer>
+          </section>
+
+          <aside class="capture-panel">
+            <div class="capture-heading">
+              <div>
+                <span>捕捉旋律</span>
+                <small>VOICE INPUT</small>
+              </div>
+              <span class="privacy-badge">本地处理</span>
+            </div>
+
+            <div class="record-zone">
+              <div class="record-rings" aria-hidden="true"></div>
+              <button class="record-button" id="recordBtn" type="button" aria-label="开始录音">
+                <span class="record-core">
+                  <svg class="mic-icon" viewBox="0 0 28 28" aria-hidden="true">
+                    <rect x="10" y="4" width="8" height="13" rx="4" />
+                    <path d="M7 13.5a7 7 0 0 0 14 0M14 20.5V24M10 24h8" />
+                  </svg>
+                  <svg class="stop-icon" viewBox="0 0 28 28" aria-hidden="true">
+                    <rect x="8" y="8" width="12" height="12" rx="2" />
+                  </svg>
+                </span>
+              </button>
+              <strong id="recordLabel">点击开始哼唱</strong>
+              <span class="record-time" id="recordTime">00:00.0</span>
+            </div>
+
+            <div class="level-meter" id="levelMeter" aria-hidden="true"></div>
+
+            <div class="upload-separator"><span>或者</span></div>
+
+            <button class="upload-button" id="uploadBtn" type="button">
+              <svg viewBox="0 0 22 22" aria-hidden="true">
+                <path d="M11 15V3m0 0L7 7m4-4 4 4M4 13v5h14v-5" />
+              </svg>
+              <span>
+                <strong>上传人声音频</strong>
+                <small>MP3、WAV、M4A，最长 45 秒</small>
+              </span>
+              <b>＋</b>
+            </button>
+            <input id="audioInput" type="file" accept="audio/*" hidden />
+
+            <div class="source-player" id="sourcePlayer">
+              <div class="source-player-head">
+                <span class="source-file-icon">
+                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                    <path d="M6 2.5h5l3 3v12H6v-15Zm5 0v3h3M8.5 9v4.2a1.7 1.7 0 1 0 1 .9V8l3-.8v3.9a1.7 1.7 0 1 0 1 .9V5.5" />
+                  </svg>
+                </span>
+                <span class="source-file-copy">
+                  <strong id="sourceFileName">我的哼唱</strong>
+                  <small id="sourceFileMeta">已准备好</small>
+                </span>
+                <button class="source-delete" id="sourceDeleteBtn" type="button" aria-label="移除录音">×</button>
+              </div>
+              <audio id="sourceAudio" preload="metadata"></audio>
+              <button class="source-play" id="sourcePlayBtn" type="button" aria-label="播放原始人声">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m5 3 8 5-8 5V3Z" /></svg>
+              </button>
+            </div>
+
+            <ol class="processing-steps" id="processingSteps">
+              <li class="active"><i></i><span>收集声音</span><b>01</b></li>
+              <li><i></i><span>追踪音高</span><b>02</b></li>
+              <li><i></i><span>识别调性</span><b>03</b></li>
+            </ol>
+          </aside>
+          </section>
+
+          <section class="lower-deck">
+          <div class="instrument-shelf">
+            <div class="shelf-heading">
+              <div>
+                <p class="eyebrow"><span>ORCHESTRATE</span> / 编曲配器</p>
+                <h2>为旋律换一件外衣</h2>
+              </div>
+              <p>同一段哼唱，六种表达。选择音色后点击播放即可试听。</p>
+            </div>
+            <div class="instrument-cards" id="instrumentCards"></div>
+          </div>
+
+          <aside class="analysis-panel" id="analysisPanel">
+            <div class="analysis-topline">
+              <span>MELODY ANALYSIS</span>
+              <span class="analysis-status" id="analysisStatus">等待分析</span>
+            </div>
+            <div class="key-display">
+              <span id="keyName">—</span>
+              <div>
+                <strong id="scaleName">调性与音阶将在这里出现</strong>
+                <small id="keyFriendly">唱得越稳定，识别越准确</small>
+              </div>
+            </div>
+            <div class="scale-notes" id="scaleNotes">
+              <span>—</span><span>—</span><span>—</span><span>—</span><span>—</span><span>—</span><span>—</span>
+            </div>
+            <div class="analysis-stats">
+              <div><strong id="noteCount">0</strong><span>音符</span></div>
+              <div><strong id="rangeStat">—</strong><span>音域</span></div>
+              <div><strong id="confidenceStat">—</strong><span>可信度</span></div>
+            </div>
+            <div class="analysis-footer">
+              <span>相近调性</span>
+              <strong id="relatedKey">等待旋律</strong>
+            </div>
+          </aside>
+          </section>
+        </section>
+
+        <section class="view-panel works-view" id="worksView" aria-labelledby="worksTitle" hidden>
+          <header class="collection-heading">
+            <div>
+              <p class="eyebrow"><span>YOUR LIBRARY</span> / LOCAL PROJECTS</p>
+              <h1 id="worksTitle">每一段旋律，<em>都有回声。</em></h1>
+              <p class="lede">作品保存在这台设备的浏览器中。打开作品，换一种音色继续完成它。</p>
+            </div>
+            <div class="collection-actions">
+              <button class="outline-action" id="worksNewBtn" type="button">＋ 新建作品</button>
+              <button class="solid-action" id="worksSaveBtn" type="button">保存当前旋律</button>
+            </div>
+          </header>
+
+          <section class="library-stats" aria-label="作品统计">
+            <div><span>作品总数</span><strong id="projectTotal">00</strong><small>PROJECTS</small></div>
+            <div><span>累计音符</span><strong id="projectNotesTotal">000</strong><small>NOTES</small></div>
+            <div><span>最近编辑</span><strong id="projectLatest">—</strong><small>LAST EDITED</small></div>
+            <div class="library-stats-note">
+              <i></i>
+              <span id="libraryStorageCopy">未连接云端<br /><small>登录后可跨设备同步作品</small></span>
+            </div>
+          </section>
+
+          <section class="library-panel">
+            <div class="library-toolbar">
+              <div class="project-filters" aria-label="作品筛选">
+                <button class="active" type="button" data-project-filter="all">全部</button>
+                <button type="button" data-project-filter="major">大调</button>
+                <button type="button" data-project-filter="minor">小调</button>
+              </div>
+              <label class="project-search">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <circle cx="8.5" cy="8.5" r="5.5" />
+                  <path d="m13 13 4 4" />
+                </svg>
+                <input id="projectSearch" type="search" placeholder="搜索作品名称、调性或音色" />
+              </label>
+            </div>
+
+            <div class="project-grid" id="projectGrid"></div>
+
+            <div class="project-empty" id="projectEmpty">
+              <span class="empty-record" aria-hidden="true"><i></i></span>
+              <p class="eyebrow"><span>NOTHING HERE YET</span> / FIRST TAKE</p>
+              <h2>第一首作品，<br />还在你的脑海里。</h2>
+              <p>录制一段哼唱或载入示例，识别完成后就能将它保存到这里。</p>
+              <div class="empty-actions">
+                <button class="solid-action" id="emptyBackBtn" type="button">去创作台</button>
+                <button class="outline-action" id="emptyDemoBtn" type="button">载入示例旋律</button>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="view-panel lab-view" id="labView" aria-labelledby="labTitle" hidden>
+          <header class="lab-heading">
+            <div>
+              <p class="eyebrow"><span>SOUND LAB</span> / PLAY &amp; SHAPE</p>
+              <h1 id="labTitle">先找到那个，<em>你听见的声音。</em></h1>
+              <p class="lede">选一件乐器，触碰键盘，再改变它的起音、亮度与空间。所有实验即时发声。</p>
+            </div>
+            <div class="lab-status">
+              <span><i></i> ENGINE ONLINE</span>
+              <small>实时合成 · 48 kHz</small>
+            </div>
+          </header>
+
+          <section class="lab-deck">
+            <aside class="lab-browser">
+              <div class="lab-panel-heading">
+                <span>乐器机架</span>
+                <small>INSTRUMENTS</small>
+              </div>
+              <div class="lab-instrument-list" id="labInstrumentList" role="listbox"></div>
+              <div class="lab-browser-tip">
+                <span>⌘</span>
+                <p>可以用键盘 <b>A–K</b> 演奏<br />空格试听一段琶音</p>
+              </div>
+            </aside>
+
+            <section class="lab-main">
+              <header class="lab-main-heading">
+                <div>
+                  <span id="labPresetName">夜航电吉他</span>
+                  <small id="labPresetMeta">ELECTRIC · WARM DRIVE</small>
+                </div>
+                <button class="lab-reset" id="labResetBtn" type="button">重置参数</button>
+              </header>
+
+              <div class="lab-scope">
+                <canvas id="labCanvas" aria-label="实时音色波形"></canvas>
+                <div class="scope-grid" aria-hidden="true"></div>
+                <span class="scope-label">LIVE OSCILLOSCOPE</span>
+                <div class="lab-note-readout" id="labNoteReadout">
+                  <strong>—</strong>
+                  <span>PRESS A KEY</span>
+                </div>
+              </div>
+
+              <div class="lab-keyboard-wrap">
+                <div class="keyboard-hint">
+                  <span>演奏键盘</span>
+                  <small>C4 — C5</small>
+                </div>
+                <div class="piano-keyboard" id="labKeyboard"></div>
+              </div>
+
+              <footer class="lab-transport">
+                <button class="lab-play-button" id="labArpBtn" type="button">
+                  <span>
+                    <svg viewBox="0 0 22 22" aria-hidden="true"><path d="m7 4 11 7-11 7V4Z" /></svg>
+                  </span>
+                  <span>
+                    <strong>试听琶音</strong>
+                    <small>SPACE</small>
+                  </span>
+                </button>
+                <div class="lab-now-playing">
+                  <span id="labStatusText">等待你的第一次触碰</span>
+                  <div class="lab-mini-meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                </div>
+                <button class="lab-save" id="labSavePresetBtn" type="button">
+                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                    <path d="M4 3.5h10.5l1.5 1.5v11H4v-12.5ZM7 3.5v4h6v-4M7 16v-5h6v5" />
+                  </svg>
+                  保存音色
+                </button>
+              </footer>
+            </section>
+
+            <aside class="lab-controls">
+              <div class="lab-panel-heading">
+                <span>声音塑形</span>
+                <small>ENVELOPE &amp; TONE</small>
+              </div>
+
+              <div class="control-section">
+                <span class="control-section-title">音量包络 <b>ADSR</b></span>
+                <label class="lab-slider">
+                  <span><b>起音</b><output id="attackValue">28 ms</output></span>
+                  <input id="attackControl" type="range" min="5" max="1200" value="28" />
+                </label>
+                <label class="lab-slider">
+                  <span><b>衰减</b><output id="decayValue">260 ms</output></span>
+                  <input id="decayControl" type="range" min="20" max="2000" value="260" />
+                </label>
+                <label class="lab-slider">
+                  <span><b>持续</b><output id="sustainValue">42%</output></span>
+                  <input id="sustainControl" type="range" min="5" max="100" value="42" />
+                </label>
+                <label class="lab-slider">
+                  <span><b>释音</b><output id="releaseValue">700 ms</output></span>
+                  <input id="releaseControl" type="range" min="80" max="3500" value="700" />
+                </label>
+              </div>
+
+              <div class="control-section">
+                <span class="control-section-title">声音质地 <b>TEXTURE</b></span>
+                <label class="lab-slider">
+                  <span><b>亮度</b><output id="brightnessValue">2.8 kHz</output></span>
+                  <input id="brightnessControl" type="range" min="300" max="9000" value="2800" />
+                </label>
+                <label class="lab-slider">
+                  <span><b>空间</b><output id="spaceValue">18%</output></span>
+                  <input id="spaceControl" type="range" min="0" max="100" value="18" />
+                </label>
+                <label class="lab-slider">
+                  <span><b>驱动</b><output id="driveValue">12%</output></span>
+                  <input id="driveControl" type="range" min="0" max="100" value="12" />
+                </label>
+              </div>
+
+              <div class="lab-params-note">
+                <span>实验小贴士</span>
+                <p>把弦乐的“起音”拉长，会有更辽阔的呼吸感；合成器提高“驱动”则会得到更明亮的边缘。</p>
+              </div>
+            </aside>
+          </section>
+
+          <section class="lab-presets-section">
+            <div class="lab-presets-heading">
+              <div>
+                <p class="eyebrow"><span>STARTING POINTS</span> / PRESETS</p>
+                <h2>从一种情绪出发</h2>
+              </div>
+              <p>点击预设会载入对应的乐器与参数，再继续往你的方向调整。</p>
+            </div>
+            <div class="lab-preset-grid" id="labPresetGrid"></div>
+          </section>
+
+          <section class="my-patches-section">
+            <div class="my-patches-heading">
+              <div>
+                <p class="eyebrow"><span>MY SOUNDS</span> / SAVED PATCHES</p>
+                <h2>我的音色</h2>
+              </div>
+              <p>保存后的音色会同时出现在创作台和编曲台的音色列表中。</p>
+            </div>
+            <div class="my-patch-grid" id="myPatchGrid"></div>
+            <div class="my-patch-empty" id="myPatchEmpty">
+              还没有保存的音色。调整上方参数后，点击“保存音色”。
+            </div>
+          </section>
+        </section>
+
+        <section class="view-panel arrangement-view" id="arrangementView" aria-labelledby="arrangementTitle" hidden>
+          <header class="arrangement-heading">
+            <div>
+              <p class="eyebrow"><span>ARRANGEMENT</span> / MULTI-TRACK SESSION</p>
+              <h1 id="arrangementTitle">把旋律，<em>放进时间里。</em></h1>
+              <p class="lede">从主旋律开始叠加声部。每条音轨可以独立选择音色、静音、独奏和调整音量。</p>
+            </div>
+            <div class="arrangement-actions">
+              <button class="outline-action" id="arrangeAutoFillBtn" type="button">智能配器</button>
+              <button class="solid-action" id="addTrackBtn" type="button">＋ 添加音轨</button>
+            </div>
+          </header>
+
+          <section class="arrangement-console">
+            <header class="arrangement-toolbar">
+              <div class="arrangement-transport">
+                <button class="play-button" id="arrangePlayBtn" type="button" aria-label="播放编曲">
+                  <svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M8.5 5.3 19 12 8.5 18.7V5.3Z" />
+                  </svg>
+                  <svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M8 5h3v14H8zm5 0h3v14h-3z" />
+                  </svg>
+                </button>
+                <div class="arrangement-time-readout">
+                  <strong id="arrangeTime">00:00.0</strong>
+                  <span id="arrangeStatus">等待播放</span>
+                </div>
+              </div>
+              <div class="arrangement-toolbar-center">
+                <label class="tempo-control arrangement-tempo">
+                  <span>速度</span>
+                  <input id="arrangementTempoInput" type="number" value="84" min="50" max="160" step="1" aria-label="编曲速度 BPM" />
+                  <small>BPM</small>
+                </label>
+                <button class="ghost-button" id="arrangeMetronomeBtn" type="button" aria-pressed="false">
+                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                    <path d="M7 3h6l3 14H4L7 3Zm0 8h6M10 3l-2 8" />
+                  </svg>
+                  节拍器
+                </button>
+              </div>
+              <div class="arrangement-summary">
+                <span><b id="arrangementTrackCount">0</b> 音轨</span>
+                <span><b id="arrangementNoteCount">0</b> 音符</span>
+                <span><b id="arrangementLength">00:12</b> 长度</span>
+              </div>
+            </header>
+
+            <div class="arrangement-editor">
+              <aside class="arrangement-track-side">
+                <div class="arrangement-ruler-head">
+                  <span>音轨</span>
+                  <small>MIXER</small>
+                </div>
+                <div class="arrangement-track-headers" id="arrangementTrackHeaders"></div>
+              </aside>
+              <div class="arrangement-timeline">
+                <div class="arrangement-ruler" id="arrangementRuler"></div>
+                <div class="arrangement-lanes" id="arrangementLanes"></div>
+                <div class="arrangement-playhead" id="arrangementPlayhead"></div>
+                <div class="arrangement-empty" id="arrangementEmpty">
+                  <strong>还没有音轨</strong>
+                  <p>从当前哼唱创建第一条主旋律轨，再叠和其他声部。</p>
+                  <button class="solid-action" id="arrangementEmptyAddBtn" type="button">添加第一条音轨</button>
+                </div>
+              </div>
+            </div>
+
+            <footer class="arrangement-footer">
+              <p><i></i> 编曲会随项目保存在当前浏览器</p>
+              <button class="text-button" id="arrangeBackStudioBtn" type="button">返回创作台继续调整旋律 ↗</button>
+            </footer>
+          </section>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <span>MELD / 让旋律先被听见</span>
+        <span>所有声音均在你的浏览器中处理</span>
+        <span>SPACE 播放 · R 录音</span>
+      </footer>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <dialog class="help-dialog" id="helpDialog">
+      <button class="dialog-close" id="helpCloseBtn" type="button" aria-label="关闭">×</button>
+      <p class="eyebrow"><span>HOW IT WORKS</span> / 30 SECONDS</p>
+      <h2>从一句哼唱开始</h2>
+      <ol>
+        <li><b>01</b><span><strong>捕捉</strong>点击录音键哼唱 5–20 秒，或上传已有的人声音频。</span></li>
+        <li><b>02</b><span><strong>识别</strong>音高曲线会实时出现；停止后自动计算主音、调式和音阶。</span></li>
+        <li><b>03</b><span><strong>配器</strong>选择六种乐器中的任意一种，试听、调整速度、导出 MIDI。</span></li>
+      </ol>
+      <p class="dialog-tip">提示：用“嘟”或“啦”保持单音哼唱，识别效果最好。建议佩戴耳机以避免伴奏串音。</p>
+    </dialog>
+
+    <dialog class="project-dialog" id="projectDialog">
+      <button class="dialog-close" id="projectDialogCloseBtn" type="button" aria-label="关闭">×</button>
+      <p class="eyebrow"><span>SAVE PROJECT</span> / LOCAL LIBRARY</p>
+      <h2 id="projectDialogTitle">保存这段旋律</h2>
+      <form id="projectForm">
+        <label>
+          <span>作品名称</span>
+          <input id="projectNameInput" type="text" maxlength="42" placeholder="给这段旋律一个名字" required />
+        </label>
+        <label>
+          <span>创作备注 <small>可选</small></span>
+          <textarea id="projectMemoInput" maxlength="140" placeholder="记录灵感、编曲方向或下一次想尝试的声音…"></textarea>
+        </label>
+        <div class="project-form-summary" id="projectFormSummary"></div>
+        <div class="dialog-actions">
+          <button class="outline-action" id="projectCancelBtn" type="button">取消</button>
+          <button class="solid-action" type="submit" id="projectSubmitBtn">保存到我的作品</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="delete-dialog" id="deleteDialog">
+      <span class="delete-icon" aria-hidden="true">×</span>
+      <p class="eyebrow"><span>REMOVE PROJECT</span> / PLEASE CONFIRM</p>
+      <h2 id="deleteDialogTitle">移除这首作品？</h2>
+      <p id="deleteDialogCopy">作品会从当前浏览器中删除，此操作无法撤销。</p>
+      <div class="dialog-actions">
+        <button class="outline-action" id="deleteCancelBtn" type="button">保留作品</button>
+        <button class="danger-action" id="deleteConfirmBtn" type="button">确认移除</button>
+      </div>
+    </dialog>
+
+    <dialog class="project-dialog patch-dialog" id="patchDialog">
+      <button class="dialog-close" id="patchDialogCloseBtn" type="button" aria-label="关闭">×</button>
+      <p class="eyebrow"><span>SAVE SOUND</span> / CUSTOM PATCH</p>
+      <h2>保存这个音色</h2>
+      <form id="patchForm">
+        <label>
+          <span>音色名称</span>
+          <input id="patchNameInput" type="text" maxlength="32" placeholder="例如：雾中的电吉他" required />
+        </label>
+        <div class="project-form-summary" id="patchFormSummary"></div>
+        <div class="dialog-actions">
+          <button class="outline-action" id="patchCancelBtn" type="button">取消</button>
+          <button class="solid-action" type="submit">保存并同步</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="track-dialog" id="trackDialog">
+      <button class="dialog-close" id="trackDialogCloseBtn" type="button" aria-label="关闭">×</button>
+      <p class="eyebrow"><span>ADD TRACK</span> / CHOOSE INSTRUMENT</p>
+      <h2>添加一条音轨</h2>
+      <p class="track-dialog-copy">音轨会复制当前主旋律，之后可在编曲台独立调整。</p>
+      <div class="track-instrument-choices" id="trackInstrumentChoices"></div>
+    </dialog>
+
+    <dialog class="auth-dialog" id="authDialog">
+      <button class="dialog-close" id="authCloseBtn" type="button" aria-label="关闭">×</button>
+      <p class="eyebrow"><span>CLOUD SYNC</span> / YOUR ACCOUNT</p>
+      <h2 id="authTitle">登录 MELD</h2>
+      <p class="auth-copy" id="authCopy">登录后，作品、编曲和自定义音色会同步到你的云端账户。</p>
+      <div class="auth-tabs">
+        <button class="active" type="button" data-auth-mode="login">登录</button>
+        <button type="button" data-auth-mode="signup">创建账户</button>
+      </div>
+      <form id="authForm">
+        <label>
+          <span>邮箱</span>
+          <input id="authEmailInput" type="email" autocomplete="email" placeholder="you@example.com" required />
+        </label>
+        <label>
+          <span>密码</span>
+          <input id="authPasswordInput" type="password" autocomplete="current-password" minlength="6" placeholder="至少 6 位字符" required />
+        </label>
+        <p class="auth-message" id="authMessage"></p>
+        <div class="dialog-actions">
+          <button class="outline-action" id="authCancelBtn" type="button">稍后</button>
+          <button class="solid-action" type="submit" id="authSubmitBtn">登录并同步</button>
+        </div>
+      </form>
+      <p class="auth-footnote">项目数据会存储在 Supabase 云端。浏览器仅保留当前登录会话，不保存作品内容。</p>
+      <button class="text-button auth-logout" id="authLogoutBtn" type="button" hidden>退出当前账户</button>
+    </dialog>
+
+    <script src="cloud-config.js?v=20261023-14"></script>
+    <script src="cloud.js?v=20261023-14"></script>
+    <script src="app.js?v=20261023-14"></script>
+  </body>
+</html>
