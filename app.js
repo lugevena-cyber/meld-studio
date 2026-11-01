@@ -473,13 +473,18 @@ const els = {
   arrangeStatus: document.getElementById("arrangeStatus"),
   arrangementTempoInput: document.getElementById("arrangementTempoInput"),
   arrangeMetronomeBtn: document.getElementById("arrangeMetronomeBtn"),
+  arrangeLoopBtn: document.getElementById("arrangeLoopBtn"),
   arrangementTrackCount: document.getElementById("arrangementTrackCount"),
   arrangementNoteCount: document.getElementById("arrangementNoteCount"),
+  arrangementKey: document.getElementById("arrangementKey"),
   arrangementLength: document.getElementById("arrangementLength"),
   arrangementTrackHeaders: document.getElementById("arrangementTrackHeaders"),
   arrangementRuler: document.getElementById("arrangementRuler"),
   arrangementLanes: document.getElementById("arrangementLanes"),
   arrangementPlayhead: document.getElementById("arrangementPlayhead"),
+  arrangementLoopRegion: document.getElementById("arrangementLoopRegion"),
+  arrangementLoopLabel: document.getElementById("arrangementLoopLabel"),
+  arrangementHint: document.getElementById("arrangementHint"),
   arrangementEmpty: document.getElementById("arrangementEmpty"),
   arrangementEmptyAddBtn: document.getElementById("arrangementEmptyAddBtn"),
   addTrackBtn: document.getElementById("addTrackBtn"),
@@ -533,6 +538,10 @@ let arrangement = {
   bpm: 84,
   baseBpm: 84,
   duration: 12,
+  key: null,
+  loopEnabled: false,
+  loopStart: 0,
+  loopEnd: 8.2,
   isPlaying: false,
   startTime: 0,
   playhead: 0,
@@ -1190,6 +1199,10 @@ function clearSessionData(fullReset = true) {
   arrangement.tracks = [];
   arrangement.duration = 12;
   arrangement.playhead = 0;
+  arrangement.loopEnabled = false;
+  arrangement.loopStart = 0;
+  arrangement.loopEnd = 8.2;
+  arrangement.key = null;
   try {
     localStorage.removeItem(ARRANGEMENT_STORAGE_KEY);
   } catch {
@@ -3146,6 +3159,9 @@ function handleProjectFormSubmit(event) {
     })),
     arrangementBpm: arrangement.bpm,
     arrangementBaseBpm: arrangement.baseBpm,
+    arrangementLoopEnabled: arrangement.loopEnabled,
+    arrangementLoopStart: arrangement.loopStart,
+    arrangementLoopEnd: arrangement.loopEnd,
     sourceName: state.sourceName || "哼唱旋律",
     createdAt: existing?.createdAt || Date.now(),
     updatedAt: Date.now(),
@@ -3224,6 +3240,12 @@ function openSavedProject(projectId) {
   arrangement.bpm = Number(project.arrangementBpm) || Number(project.tempo) || 84;
   arrangement.baseBpm =
     Number(project.arrangementBaseBpm) || Number(project.tempo) || arrangement.bpm;
+  arrangement.loopEnabled = Boolean(project.arrangementLoopEnabled);
+  arrangement.loopStart = Math.max(0, Number(project.arrangementLoopStart) || 0);
+  arrangement.loopEnd = Math.max(
+    arrangement.loopStart + arrangementBarDuration(),
+    Number(project.arrangementLoopEnd) || arrangement.loopStart + arrangementBarDuration() * 4
+  );
   arrangement.duration = Math.max(12, state.duration);
   persistArrangement();
   updateAnalysisUI(project.key, state.notes, state.duration);
@@ -4074,6 +4096,16 @@ function loadArrangement() {
         Math.min(160, Number(stored.baseBpm || stored.bpm) || arrangement.bpm)
       );
       arrangement.duration = Math.max(8, Number(stored.duration) || 12);
+      arrangement.key = stored.key || null;
+      arrangement.loopEnabled = Boolean(stored.loopEnabled);
+      arrangement.loopStart = Math.max(0, Number(stored.loopStart) || 0);
+      arrangement.loopEnd = Math.min(
+        arrangement.duration,
+        Math.max(
+          arrangement.loopStart + 1,
+          Number(stored.loopEnd) || Math.min(arrangement.duration, arrangement.loopStart + 8.2)
+        )
+      );
     }
   } catch {
     arrangement.tracks = [];
@@ -4089,6 +4121,10 @@ function persistArrangement() {
     bpm: arrangement.bpm,
     baseBpm: arrangement.baseBpm,
     duration: arrangement.duration,
+    key: state.key || arrangement.key,
+    loopEnabled: arrangement.loopEnabled,
+    loopStart: arrangement.loopStart,
+    loopEnd: arrangement.loopEnd,
     updatedAt: Date.now(),
   };
   if (cloudEnabled) {
@@ -4098,6 +4134,9 @@ function persistArrangement() {
         project.arrangement = payload.tracks;
         project.arrangementBpm = arrangement.bpm;
         project.arrangementBaseBpm = arrangement.baseBpm;
+        project.arrangementLoopEnabled = arrangement.loopEnabled;
+        project.arrangementLoopStart = arrangement.loopStart;
+        project.arrangementLoopEnd = arrangement.loopEnd;
         project.updatedAt = Date.now();
         persistProjects();
       }
@@ -4152,6 +4191,17 @@ function calculateArrangementDuration() {
     )
   );
   arrangement.duration = Math.max(12, Math.ceil((maxEnd + 1.5) / 4) * 4);
+  const barDuration = (4 * 60) / Math.max(50, arrangement.baseBpm);
+  if (
+    !Number.isFinite(arrangement.loopEnd) ||
+    arrangement.loopEnd <= arrangement.loopStart + 0.1 ||
+    arrangement.loopEnd > arrangement.duration
+  ) {
+    arrangement.loopEnd = Math.min(
+      arrangement.duration,
+      arrangement.loopStart + barDuration * 4
+    );
+  }
   return arrangement.duration;
 }
 
@@ -4162,6 +4212,11 @@ function trackWaveSvg(track, duration) {
   const spread = Math.max(8, maxMidi - minMidi);
   const x = (time) => 8 + (time / duration) * 984;
   const y = (midi) => 47 - ((midi - minMidi) / spread) * 34;
+  const analysisKey = state.key || arrangement.key;
+  const useFlats = analysisKey ? usesFlatSpelling(analysisKey) : false;
+  const scalePitchClasses = analysisKey
+    ? new Set(SCALE_STEPS[analysisKey.mode].map((step) => (analysisKey.tonic + step) % 12))
+    : new Set();
   const path = track.notes
     .map((note, index) => {
       const x1 = x(note.start);
@@ -4170,16 +4225,39 @@ function trackWaveSvg(track, duration) {
       return `${index === 0 ? "M" : "L"} ${x1.toFixed(1)} ${noteY.toFixed(1)} L ${x2.toFixed(1)} ${noteY.toFixed(1)}`;
     })
     .join(" ");
-  const circles = track.notes
-    .map(
-      (note) =>
-        `<circle cx="${x(note.start).toFixed(1)}" cy="${y(note.midi).toFixed(1)}" r="2.2" />`
-    )
+  const notes = track.notes
+    .map((note) => {
+      const x1 = x(note.start);
+      const x2 = x(note.start + note.duration);
+      const noteY = y(note.midi);
+      const labelY = Math.max(8, Math.min(49, noteY - 4));
+      const pitchClass = ((Math.round(note.midi) % 12) + 12) % 12;
+      const inScale = !analysisKey || scalePitchClasses.has(pitchClass);
+      const noteInfo = noteNameFromMidi(note.midi, useFlats);
+      const drumLabels = { 36: "Kick", 38: "Snare", 39: "Clap", 42: "Hat", 46: "Open" };
+      const label =
+        track.instrument === "drums"
+          ? drumLabels[Math.round(note.midi)] || "Perc"
+          : `${noteInfo.name}${noteInfo.octave}`;
+      const noteColor = track.instrument === "drums"
+        ? track.color
+        : inScale
+          ? track.color
+          : "#ff8055";
+      return `
+        <g class="arrange-note ${inScale ? "in-scale" : "chromatic"}">
+          <title>${escapeHtml(label)} · ${formatTime(note.start, true)}</title>
+          <line x1="${x1.toFixed(1)}" y1="${noteY.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${noteY.toFixed(1)}" style="--note-color:${noteColor}" />
+          <circle cx="${x1.toFixed(1)}" cy="${noteY.toFixed(1)}" r="2.15" style="--note-color:${noteColor}" />
+          <text x="${((x1 + x2) / 2).toFixed(1)}" y="${labelY.toFixed(1)}" style="--note-color:${noteColor}">${escapeHtml(label)}</text>
+        </g>
+      `;
+    })
     .join("");
   return `
     <svg class="arrange-clip-wave" viewBox="0 0 1000 54" preserveAspectRatio="none" aria-hidden="true">
       <path d="${path}" />
-      <g>${circles}</g>
+      ${notes}
     </svg>
   `;
 }
@@ -4238,6 +4316,84 @@ function autoArrangeTracks() {
   showToast("已生成主旋律、和声与低音三个声部");
 }
 
+function arrangementBarDuration() {
+  return (4 * 60) / Math.max(50, arrangement.baseBpm);
+}
+
+function snapArrangementTime(time) {
+  const barDuration = arrangementBarDuration();
+  return Math.max(
+    0,
+    Math.min(
+      arrangement.duration,
+      Math.round(time / barDuration) * barDuration
+    )
+  );
+}
+
+function updateArrangementLoopUI() {
+  if (!els.arrangementLoopRegion) return;
+  const duration = Math.max(0.1, arrangement.duration);
+  const start = Math.max(0, Math.min(duration - 0.1, arrangement.loopStart));
+  const end = Math.max(start + 0.1, Math.min(duration, arrangement.loopEnd));
+  const left = (start / duration) * 100;
+  const width = ((end - start) / duration) * 100;
+  els.arrangementLoopRegion.style.left = `${left}%`;
+  els.arrangementLoopRegion.style.width = `${width}%`;
+  els.arrangementLoopRegion.classList.toggle("disabled", !arrangement.loopEnabled);
+  els.arrangeLoopBtn.setAttribute("aria-pressed", String(arrangement.loopEnabled));
+  els.arrangeLoopBtn.classList.toggle("active", arrangement.loopEnabled);
+  const barDuration = arrangementBarDuration();
+  const startBar = Math.floor(start / barDuration + 0.001) + 1;
+  const endBar = Math.max(
+    startBar,
+    Math.ceil(end / barDuration - 0.001)
+  );
+  els.arrangementLoopLabel.textContent = `${startBar}–${endBar} 小节 · ${formatTime(end - start)}`;
+  els.arrangementHint.textContent = arrangement.loopEnabled
+    ? `循环 ${startBar}–${endBar} 小节 · 拖动时间尺可重新框选`
+    : "拖动时间尺选择循环乐段 · 音符标签显示调内音高";
+}
+
+function setArrangementLoop(startTime, endTime, enable = true) {
+  const barDuration = arrangementBarDuration();
+  const start = Math.max(0, Math.min(arrangement.duration - barDuration, snapArrangementTime(startTime)));
+  const minimumEnd = Math.min(arrangement.duration, start + barDuration);
+  const end = Math.max(minimumEnd, Math.min(arrangement.duration, snapArrangementTime(endTime)));
+  arrangement.loopStart = start;
+  arrangement.loopEnd = end;
+  arrangement.loopEnabled = enable;
+  persistArrangement();
+  updateArrangementLoopUI();
+  if (arrangement.isPlaying) {
+    stopArrangementPlayback(false);
+    playArrangement();
+  }
+}
+
+function toggleArrangementLoop() {
+  if (!arrangement.loopEnabled) {
+    const barDuration = arrangementBarDuration();
+    const start = Math.min(
+      arrangement.duration - barDuration,
+      snapArrangementTime(arrangement.playhead || 0)
+    );
+    arrangement.loopStart = Math.max(0, start);
+    arrangement.loopEnd = Math.min(
+      arrangement.duration,
+      Math.max(arrangement.loopStart + barDuration, arrangement.loopStart + barDuration * 4)
+    );
+  }
+  arrangement.loopEnabled = !arrangement.loopEnabled;
+  persistArrangement();
+  updateArrangementLoopUI();
+  if (arrangement.isPlaying) {
+    stopArrangementPlayback(false);
+    playArrangement();
+  }
+  showToast(arrangement.loopEnabled ? "循环乐段已开启" : "循环乐段已关闭");
+}
+
 function renderArrangement() {
   if (!els.arrangementTrackHeaders) return;
   const duration = calculateArrangementDuration();
@@ -4248,11 +4404,16 @@ function renderArrangement() {
   els.arrangementLength.textContent = formatTime(duration * tempoScale);
   els.arrangementTempoInput.value = String(arrangement.bpm);
   els.arrangementEmpty.hidden = arrangement.tracks.length > 0;
+  const analysisKey = state.key || arrangement.key;
+  els.arrangementKey.textContent = analysisKey
+    ? `${NOTE_NAMES[analysisKey.tonic]}${analysisKey.mode === "major" ? "" : "m"}`
+    : "—";
 
-  const ticks = 8;
-  els.arrangementRuler.innerHTML = Array.from({ length: ticks + 1 }, (_, index) => {
-    const time = (duration * index) / ticks;
-    return `<span style="left:${(index / ticks) * 100}%"><b>${index + 1}</b><small>${formatTime(time)}</small></span>`;
+  const barDuration = arrangementBarDuration();
+  const barCount = Math.max(1, Math.ceil(duration / barDuration));
+  els.arrangementRuler.innerHTML = Array.from({ length: barCount + 1 }, (_, index) => {
+    const time = Math.min(duration, index * barDuration);
+    return `<span style="left:${(time / duration) * 100}%"><b>${index + 1}</b><small>${formatTime(time)}</small></span>`;
   }).join("");
 
   els.arrangementTrackHeaders.innerHTML = arrangement.tracks
@@ -4299,6 +4460,7 @@ function renderArrangement() {
       `
     )
     .join("");
+  updateArrangementLoopUI();
   updateArrangementPlayhead(arrangement.playhead);
 }
 
@@ -4493,42 +4655,59 @@ function playArrangement() {
   const context = getAudioContext();
   const startAt = context.currentTime + 0.08;
   const speedScale = arrangement.baseBpm / arrangement.bpm;
+  const playStart = arrangement.loopEnabled
+    ? Math.max(0, Math.min(arrangement.duration, arrangement.loopStart))
+    : 0;
+  const playEnd = arrangement.loopEnabled
+    ? Math.max(playStart + 0.1, Math.min(arrangement.duration, arrangement.loopEnd))
+    : arrangement.duration;
   activeTracks.forEach((track) => {
     track.notes.forEach((note) => {
+      const noteStart = Math.max(note.start, playStart);
+      const noteEnd = Math.min(note.start + note.duration, playEnd);
+      if (noteEnd <= noteStart) return;
       scheduleArrangementTrackNote(
         track,
         {
           ...note,
-          start: note.start * speedScale,
-          duration: note.duration * speedScale,
+          start: (noteStart - playStart) * speedScale,
+          duration: (noteEnd - noteStart) * speedScale,
         },
-        startAt + note.start * speedScale
+        startAt + (noteStart - playStart) * speedScale
       );
     });
   });
   arrangement.isPlaying = true;
   arrangement.startTime = performance.now();
-  arrangement.playhead = 0;
+  arrangement.playhead = playStart;
   els.arrangePlayBtn.classList.add("is-playing");
   els.arrangePlayBtn.setAttribute("aria-label", "暂停编曲");
-  els.arrangeStatus.textContent = `${activeTracks.length} 条音轨正在播放`;
+  const loopLength = Math.max(0.1, playEnd - playStart);
+  els.arrangeStatus.textContent = arrangement.loopEnabled
+    ? `循环播放 · ${activeTracks.length} 条音轨`
+    : `${activeTracks.length} 条音轨正在播放`;
+  updateArrangementPlayhead(playStart);
 
   const tick = () => {
     if (!arrangement.isPlaying) return;
-    const elapsed =
-      ((performance.now() - arrangement.startTime) / 1000) / speedScale;
-    updateArrangementPlayhead(elapsed);
-    if (elapsed < arrangement.duration) {
+    const elapsed = (performance.now() - arrangement.startTime) / 1000 / speedScale;
+    const logicalTime = playStart + (arrangement.loopEnabled ? elapsed % loopLength : elapsed);
+    updateArrangementPlayhead(logicalTime);
+    if (arrangement.loopEnabled || elapsed < playEnd - playStart) {
       arrangement.raf = requestAnimationFrame(tick);
     } else {
       stopArrangementPlayback();
     }
   };
   arrangement.raf = requestAnimationFrame(tick);
-  arrangement.endTimer = window.setTimeout(
-    () => stopArrangementPlayback(),
-    arrangement.duration * speedScale * 1000 + 300
-  );
+  arrangement.endTimer = window.setTimeout(() => {
+    if (arrangement.loopEnabled && arrangement.isPlaying) {
+      stopArrangementPlayback(false);
+      playArrangement();
+    } else {
+      stopArrangementPlayback();
+    }
+  }, loopLength * speedScale * 1000 + 40);
 }
 
 function toggleView(view) {
@@ -4736,7 +4915,58 @@ function setupEventListeners() {
   });
   els.arrangePlayBtn.addEventListener("click", playArrangement);
   els.arrangeAutoFillBtn.addEventListener("click", autoArrangeTracks);
+  els.arrangeLoopBtn.addEventListener("click", toggleArrangementLoop);
   els.arrangeBackStudioBtn.addEventListener("click", () => switchView("studio"));
+  let loopDrag = null;
+  const loopTimeFromPointer = (event) => {
+    const rect = els.arrangementRuler.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+    return ratio * arrangement.duration;
+  };
+  els.arrangementRuler.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    const anchor = snapArrangementTime(loopTimeFromPointer(event));
+    loopDrag = { anchor, moved: false };
+    arrangement.loopStart = anchor;
+    arrangement.loopEnd = Math.min(
+      arrangement.duration,
+      anchor + arrangementBarDuration()
+    );
+    els.arrangementRuler.setPointerCapture?.(event.pointerId);
+    updateArrangementLoopUI();
+  });
+  els.arrangementRuler.addEventListener("pointermove", (event) => {
+    if (!loopDrag) return;
+    const current = snapArrangementTime(loopTimeFromPointer(event));
+    if (current !== loopDrag.anchor) loopDrag.moved = true;
+    arrangement.loopStart = Math.min(loopDrag.anchor, current);
+    arrangement.loopEnd = Math.max(
+      arrangement.loopStart + arrangementBarDuration(),
+      Math.max(loopDrag.anchor, current)
+    );
+    arrangement.loopEnd = Math.min(arrangement.duration, arrangement.loopEnd);
+    arrangement.loopEnabled = true;
+    updateArrangementLoopUI();
+  });
+  const finishLoopDrag = (event) => {
+    if (!loopDrag) return;
+    const barDuration = arrangementBarDuration();
+    if (!loopDrag.moved) {
+      arrangement.loopStart = Math.min(
+        arrangement.duration - barDuration,
+        loopDrag.anchor
+      );
+      arrangement.loopEnd = Math.min(
+        arrangement.duration,
+        arrangement.loopStart + barDuration * 4
+      );
+    }
+    loopDrag = null;
+    setArrangementLoop(arrangement.loopStart, arrangement.loopEnd, true);
+    els.arrangementRuler.releasePointerCapture?.(event.pointerId);
+  };
+  els.arrangementRuler.addEventListener("pointerup", finishLoopDrag);
+  els.arrangementRuler.addEventListener("pointercancel", finishLoopDrag);
   const applyArrangementTempo = (syncStudio = false) => {
     const wasPlaying = arrangement.isPlaying;
     if (syncStudio && wasPlaying) stopArrangementPlayback(false);

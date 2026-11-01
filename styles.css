@@ -3649,6 +3649,8 @@ a:focus-visible {
   height: 39px;
   border-bottom: 1px solid var(--line-dark);
   background: rgba(255, 255, 255, 0.015);
+  cursor: crosshair;
+  touch-action: none;
 }
 
 .arrangement-ruler > span {
@@ -3678,6 +3680,47 @@ a:focus-visible {
 
 .arrangement-lanes {
   position: relative;
+}
+
+.arrangement-loop-region {
+  position: absolute;
+  top: 39px;
+  bottom: 0;
+  z-index: 3;
+  min-width: 3px;
+  border-left: 1px solid rgba(198, 237, 143, 0.72);
+  border-right: 1px solid rgba(198, 237, 143, 0.72);
+  pointer-events: none;
+  background: rgba(198, 237, 143, 0.045);
+  transition: opacity 160ms ease;
+}
+
+.arrangement-loop-region::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--lime);
+}
+
+.arrangement-loop-region.disabled {
+  opacity: 0.22;
+}
+
+.arrangement-loop-region > span {
+  position: absolute;
+  top: -36px;
+  left: 6px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  color: var(--ink);
+  background: var(--lime);
+  font-size: 6px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
 }
 
 .arrange-lane {
@@ -3748,7 +3791,31 @@ a:focus-visible {
 }
 
 .arrange-clip-wave circle {
-  fill: var(--track-color);
+  fill: var(--note-color, var(--track-color));
+}
+
+.arrange-clip-wave .arrange-note line {
+  stroke: var(--note-color, var(--track-color));
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.arrange-clip-wave .arrange-note text {
+  fill: var(--note-color, var(--track-color));
+  stroke: #141a18;
+  stroke-width: 1.7;
+  paint-order: stroke;
+  font-family: var(--sans);
+  font-size: 6.5px;
+  font-weight: 500;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  vector-effect: non-scaling-stroke;
+}
+
+.arrange-clip-wave .arrange-note.chromatic text {
+  font-weight: 700;
 }
 
 .arrange-fill-track {

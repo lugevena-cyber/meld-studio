@@ -13,7 +13,7 @@
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23121615'/%3E%3Cg stroke='%23c6ed8f' stroke-width='4' stroke-linecap='round'%3E%3Cpath d='M18 28v8M25 20v24M32 15v34M39 23v18M46 29v6'/%3E%3C/g%3E%3C/svg%3E"
     />
     <title>MELD — 哼唱作曲工作台</title>
-    <link rel="stylesheet" href="styles.css?v=20261101-3" />
+    <link rel="stylesheet" href="styles.css?v=20261101-4" />
   </head>
   <body>
     <div class="page-noise" aria-hidden="true"></div>
@@ -535,10 +535,17 @@
                   </svg>
                   节拍器
                 </button>
+                <button class="ghost-button arrange-loop-button" id="arrangeLoopBtn" type="button" aria-pressed="false">
+                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                    <path d="M4 6h9.5L11 3.5M16 14H6.5L9 16.5M14 6l2 2-2 2M6 14l-2-2 2-2" />
+                  </svg>
+                  循环乐段
+                </button>
               </div>
               <div class="arrangement-summary">
                 <span><b id="arrangementTrackCount">0</b> 音轨</span>
                 <span><b id="arrangementNoteCount">0</b> 音符</span>
+                <span><b id="arrangementKey">—</b> 调性</span>
                 <span><b id="arrangementLength">00:12</b> 长度</span>
               </div>
             </header>
@@ -552,7 +559,10 @@
                 <div class="arrangement-track-headers" id="arrangementTrackHeaders"></div>
               </aside>
               <div class="arrangement-timeline">
-                <div class="arrangement-ruler" id="arrangementRuler"></div>
+                <div class="arrangement-ruler" id="arrangementRuler" role="slider" tabindex="0" aria-label="拖动选择循环乐段"></div>
+                <div class="arrangement-loop-region" id="arrangementLoopRegion">
+                  <span id="arrangementLoopLabel">1–5 小节</span>
+                </div>
                 <div class="arrangement-lanes" id="arrangementLanes"></div>
                 <div class="arrangement-playhead" id="arrangementPlayhead"></div>
                 <div class="arrangement-empty" id="arrangementEmpty">
@@ -564,7 +574,7 @@
             </div>
 
             <footer class="arrangement-footer">
-              <p><i></i> 编曲会随项目保存在当前浏览器</p>
+              <p><i></i><span id="arrangementHint">拖动时间尺选择循环乐段 · 音符标签显示调内音高</span></p>
               <button class="text-button" id="arrangeBackStudioBtn" type="button">返回创作台继续调整旋律 ↗</button>
             </footer>
           </section>
@@ -679,6 +689,6 @@
 
     <script src="cloud-config.js?v=20261101-1"></script>
     <script src="cloud.js?v=20261101-1"></script>
-    <script src="app.js?v=20261101-3"></script>
+    <script src="app.js?v=20261101-4"></script>
   </body>
 </html>
