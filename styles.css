@@ -890,6 +890,12 @@ a:focus-visible {
   margin-left: 3px;
 }
 
+.canvas-empty-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
 .live-note {
   position: absolute;
   top: 15px;

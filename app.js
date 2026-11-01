@@ -268,6 +268,22 @@ const LAB_PRESETS = [
   },
 ];
 
+const DRUM_INSTRUMENT = {
+  id: "drums",
+  name: "复古鼓组",
+  en: "ANALOG DRUM MACHINE",
+  desc: "1980s 紧致鼓组",
+  color: "#e8cf79",
+  icon: `
+    <svg viewBox="0 0 28 28" aria-hidden="true">
+      <ellipse cx="9" cy="9" rx="5" ry="2.5"/>
+      <path d="M4 9v4c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5V9M4 12.5c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5"/>
+      <ellipse cx="19" cy="16" rx="5" ry="2.5"/>
+      <path d="M14 16v5c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5v-5M14 19.5c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5"/>
+      <path d="M19 5v5M17 7h4"/>
+    </svg>`,
+};
+
 const PROJECT_STORAGE_KEY = "meld.projects.v1";
 const LAB_STORAGE_KEY = "meld.lab.settings.v1";
 const CUSTOM_PATCHES_STORAGE_KEY = "meld.custom-patches.v1";
@@ -368,6 +384,7 @@ const els = {
   analysisStatus: document.getElementById("analysisStatus"),
   analysisPanel: document.getElementById("analysisPanel"),
   demoBtn: document.getElementById("demoBtn"),
+  grooveDemoBtn: document.getElementById("grooveDemoBtn"),
   exportBtn: document.getElementById("exportBtn"),
   helpBtn: document.getElementById("helpBtn"),
   helpDialog: document.getElementById("helpDialog"),
@@ -527,6 +544,7 @@ let metronomeTimer = null;
 let metronomeNext = 0;
 let metronomeBeat = 0;
 let metronomeNodes = [];
+let drumNoiseBuffer = null;
 
 function noteNameFromMidi(midi, preferFlat = false) {
   const rounded = Math.round(midi);
@@ -654,6 +672,7 @@ function getAllInstrumentDefinitions() {
 }
 
 function getInstrumentDefinition(id) {
+  if (id === DRUM_INSTRUMENT.id) return DRUM_INSTRUMENT;
   return getAllInstrumentDefinitions().find((instrument) => instrument.id === id) || INSTRUMENTS[2];
 }
 
@@ -1856,6 +1875,162 @@ function createDemoData() {
   els.analysisStatus.classList.add("ready");
   drawVisualizer(0);
   window.setTimeout(() => playMelody(0), 160);
+}
+
+function createGrooveStudyData() {
+  clearSessionData(false);
+  const bpm = 117;
+  const beat = 60 / bpm;
+  els.tempoInput.value = String(bpm);
+
+  const melodyPattern = [
+    [62, 0, 0.72],
+    [69, 0.78, 0.26],
+    [67, 1.24, 0.58],
+    [65, 1.92, 0.52],
+    [64, 2.54, 0.38],
+    [62, 3.0, 0.94],
+    [65, 4.0, 0.46],
+    [69, 4.55, 0.34],
+    [72, 5.0, 0.76],
+    [70, 5.9, 0.68],
+    [69, 6.72, 0.65],
+    [67, 7.46, 0.5],
+    [65, 8.05, 0.68],
+    [64, 8.82, 0.58],
+    [62, 9.48, 1.16],
+    [65, 11.65, 0.52],
+    [64, 12.26, 0.42],
+    [62, 12.78, 0.62],
+    [60, 13.48, 1.32],
+  ];
+  const melodyNotes = melodyPattern.map(([midi, startBeat, durationBeats]) => ({
+    midi,
+    start: startBeat * beat,
+    duration: durationBeats * beat,
+    confidence: 0.94,
+  }));
+
+  const chordRoots = [38, 36, 34, 33];
+  const bassNotes = [];
+  const chordNotes = [];
+  chordRoots.forEach((root, chordIndex) => {
+    const startBeat = chordIndex * 4;
+    const bassPattern = [
+      [0, 0.46],
+      [0.75, 0.24],
+      [1.5, 0.34],
+      [2.25, 0.24],
+      [3.0, 0.48],
+      [3.55, 0.2],
+    ];
+    bassPattern.forEach(([offset, duration]) => {
+      bassNotes.push({
+        midi: root,
+        start: (startBeat + offset) * beat,
+        duration: duration * beat,
+        confidence: 0.94,
+      });
+    });
+    const [third, fifth] = [
+      [50, 53, 57],
+      [48, 52, 55],
+      [46, 50, 53],
+      [45, 49, 52],
+    ][chordIndex];
+    [third, fifth].forEach((midi) => {
+      chordNotes.push({
+        midi,
+        start: startBeat * beat,
+        duration: 1.45 * beat,
+        confidence: 0.9,
+      });
+    });
+  });
+
+  const drumNotes = [];
+  const drumPattern = [
+    [36, 0],
+    [42, 0],
+    [38, 1],
+    [42, 1.5],
+    [36, 2],
+    [42, 2.5],
+    [38, 3],
+    [42, 3.5],
+  ];
+  for (let bar = 0; bar < 4; bar += 1) {
+    drumPattern.forEach(([midi, offset]) => {
+      drumNotes.push({
+        midi,
+        start: (bar * 4 + offset) * beat,
+        duration: 0.12,
+        confidence: 1,
+      });
+    });
+  }
+
+  const preset = (id) => LAB_PRESETS.find((item) => item.id === id);
+  const makePresetTrack = (presetId, name, notes, volume = 78) => {
+    const definition = preset(presetId);
+    const track = createArrangementTrack(definition.instrument, name, notes);
+    track.instrumentName = definition.name;
+    track.instrumentBase = definition.instrument;
+    track.instrumentPatch = { ...definition.params };
+    track.color = INSTRUMENTS.find((item) => item.id === definition.instrument)?.color || track.color;
+    track.volume = volume;
+    return track;
+  };
+
+  const drumTrack = createArrangementTrack("drums", "1983 鼓机", drumNotes);
+  drumTrack.volume = 82;
+
+  arrangement.tracks = [
+    makePresetTrack("reference-glass-keys", "玻璃电钢", melodyNotes, 82),
+    makePresetTrack("reference-rubber-bass", "夜行橡胶贝斯", bassNotes, 88),
+    makePresetTrack("reference-harbor-pad", "港夜玻璃 Pad", chordNotes, 56),
+    drumTrack,
+  ];
+  arrangement.bpm = bpm;
+  arrangement.baseBpm = bpm;
+
+  state.demoMode = true;
+  state.samples = reconstructSamples(melodyNotes);
+  state.notes = melodyNotes;
+  state.key = {
+    tonic: 2,
+    mode: "minor",
+    confidence: 0.92,
+    score: 1,
+    related: { tonic: 5, mode: "major" },
+  };
+  state.duration = 15.2 * beat;
+  state.sourceName = "1983 暗夜律动";
+  state.sourceType = "groove-demo";
+  els.sourcePlayer.classList.remove("visible");
+  els.canvasEmpty.classList.add("hidden");
+  els.liveNote.classList.remove("visible");
+  updateAnalysisUI(state.key, melodyNotes, state.duration);
+  setStep(3);
+  [...els.processingSteps.children].forEach((item, index) => {
+    item.classList.toggle("done", index <= 2);
+    item.classList.remove("active");
+  });
+  els.recordLabel.textContent = "点击开始哼唱";
+  els.stageStateText.textContent = "1983 暗夜律动已载入";
+  els.stageDetail.textContent = `${melodyNotes.length} 个音符 · 80s 多轨编曲`;
+  els.playBtn.disabled = false;
+  syncStudioActionState();
+  els.playLabel.textContent = "用玻璃电钢试听";
+  els.playSubLabel.textContent = "D 小调 · 1983 暗夜律动";
+  els.analysisStatus.textContent = "风格分析完成";
+  els.analysisStatus.classList.add("ready");
+  calculateArrangementDuration();
+  persistArrangement();
+  renderArrangement();
+  switchView("arrangement");
+  window.setTimeout(() => playArrangement(), 260);
+  showToast("已创建原创 80s 致敬编曲，不包含原曲旋律");
 }
 
 function drawVisualizer(playheadTime = 0) {
@@ -4128,7 +4303,7 @@ function renderArrangement() {
 }
 
 function openTrackDialog() {
-  const instruments = getAllInstrumentDefinitions();
+  const instruments = [...getAllInstrumentDefinitions(), DRUM_INSTRUMENT];
   els.trackInstrumentChoices.innerHTML = instruments
     .map(
       (instrument) => `
@@ -4149,7 +4324,7 @@ function addArrangementTrack(instrumentId) {
   const track = createArrangementTrack(
     instrumentId,
     `${definition.name} ${String(number).padStart(2, "0")}`,
-    state.notes
+    instrumentId === "drums" ? [] : state.notes
   );
   arrangement.tracks.push(track);
   calculateArrangementDuration();
@@ -4162,6 +4337,10 @@ function addArrangementTrack(instrumentId) {
 function fillArrangementTrack(trackId) {
   const track = arrangement.tracks.find((item) => item.id === trackId);
   if (!track) return;
+  if (track.instrument === "drums") {
+    showToast("鼓组轨不能直接填入旋律音高");
+    return;
+  }
   if (!state.notes.length) {
     showToast("创作台里还没有可填入的旋律");
     return;
@@ -4198,8 +4377,75 @@ function stopArrangementPlayback(resetPlayhead = true) {
   if (resetPlayhead) updateArrangementPlayhead(0);
 }
 
+function scheduleDrumHit(midi, when, volume = 0.8) {
+  const context = getAudioContext();
+  const nodes = [];
+  const destination = context.destination;
+  const output = context.createGain();
+  output.gain.value = Math.max(0, Math.min(1, volume));
+  output.connect(destination);
+  nodes.push(output);
+
+  if (midi <= 36) {
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(145, when);
+    oscillator.frequency.exponentialRampToValueAtTime(43, when + 0.18);
+    gain.gain.setValueAtTime(0.62, when);
+    gain.gain.exponentialRampToValueAtTime(0.0001, when + 0.3);
+    oscillator.connect(gain);
+    gain.connect(output);
+    oscillator.start(when);
+    oscillator.stop(when + 0.32);
+    nodes.push(oscillator, gain);
+    return nodes;
+  }
+
+  if (!drumNoiseBuffer || drumNoiseBuffer.sampleRate !== context.sampleRate) {
+    drumNoiseBuffer = context.createBuffer(1, Math.floor(context.sampleRate * 0.24), context.sampleRate);
+    const data = drumNoiseBuffer.getChannelData(0);
+    for (let index = 0; index < data.length; index += 1) {
+      data[index] = Math.random() * 2 - 1;
+    }
+  }
+  const source = context.createBufferSource();
+  source.buffer = drumNoiseBuffer;
+  const filter = context.createBiquadFilter();
+  const gain = context.createGain();
+
+  if (midi === 38 || midi === 39) {
+    filter.type = "bandpass";
+    filter.frequency.value = midi === 39 ? 1350 : 1850;
+    filter.Q.value = 0.7;
+    gain.gain.setValueAtTime(0.3, when);
+    gain.gain.exponentialRampToValueAtTime(0.0001, when + 0.13);
+    source.start(when);
+    source.stop(when + 0.15);
+  } else {
+    filter.type = "highpass";
+    filter.frequency.value = 6800;
+    const open = midi >= 46;
+    gain.gain.setValueAtTime(open ? 0.13 : 0.08, when);
+    gain.gain.exponentialRampToValueAtTime(0.0001, when + (open ? 0.18 : 0.045));
+    source.start(when);
+    source.stop(when + (open ? 0.2 : 0.06));
+  }
+  source.connect(filter);
+  filter.connect(gain);
+  gain.connect(output);
+  nodes.push(source, filter, gain);
+  return nodes;
+}
+
 function scheduleArrangementTrackNote(track, note, when) {
   const volume = Math.max(0, Math.min(1, track.volume / 100));
+  if (track.instrument === "drums") {
+    const nodes = scheduleDrumHit(note.midi, when, volume);
+    state.playNodes.push(...nodes);
+    arrangement.nodes.push(...nodes);
+    return;
+  }
   const definition = getInstrumentDefinition(track.instrument);
   if (track.instrumentPatch || definition.custom) {
     const baseInstrument = track.instrumentBase || definition.baseInstrument || "piano";
@@ -4334,6 +4580,7 @@ function setupEventListeners() {
     else playMelody(0);
   });
   els.demoBtn.addEventListener("click", createDemoData);
+  els.grooveDemoBtn.addEventListener("click", createGrooveStudyData);
   els.exportBtn.addEventListener("click", exportMidi);
   els.loopBtn.addEventListener("click", () => {
     state.loop = !state.loop;
