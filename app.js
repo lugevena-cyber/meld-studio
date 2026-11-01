@@ -194,6 +194,78 @@ const LAB_PRESETS = [
     short: "未来滤波",
     params: { ...LAB_DEFAULTS.synth, drive: 46, space: 36 },
   },
+  {
+    id: "reference-rubber-bass",
+    instrument: "synth",
+    name: "夜行橡胶贝斯",
+    meta: "SYNTH BASS · RUBBER PULSE",
+    short: "圆润 · 短促 · 有弹性",
+    category: "reference",
+    params: {
+      ...LAB_DEFAULTS.synth,
+      attack: 8,
+      decay: 180,
+      sustain: 38,
+      release: 120,
+      brightness: 900,
+      space: 5,
+      drive: 12,
+    },
+  },
+  {
+    id: "reference-glass-keys",
+    instrument: "piano",
+    name: "玻璃电钢",
+    meta: "ELECTRIC PIANO · GLASS",
+    short: "清脆 · 贴耳 · 宽动态",
+    category: "reference",
+    params: {
+      ...LAB_DEFAULTS.piano,
+      attack: 4,
+      decay: 700,
+      sustain: 25,
+      release: 900,
+      brightness: 4200,
+      space: 10,
+      drive: 2,
+    },
+  },
+  {
+    id: "reference-harbor-pad",
+    instrument: "strings",
+    name: "港夜玻璃 Pad",
+    meta: "STRING PAD · HARBOR NIGHT",
+    short: "深色 · 宽阔 · 缓慢呼吸",
+    category: "reference",
+    params: {
+      ...LAB_DEFAULTS.strings,
+      attack: 600,
+      decay: 1200,
+      sustain: 70,
+      release: 2400,
+      brightness: 1700,
+      space: 55,
+      drive: 8,
+    },
+  },
+  {
+    id: "reference-eastern-pluck",
+    instrument: "acoustic",
+    name: "东方拨弦",
+    meta: "PLUCK · EASTERN ACCENT",
+    short: "木质 · 金属泛音 · 短点缀",
+    category: "reference",
+    params: {
+      ...LAB_DEFAULTS.acoustic,
+      attack: 5,
+      decay: 450,
+      sustain: 20,
+      release: 700,
+      brightness: 3800,
+      space: 12,
+      drive: 4,
+    },
+  },
 ];
 
 const PROJECT_STORAGE_KEY = "meld.projects.v1";
@@ -3462,14 +3534,14 @@ function renderLabPresets() {
     const active = preset.name === labState.presetName;
     return `
       <button
-        class="lab-preset-card${active ? " active" : ""}"
+        class="lab-preset-card${preset.category === "reference" ? " reference" : ""}${active ? " active" : ""}"
         type="button"
         data-lab-preset="${preset.id}"
         style="--preset-color:${instrument.color}"
       >
         <span>${String(LAB_PRESETS.indexOf(preset) + 1).padStart(2, "0")}</span>
         <strong>${preset.name}</strong>
-        <small>${preset.short}</small>
+        <small>${preset.category === "reference" ? "REFERENCE PACK · " : ""}${preset.short}</small>
         <span class="preset-lines" aria-hidden="true">
           <i style="height:5px"></i><i style="height:11px"></i><i style="height:7px"></i>
           <i style="height:14px"></i><i style="height:9px"></i><i style="height:4px"></i>

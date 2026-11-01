@@ -337,7 +337,10 @@ a:focus-visible {
   font-family: var(--serif);
   font-size: 15px;
   border: 0;
+  padding: 0;
   cursor: pointer;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .avatar.user-connected {
@@ -3165,6 +3168,7 @@ a:focus-visible {
 }
 
 .lab-preset-card {
+  position: relative;
   min-width: 0;
   min-height: 102px;
   display: flex;
@@ -3179,6 +3183,25 @@ a:focus-visible {
   background: #f2eee5;
   cursor: pointer;
   transition: transform 160ms ease, border-color 160ms ease;
+}
+
+.lab-preset-card.reference {
+  background:
+    linear-gradient(145deg, rgba(255, 128, 85, 0.055), transparent 58%),
+    #f2eee5;
+}
+
+.lab-preset-card.reference::after {
+  content: "REF";
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  padding: 3px 4px;
+  border: 1px solid rgba(18, 22, 21, 0.12);
+  border-radius: 4px;
+  color: #94978f;
+  font-size: 5px;
+  letter-spacing: 0.1em;
 }
 
 .lab-preset-card:hover {
