@@ -13,7 +13,7 @@
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23121615'/%3E%3Cg stroke='%23c6ed8f' stroke-width='4' stroke-linecap='round'%3E%3Cpath d='M18 28v8M25 20v24M32 15v34M39 23v18M46 29v6'/%3E%3C/g%3E%3C/svg%3E"
     />
     <title>MELD — 哼唱作曲工作台</title>
-    <link rel="stylesheet" href="styles.css?v=20261101-4" />
+    <link rel="stylesheet" href="styles.css?v=20261101-5" />
   </head>
   <body>
     <div class="page-noise" aria-hidden="true"></div>
@@ -573,6 +573,43 @@
               </div>
             </div>
 
+            <section class="track-pitch-editor" id="trackPitchEditor" hidden>
+              <header class="track-pitch-heading">
+                <div>
+                  <span class="piano-mode-label">KEYBOARD MODE</span>
+                  <strong id="trackPitchTrackName">选择一个音轨</strong>
+                  <small>上下拖动轨道中的音符，或点击下方琴键调整音高</small>
+                </div>
+                <div class="track-pitch-actions">
+                  <button class="scale-snap-toggle active" id="trackScaleSnapBtn" type="button" aria-pressed="true">
+                    <i></i>吸附音阶
+                  </button>
+                  <button class="track-pitch-close" id="trackPitchCloseBtn" type="button">关闭</button>
+                </div>
+              </header>
+              <div class="track-pitch-controls">
+                <div class="selected-pitch-card">
+                  <span>当前音符</span>
+                  <strong id="trackSelectedNote">—</strong>
+                  <small id="trackSelectedPosition">点击轨道音符开始编辑</small>
+                </div>
+                <div class="pitch-step-buttons">
+                  <button type="button" data-track-transpose="-12">整轨 −8 度</button>
+                  <button type="button" data-track-transpose="-1">整轨 −半音</button>
+                  <button type="button" data-track-transpose="1">整轨 ＋半音</button>
+                  <button type="button" data-track-transpose="12">整轨 ＋8 度</button>
+                </div>
+                <label class="track-pitch-range">
+                  <span>拖动音高</span>
+                  <input id="trackPitchRange" type="range" min="36" max="84" step="1" value="60" />
+                </label>
+              </div>
+              <div class="track-piano-wrap">
+                <div class="track-piano-hint"><span>键盘音高选择</span><small>可编辑当前选中音符</small></div>
+                <div class="track-piano" id="trackPiano"></div>
+              </div>
+            </section>
+
             <footer class="arrangement-footer">
               <p><i></i><span id="arrangementHint">拖动时间尺选择循环乐段 · 音符标签显示调内音高</span></p>
               <button class="text-button" id="arrangeBackStudioBtn" type="button">返回创作台继续调整旋律 ↗</button>
@@ -689,6 +726,6 @@
 
     <script src="cloud-config.js?v=20261101-1"></script>
     <script src="cloud.js?v=20261101-1"></script>
-    <script src="app.js?v=20261101-4"></script>
+    <script src="app.js?v=20261101-5"></script>
   </body>
 </html>

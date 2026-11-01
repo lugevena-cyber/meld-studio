@@ -485,6 +485,14 @@ const els = {
   arrangementLoopRegion: document.getElementById("arrangementLoopRegion"),
   arrangementLoopLabel: document.getElementById("arrangementLoopLabel"),
   arrangementHint: document.getElementById("arrangementHint"),
+  trackPitchEditor: document.getElementById("trackPitchEditor"),
+  trackPitchTrackName: document.getElementById("trackPitchTrackName"),
+  trackSelectedNote: document.getElementById("trackSelectedNote"),
+  trackSelectedPosition: document.getElementById("trackSelectedPosition"),
+  trackScaleSnapBtn: document.getElementById("trackScaleSnapBtn"),
+  trackPitchCloseBtn: document.getElementById("trackPitchCloseBtn"),
+  trackPitchRange: document.getElementById("trackPitchRange"),
+  trackPiano: document.getElementById("trackPiano"),
   arrangementEmpty: document.getElementById("arrangementEmpty"),
   arrangementEmptyAddBtn: document.getElementById("arrangementEmptyAddBtn"),
   addTrackBtn: document.getElementById("addTrackBtn"),
@@ -539,6 +547,9 @@ let arrangement = {
   baseBpm: 84,
   duration: 12,
   key: null,
+  selectedTrackId: null,
+  selectedNoteIndex: 0,
+  snapPitchToScale: true,
   loopEnabled: false,
   loopStart: 0,
   loopEnd: 8.2,
@@ -1203,6 +1214,9 @@ function clearSessionData(fullReset = true) {
   arrangement.loopStart = 0;
   arrangement.loopEnd = 8.2;
   arrangement.key = null;
+  arrangement.selectedTrackId = null;
+  arrangement.selectedNoteIndex = 0;
+  if (els.trackPitchEditor) els.trackPitchEditor.hidden = true;
   try {
     localStorage.removeItem(ARRANGEMENT_STORAGE_KEY);
   } catch {
@@ -4226,7 +4240,7 @@ function trackWaveSvg(track, duration) {
     })
     .join(" ");
   const notes = track.notes
-    .map((note) => {
+    .map((note, noteIndex) => {
       const x1 = x(note.start);
       const x2 = x(note.start + note.duration);
       const noteY = y(note.midi);
@@ -4244,9 +4258,23 @@ function trackWaveSvg(track, duration) {
         : inScale
           ? track.color
           : "#ff8055";
+      const editable =
+        track.instrument !== "drums" &&
+        arrangement.selectedTrackId === track.id;
       return `
-        <g class="arrange-note ${inScale ? "in-scale" : "chromatic"}">
+        <g
+          class="arrange-note ${inScale ? "in-scale" : "chromatic"}${editable ? " editable" : ""}"
+          data-track-id="${escapeHtml(track.id)}"
+          data-note-index="${noteIndex}"
+        >
           <title>${escapeHtml(label)} · ${formatTime(note.start, true)}</title>
+          <rect
+            class="arrange-note-hit"
+            x="${(x1 - 5).toFixed(1)}"
+            y="${(noteY - 7).toFixed(1)}"
+            width="${Math.max(12, x2 - x1 + 10).toFixed(1)}"
+            height="14"
+          />
           <line x1="${x1.toFixed(1)}" y1="${noteY.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${noteY.toFixed(1)}" style="--note-color:${noteColor}" />
           <circle cx="${x1.toFixed(1)}" cy="${noteY.toFixed(1)}" r="2.15" style="--note-color:${noteColor}" />
           <text x="${((x1 + x2) / 2).toFixed(1)}" y="${labelY.toFixed(1)}" style="--note-color:${noteColor}">${escapeHtml(label)}</text>
@@ -4419,7 +4447,7 @@ function renderArrangement() {
   els.arrangementTrackHeaders.innerHTML = arrangement.tracks
     .map(
       (track, index) => `
-        <div class="arrange-track-header" data-track-id="${escapeHtml(track.id)}" style="--track-color:${track.color}">
+        <div class="arrange-track-header${arrangement.selectedTrackId === track.id ? " selected" : ""}" data-track-id="${escapeHtml(track.id)}" style="--track-color:${track.color}">
           <span class="arrange-track-number">${String(index + 1).padStart(2, "0")}</span>
           <span class="arrange-track-icon">${getInstrumentDefinition(track.instrument).icon}</span>
           <span class="arrange-track-copy">
@@ -4462,6 +4490,128 @@ function renderArrangement() {
     .join("");
   updateArrangementLoopUI();
   updateArrangementPlayhead(arrangement.playhead);
+}
+
+function getSelectedArrangementTrack() {
+  return arrangement.tracks.find((track) => track.id === arrangement.selectedTrackId) || null;
+}
+
+function renderTrackPitchEditor() {
+  const track = getSelectedArrangementTrack();
+  if (!track || track.instrument === "drums" || !track.notes.length) {
+    els.trackPitchEditor.hidden = true;
+    return;
+  }
+  els.trackPitchEditor.hidden = false;
+  arrangement.selectedNoteIndex = Math.max(
+    0,
+    Math.min(track.notes.length - 1, arrangement.selectedNoteIndex)
+  );
+  const note = track.notes[arrangement.selectedNoteIndex];
+  const useFlats = state.key ? usesFlatSpelling(state.key) : false;
+  const noteInfo = noteNameFromMidi(note.midi, useFlats);
+  const instrumentName = track.instrumentName || getInstrumentDefinition(track.instrument).name;
+  els.trackPitchTrackName.textContent =
+    track.name === instrumentName ? track.name : `${track.name} · ${instrumentName}`;
+  els.trackSelectedNote.textContent = `${noteInfo.name}${noteInfo.octave}`;
+  els.trackSelectedPosition.textContent = `第 ${arrangement.selectedNoteIndex + 1} 个音符 · ${formatTime(note.start, true)}`;
+  els.trackScaleSnapBtn.classList.toggle("active", arrangement.snapPitchToScale);
+  els.trackScaleSnapBtn.setAttribute("aria-pressed", String(arrangement.snapPitchToScale));
+  els.trackPitchRange.min = "24";
+  els.trackPitchRange.max = "96";
+  els.trackPitchRange.value = String(note.midi);
+  updateRangeFill(els.trackPitchRange);
+
+  const startMidi = Math.floor(note.midi / 12) * 12 - 12;
+  const endMidi = Math.min(96, startMidi + 24);
+  const midiNotes = Array.from(
+    { length: endMidi - startMidi + 1 },
+    (_, index) => startMidi + index
+  ).filter((midi) => midi >= 24);
+  const whitePitchClasses = new Set([0, 2, 4, 5, 7, 9, 11]);
+  const whiteNotes = midiNotes.filter((midi) => whitePitchClasses.has(midi % 12));
+  els.trackPiano.innerHTML =
+    whiteNotes
+      .map((midi) => {
+        const info = noteNameFromMidi(midi, useFlats);
+        return `<button type="button" class="track-piano-key white${Math.round(note.midi) === midi ? " active" : ""}" data-piano-midi="${midi}"><span>${info.name}${info.octave}</span></button>`;
+      })
+      .join("") +
+    midiNotes
+      .filter((midi) => !whitePitchClasses.has(midi % 12))
+      .map((midi) => {
+        const whiteBefore = whiteNotes.filter((whiteMidi) => whiteMidi < midi).length;
+        const left = (whiteBefore / Math.max(1, whiteNotes.length)) * 100;
+        const info = noteNameFromMidi(midi, useFlats);
+        return `<button type="button" class="track-piano-key black${Math.round(note.midi) === midi ? " active" : ""}" data-piano-midi="${midi}" style="left:${left}%"><span>${info.name}</span></button>`;
+      })
+      .join("");
+  els.trackPiano.querySelectorAll("[data-piano-midi]").forEach((button) => {
+    button.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      setSelectedNotePitch(Number(button.dataset.pianoMidi), true);
+    });
+  });
+}
+
+function openTrackPitchEditor(trackId) {
+  const track = arrangement.tracks.find((item) => item.id === trackId);
+  if (!track) return;
+  if (track.instrument === "drums") {
+    showToast("鼓组不使用音高键盘，可编辑旋律、贝斯和 Pad 轨道");
+    return;
+  }
+  if (!track.notes.length) {
+    showToast("这条轨道还没有音符");
+    return;
+  }
+  arrangement.selectedTrackId = trackId;
+  arrangement.selectedNoteIndex = 0;
+  renderArrangement();
+  renderTrackPitchEditor();
+  els.trackPitchEditor.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  showToast("键盘模式已开启，可上下拖动轨道音符");
+}
+
+function previewEditedTrackNote(track, midi) {
+  if (performance.now() - previewEditedTrackNote.lastAt < 80) return;
+  previewEditedTrackNote.lastAt = performance.now();
+  const context = getAudioContext();
+  scheduleArrangementTrackNote(
+    track,
+    { midi, start: 0, duration: 0.24 },
+    context.currentTime + 0.01
+  );
+}
+
+function setSelectedNotePitch(midi, preview = false) {
+  const track = getSelectedArrangementTrack();
+  if (!track) return;
+  const note = track.notes[arrangement.selectedNoteIndex];
+  if (!note) return;
+  let nextMidi = Math.round(midi);
+  if (arrangement.snapPitchToScale && state.key) {
+    nextMidi = nearestScaleMidi(nextMidi, state.key, 6);
+  }
+  note.midi = Math.max(24, Math.min(96, nextMidi));
+  persistArrangement();
+  renderArrangement();
+  renderTrackPitchEditor();
+  if (preview) previewEditedTrackNote(track, note.midi);
+}
+
+function transposeSelectedTrack(semitones) {
+  const track = getSelectedArrangementTrack();
+  if (!track || track.instrument === "drums") return;
+  track.notes = track.notes.map((note) => ({
+    ...note,
+    midi: Math.max(24, Math.min(96, note.midi + semitones)),
+  }));
+  persistArrangement();
+  renderArrangement();
+  renderTrackPitchEditor();
+  const note = track.notes[arrangement.selectedNoteIndex];
+  if (note) previewEditedTrackNote(track, note.midi);
 }
 
 function openTrackDialog() {
@@ -5004,6 +5154,10 @@ function setupEventListeners() {
       arrangement.tracks = arrangement.tracks.filter(
         (item) => item.id !== remove.dataset.trackDelete
       );
+      if (arrangement.selectedTrackId === remove.dataset.trackDelete) {
+        arrangement.selectedTrackId = null;
+        els.trackPitchEditor.hidden = true;
+      }
     }
     if (mute || solo || remove) {
       if (wasPlaying && !remove) stopArrangementPlayback(false);
@@ -5011,6 +5165,11 @@ function setupEventListeners() {
       renderArrangement();
       if (wasPlaying && !remove) window.setTimeout(playArrangement, 30);
     }
+  });
+  els.arrangementTrackHeaders.addEventListener("click", (event) => {
+    if (event.target.closest("button, input")) return;
+    const header = event.target.closest(".arrange-track-header");
+    if (header) openTrackPitchEditor(header.dataset.trackId);
   });
   els.arrangementTrackHeaders.addEventListener("input", (event) => {
     const input = event.target.closest("[data-track-volume]");
@@ -5024,6 +5183,89 @@ function setupEventListeners() {
   els.arrangementLanes.addEventListener("click", (event) => {
     const fill = event.target.closest("[data-fill-track]");
     if (fill) fillArrangementTrack(fill.dataset.fillTrack);
+  });
+  let pitchDrag = null;
+  els.arrangementLanes.addEventListener("pointerdown", (event) => {
+    const noteElement = event.target.closest(".arrange-note");
+    if (!noteElement) return;
+    const track = arrangement.tracks.find(
+      (item) => item.id === noteElement.dataset.trackId
+    );
+    if (!track || track.instrument === "drums") return;
+    const noteIndex = Number(noteElement.dataset.noteIndex);
+    if (arrangement.selectedTrackId !== track.id) {
+      arrangement.selectedTrackId = track.id;
+      arrangement.selectedNoteIndex = noteIndex;
+      renderArrangement();
+      renderTrackPitchEditor();
+      showToast("已选中音符；再次上下拖动即可改变音高");
+      return;
+    }
+    event.preventDefault();
+    arrangement.selectedNoteIndex = noteIndex;
+    const note = track.notes[noteIndex];
+    pitchDrag = {
+      pointerId: event.pointerId,
+      startY: event.clientY,
+      originalMidi: note.midi,
+      track,
+      note,
+      element: noteElement,
+    };
+    noteElement.classList.add("dragging");
+    els.arrangementLanes.setPointerCapture?.(event.pointerId);
+    renderTrackPitchEditor();
+  });
+  els.arrangementLanes.addEventListener("pointermove", (event) => {
+    if (!pitchDrag) return;
+    const semitoneDelta = Math.round((pitchDrag.startY - event.clientY) / 7);
+    let midi = pitchDrag.originalMidi + semitoneDelta;
+    if (arrangement.snapPitchToScale && state.key) {
+      midi = nearestScaleMidi(midi, state.key, 6);
+    }
+    midi = Math.max(24, Math.min(96, midi));
+    pitchDrag.note.midi = midi;
+    const label = noteNameFromMidi(midi, state.key ? usesFlatSpelling(state.key) : false);
+    const text = pitchDrag.element.querySelector("text");
+    if (text) text.textContent = `${label.name}${label.octave}`;
+    pitchDrag.element.style.transform = `translateY(${(pitchDrag.originalMidi - midi) * 5}px)`;
+    els.trackSelectedNote.textContent = `${label.name}${label.octave}`;
+    previewEditedTrackNote(pitchDrag.track, midi);
+  });
+  const finishPitchDrag = (event) => {
+    if (!pitchDrag) return;
+    const finished = pitchDrag;
+    pitchDrag = null;
+    finished.element.classList.remove("dragging");
+    els.arrangementLanes.releasePointerCapture?.(event.pointerId);
+    persistArrangement();
+    renderArrangement();
+    renderTrackPitchEditor();
+    previewEditedTrackNote(finished.track, finished.note.midi);
+  };
+  els.arrangementLanes.addEventListener("pointerup", finishPitchDrag);
+  els.arrangementLanes.addEventListener("pointercancel", finishPitchDrag);
+  els.trackPitchCloseBtn.addEventListener("click", () => {
+    arrangement.selectedTrackId = null;
+    els.trackPitchEditor.hidden = true;
+    renderArrangement();
+  });
+  els.trackScaleSnapBtn.addEventListener("click", () => {
+    arrangement.snapPitchToScale = !arrangement.snapPitchToScale;
+    els.trackScaleSnapBtn.classList.toggle("active", arrangement.snapPitchToScale);
+    els.trackScaleSnapBtn.setAttribute("aria-pressed", String(arrangement.snapPitchToScale));
+    if (arrangement.snapPitchToScale) {
+      const note = getSelectedArrangementTrack()?.notes[arrangement.selectedNoteIndex];
+      if (note && state.key) setSelectedNotePitch(note.midi, true);
+    }
+  });
+  els.trackPitchRange.addEventListener("input", () => {
+    setSelectedNotePitch(Number(els.trackPitchRange.value), true);
+  });
+  document.querySelectorAll("[data-track-transpose]").forEach((button) => {
+    button.addEventListener("click", () => {
+      transposeSelectedTrack(Number(button.dataset.trackTranspose));
+    });
   });
 
   document.querySelectorAll(".nav-item").forEach((item) => {
