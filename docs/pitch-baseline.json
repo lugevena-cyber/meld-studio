@@ -1,0 +1,529 @@
+{
+  "runtime": "v24.22.1",
+  "baselineCommit": "46c32a9a2b5e82d88af12eaed157253a53979ce4",
+  "rows": [
+    {
+      "rate": 44100,
+      "name": "C3",
+      "kind": "clean",
+      "maxAbsCents": 0.006,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 3.233
+    },
+    {
+      "rate": 44100,
+      "name": "C3",
+      "kind": "quiet",
+      "maxAbsCents": 0.006,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.183
+    },
+    {
+      "rate": 44100,
+      "name": "C3",
+      "kind": "loud",
+      "maxAbsCents": 0.006,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.048
+    },
+    {
+      "rate": 44100,
+      "name": "C3",
+      "kind": "harmonic",
+      "maxAbsCents": 0.007,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 0.853
+    },
+    {
+      "rate": 44100,
+      "name": "C3",
+      "kind": "noise",
+      "maxAbsCents": 165.03,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 2.067
+    },
+    {
+      "rate": 44100,
+      "name": "A3",
+      "kind": "clean",
+      "maxAbsCents": 0.007,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 2.326
+    },
+    {
+      "rate": 44100,
+      "name": "A3",
+      "kind": "quiet",
+      "maxAbsCents": 0.007,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 0.965
+    },
+    {
+      "rate": 44100,
+      "name": "A3",
+      "kind": "loud",
+      "maxAbsCents": 0.007,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.266
+    },
+    {
+      "rate": 44100,
+      "name": "A3",
+      "kind": "harmonic",
+      "maxAbsCents": 0.007,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 0.996
+    },
+    {
+      "rate": 44100,
+      "name": "A3",
+      "kind": "noise",
+      "maxAbsCents": 9.546,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.327
+    },
+    {
+      "rate": 44100,
+      "name": "C4",
+      "kind": "clean",
+      "maxAbsCents": 0.012,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 0.966
+    },
+    {
+      "rate": 44100,
+      "name": "C4",
+      "kind": "quiet",
+      "maxAbsCents": 0.012,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 0.841
+    },
+    {
+      "rate": 44100,
+      "name": "C4",
+      "kind": "loud",
+      "maxAbsCents": 0.012,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 0.855
+    },
+    {
+      "rate": 44100,
+      "name": "C4",
+      "kind": "harmonic",
+      "maxAbsCents": 0.011,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.047
+    },
+    {
+      "rate": 44100,
+      "name": "C4",
+      "kind": "noise",
+      "maxAbsCents": 12.005,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 0.853
+    },
+    {
+      "rate": 44100,
+      "name": "A4",
+      "kind": "clean",
+      "maxAbsCents": 0.071,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.457
+    },
+    {
+      "rate": 44100,
+      "name": "A4",
+      "kind": "quiet",
+      "maxAbsCents": 0.071,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 0.965
+    },
+    {
+      "rate": 44100,
+      "name": "A4",
+      "kind": "loud",
+      "maxAbsCents": 0.071,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 0.789
+    },
+    {
+      "rate": 44100,
+      "name": "A4",
+      "kind": "harmonic",
+      "maxAbsCents": 0.071,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 0.829
+    },
+    {
+      "rate": 44100,
+      "name": "A4",
+      "kind": "noise",
+      "maxAbsCents": 2.278,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 0.984
+    },
+    {
+      "rate": 44100,
+      "name": "C5",
+      "kind": "clean",
+      "maxAbsCents": 0.095,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 0.748
+    },
+    {
+      "rate": 44100,
+      "name": "C5",
+      "kind": "quiet",
+      "maxAbsCents": 0.095,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 5.205
+    },
+    {
+      "rate": 44100,
+      "name": "C5",
+      "kind": "loud",
+      "maxAbsCents": 0.095,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 0.966
+    },
+    {
+      "rate": 44100,
+      "name": "C5",
+      "kind": "harmonic",
+      "maxAbsCents": 0.097,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 0.71
+    },
+    {
+      "rate": 44100,
+      "name": "C5",
+      "kind": "noise",
+      "maxAbsCents": 5.928,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 0.807
+    },
+    {
+      "rate": 48000,
+      "name": "C3",
+      "kind": "clean",
+      "maxAbsCents": 0.005,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 0.919
+    },
+    {
+      "rate": 48000,
+      "name": "C3",
+      "kind": "quiet",
+      "maxAbsCents": 0.005,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.296
+    },
+    {
+      "rate": 48000,
+      "name": "C3",
+      "kind": "loud",
+      "maxAbsCents": 0.005,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.261
+    },
+    {
+      "rate": 48000,
+      "name": "C3",
+      "kind": "harmonic",
+      "maxAbsCents": 0.006,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.658
+    },
+    {
+      "rate": 48000,
+      "name": "C3",
+      "kind": "noise",
+      "maxAbsCents": 36.296,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.109
+    },
+    {
+      "rate": 48000,
+      "name": "A3",
+      "kind": "clean",
+      "maxAbsCents": 0.015,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.036
+    },
+    {
+      "rate": 48000,
+      "name": "A3",
+      "kind": "quiet",
+      "maxAbsCents": 0.015,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.134
+    },
+    {
+      "rate": 48000,
+      "name": "A3",
+      "kind": "loud",
+      "maxAbsCents": 0.015,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.179
+    },
+    {
+      "rate": 48000,
+      "name": "A3",
+      "kind": "harmonic",
+      "maxAbsCents": 0.014,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.503
+    },
+    {
+      "rate": 48000,
+      "name": "A3",
+      "kind": "noise",
+      "maxAbsCents": 22.589,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.309
+    },
+    {
+      "rate": 48000,
+      "name": "C4",
+      "kind": "clean",
+      "maxAbsCents": 0.009,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 0.963
+    },
+    {
+      "rate": 48000,
+      "name": "C4",
+      "kind": "quiet",
+      "maxAbsCents": 0.009,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.077
+    },
+    {
+      "rate": 48000,
+      "name": "C4",
+      "kind": "loud",
+      "maxAbsCents": 0.009,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.118
+    },
+    {
+      "rate": 48000,
+      "name": "C4",
+      "kind": "harmonic",
+      "maxAbsCents": 0.009,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.111
+    },
+    {
+      "rate": 48000,
+      "name": "C4",
+      "kind": "noise",
+      "maxAbsCents": 10.22,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.017
+    },
+    {
+      "rate": 48000,
+      "name": "A4",
+      "kind": "clean",
+      "maxAbsCents": 0.068,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 0.891
+    },
+    {
+      "rate": 48000,
+      "name": "A4",
+      "kind": "quiet",
+      "maxAbsCents": 0.068,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.43
+    },
+    {
+      "rate": 48000,
+      "name": "A4",
+      "kind": "loud",
+      "maxAbsCents": 0.068,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 0.991
+    },
+    {
+      "rate": 48000,
+      "name": "A4",
+      "kind": "harmonic",
+      "maxAbsCents": 0.067,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.01
+    },
+    {
+      "rate": 48000,
+      "name": "A4",
+      "kind": "noise",
+      "maxAbsCents": 9.513,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.508
+    },
+    {
+      "rate": 48000,
+      "name": "C5",
+      "kind": "clean",
+      "maxAbsCents": 0.078,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 0.891
+    },
+    {
+      "rate": 48000,
+      "name": "C5",
+      "kind": "quiet",
+      "maxAbsCents": 0.078,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.355
+    },
+    {
+      "rate": 48000,
+      "name": "C5",
+      "kind": "loud",
+      "maxAbsCents": 0.078,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 0.879
+    },
+    {
+      "rate": 48000,
+      "name": "C5",
+      "kind": "harmonic",
+      "maxAbsCents": 0.072,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.618
+    },
+    {
+      "rate": 48000,
+      "name": "C5",
+      "kind": "noise",
+      "maxAbsCents": 5.839,
+      "missing": 0,
+      "octaves": 0,
+      "meanMs": 1.128
+    }
+  ],
+  "silence": [
+    {
+      "rate": 44100,
+      "frequency": -1,
+      "confidence": 0,
+      "rms": 0
+    },
+    {
+      "rate": 48000,
+      "frequency": -1,
+      "confidence": 0,
+      "rms": 0
+    }
+  ],
+  "invalid": [
+    {
+      "name": "empty",
+      "frequency": -1,
+      "confidence": 0,
+      "rms": 0
+    },
+    {
+      "name": "NaN",
+      "frequency": -1,
+      "confidence": 0,
+      "rms": null
+    },
+    {
+      "name": "DC",
+      "frequency": -1,
+      "confidence": 0,
+      "rms": 0.20000000298023374
+    }
+  ],
+  "trajectories": {
+    "glide": {
+      "frames": 87,
+      "maxAbsCents": 3.491
+    },
+    "vibrato": {
+      "frames": 87,
+      "maxAbsCents": 3.636
+    }
+  },
+  "legato": {
+    "onsetFirst": [
+      {
+        "midi": 57,
+        "start": 0,
+        "duration": 0.995,
+        "confidence": 0.8606401835554164
+      }
+    ],
+    "continuous": [
+      {
+        "midi": 57,
+        "start": 0,
+        "duration": 0.53,
+        "confidence": 0.9817269653032663
+      },
+      {
+        "midi": 69,
+        "start": 0.53,
+        "duration": 0.46499999999999997,
+        "confidence": 0.997703159314207
+      }
+    ]
+  },
+  "limitations": [
+    "Node CPU times are not browser UI or microphone latency.",
+    "No annotated human singing test fixture is present.",
+    "48 ms stable frames exclude attack and release."
+  ]
+}

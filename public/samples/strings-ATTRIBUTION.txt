@@ -1,0 +1,22 @@
+真实录音乐器采样署名
+
+本项目的电吉他与电贝斯录音来自 Karoryfer，经 Nicholaus P. Brosowsky 的
+tonejs-instruments 项目编辑、规范化并以 CC BY 3.0 分发。
+立式贝斯录音来自 Versilian Studios / VSCO 2 Community Edition，经该项目分发。
+
+分发来源与许可声明：
+https://github.com/nbrosowsky/tonejs-instruments
+https://github.com/nbrosowsky/tonejs-instruments/blob/master/README.md
+原始来源目录：
+https://github.com/nbrosowsky/tonejs-instruments/blob/master/sample-source-info.txt
+https://www.karoryfer.com/karoryfer-samples
+https://vis.versilstudios.net/vsco-community.html
+许可：https://creativecommons.org/licenses/by/3.0/
+许可文本保存在 strings-LICENSE.txt，上游说明保存在 strings-upstream-README.txt。
+
+guitar-electric：17 个录音音位；bass-electric：16 个录音音位；contrabass：13 个录音音位。
+MP3 文件原样复制。本项目在播放时转换邻近音高，调整包络、滤波、音量、失真和空间。
+清音、宽幅、闷音、摇滚电吉他共享电吉他录音；指弹与拨片音色共享电贝斯录音。
+这些变体是采样基础上的声音处理，并非分别录制的演奏技法或完整多力度音源。
+作者署名不表示作者对本项目背书。下载日期：2026-10-24。
+文件哈希及来源见 strings-files.json。

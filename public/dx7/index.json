@@ -1,0 +1,1361 @@
+{
+  "title": "Yamaha DX7 一代原厂 ROM 备份",
+  "banks": [
+    {
+      "bank": "ROM1A",
+      "region": "EU/JP",
+      "source": "https://yamahablackboxes.com/patches/dx7/factory/rom1a.syx",
+      "file": "ROM1A.syx",
+      "sha256": "91416e81d0fad931f6c7b5dc5bcfd7b7c48f5340b3753b7d3bf99f439fdd104d",
+      "voices": [
+        {
+          "slot": 1,
+          "name": "BRASS   1",
+          "algorithm": 22
+        },
+        {
+          "slot": 2,
+          "name": "BRASS   2",
+          "algorithm": 22
+        },
+        {
+          "slot": 3,
+          "name": "BRASS   3",
+          "algorithm": 18
+        },
+        {
+          "slot": 4,
+          "name": "STRINGS 1",
+          "algorithm": 2
+        },
+        {
+          "slot": 5,
+          "name": "STRINGS 2",
+          "algorithm": 2
+        },
+        {
+          "slot": 6,
+          "name": "STRINGS 3",
+          "algorithm": 15
+        },
+        {
+          "slot": 7,
+          "name": "ORCHESTRA",
+          "algorithm": 2
+        },
+        {
+          "slot": 8,
+          "name": "PIANO   1",
+          "algorithm": 19
+        },
+        {
+          "slot": 9,
+          "name": "PIANO   2",
+          "algorithm": 18
+        },
+        {
+          "slot": 10,
+          "name": "PIANO   3",
+          "algorithm": 3
+        },
+        {
+          "slot": 11,
+          "name": "E.PIANO 1",
+          "algorithm": 5
+        },
+        {
+          "slot": 12,
+          "name": "GUITAR  1",
+          "algorithm": 8
+        },
+        {
+          "slot": 13,
+          "name": "GUITAR  2",
+          "algorithm": 16
+        },
+        {
+          "slot": 14,
+          "name": "SYN-LEAD 1",
+          "algorithm": 18
+        },
+        {
+          "slot": 15,
+          "name": "BASS    1",
+          "algorithm": 16
+        },
+        {
+          "slot": 16,
+          "name": "BASS    2",
+          "algorithm": 17
+        },
+        {
+          "slot": 17,
+          "name": "E.ORGAN 1",
+          "algorithm": 32
+        },
+        {
+          "slot": 18,
+          "name": "PIPES   1",
+          "algorithm": 19
+        },
+        {
+          "slot": 19,
+          "name": "HARPSICH 1",
+          "algorithm": 5
+        },
+        {
+          "slot": 20,
+          "name": "CLAV    1",
+          "algorithm": 3
+        },
+        {
+          "slot": 21,
+          "name": "VIBE    1",
+          "algorithm": 23
+        },
+        {
+          "slot": 22,
+          "name": "MARIMBA",
+          "algorithm": 7
+        },
+        {
+          "slot": 23,
+          "name": "KOTO",
+          "algorithm": 2
+        },
+        {
+          "slot": 24,
+          "name": "FLUTE   1",
+          "algorithm": 16
+        },
+        {
+          "slot": 25,
+          "name": "ORCH-CHIME",
+          "algorithm": 5
+        },
+        {
+          "slot": 26,
+          "name": "TUB BELLS",
+          "algorithm": 5
+        },
+        {
+          "slot": 27,
+          "name": "STEEL DRUM",
+          "algorithm": 15
+        },
+        {
+          "slot": 28,
+          "name": "TIMPANI",
+          "algorithm": 16
+        },
+        {
+          "slot": 29,
+          "name": "REFS WHISL",
+          "algorithm": 18
+        },
+        {
+          "slot": 30,
+          "name": "VOICE   1",
+          "algorithm": 7
+        },
+        {
+          "slot": 31,
+          "name": "TRAIN",
+          "algorithm": 5
+        },
+        {
+          "slot": 32,
+          "name": "TAKE OFF",
+          "algorithm": 10
+        }
+      ]
+    },
+    {
+      "bank": "ROM1B",
+      "region": "EU/JP",
+      "source": "https://yamahablackboxes.com/patches/dx7/factory/rom1b.syx",
+      "file": "ROM1B.syx",
+      "sha256": "15c817360f56f7bd0e269575291cbfac91a45f0ee6125479abfdc4d69a560b4b",
+      "voices": [
+        {
+          "slot": 1,
+          "name": "PIANO   4",
+          "algorithm": 18
+        },
+        {
+          "slot": 2,
+          "name": "PIANO   5",
+          "algorithm": 3
+        },
+        {
+          "slot": 3,
+          "name": "E.PIANO 2",
+          "algorithm": 12
+        },
+        {
+          "slot": 4,
+          "name": "E.PIANO 3",
+          "algorithm": 5
+        },
+        {
+          "slot": 5,
+          "name": "E.PIANO 4",
+          "algorithm": 5
+        },
+        {
+          "slot": 6,
+          "name": "PIANO 5THS",
+          "algorithm": 5
+        },
+        {
+          "slot": 7,
+          "name": "CELESTE",
+          "algorithm": 31
+        },
+        {
+          "slot": 8,
+          "name": "TOY PIANO",
+          "algorithm": 30
+        },
+        {
+          "slot": 9,
+          "name": "HARPSICH 2",
+          "algorithm": 3
+        },
+        {
+          "slot": 10,
+          "name": "HARPSICH 3",
+          "algorithm": 3
+        },
+        {
+          "slot": 11,
+          "name": "CLAV    2",
+          "algorithm": 4
+        },
+        {
+          "slot": 12,
+          "name": "CLAV    3",
+          "algorithm": 4
+        },
+        {
+          "slot": 13,
+          "name": "E.ORGAN 2",
+          "algorithm": 29
+        },
+        {
+          "slot": 14,
+          "name": "E.ORGAN 3",
+          "algorithm": 29
+        },
+        {
+          "slot": 15,
+          "name": "E.ORGAN 4",
+          "algorithm": 5
+        },
+        {
+          "slot": 16,
+          "name": "E.ORGAN 5",
+          "algorithm": 29
+        },
+        {
+          "slot": 17,
+          "name": "PIPES   2",
+          "algorithm": 3
+        },
+        {
+          "slot": 18,
+          "name": "PIPES   3",
+          "algorithm": 25
+        },
+        {
+          "slot": 19,
+          "name": "PIPES   4",
+          "algorithm": 6
+        },
+        {
+          "slot": 20,
+          "name": "CALIOPE",
+          "algorithm": 16
+        },
+        {
+          "slot": 21,
+          "name": "ACCORDION",
+          "algorithm": 3
+        },
+        {
+          "slot": 22,
+          "name": "SITAR",
+          "algorithm": 8
+        },
+        {
+          "slot": 23,
+          "name": "GUITAR  3",
+          "algorithm": 14
+        },
+        {
+          "slot": 24,
+          "name": "GUITAR  4",
+          "algorithm": 14
+        },
+        {
+          "slot": 25,
+          "name": "GUITAR  5",
+          "algorithm": 14
+        },
+        {
+          "slot": 26,
+          "name": "GUITAR  6",
+          "algorithm": 3
+        },
+        {
+          "slot": 27,
+          "name": "LUTE",
+          "algorithm": 14
+        },
+        {
+          "slot": 28,
+          "name": "BANJO",
+          "algorithm": 8
+        },
+        {
+          "slot": 29,
+          "name": "HARP    1",
+          "algorithm": 3
+        },
+        {
+          "slot": 30,
+          "name": "HARP    2",
+          "algorithm": 3
+        },
+        {
+          "slot": 31,
+          "name": "BASS    3",
+          "algorithm": 17
+        },
+        {
+          "slot": 32,
+          "name": "BASS    4",
+          "algorithm": 17
+        }
+      ]
+    },
+    {
+      "bank": "ROM2A",
+      "region": "EU/JP",
+      "source": "https://yamahablackboxes.com/patches/dx7/factory/rom2a.syx",
+      "file": "ROM2A.syx",
+      "sha256": "5254f04b674aa872e8f09a8b5828cc5454f79495e4aa5bbba8a3cac3c606a699",
+      "voices": [
+        {
+          "slot": 1,
+          "name": "PICCOLO",
+          "algorithm": 5
+        },
+        {
+          "slot": 2,
+          "name": "FLUTE   2",
+          "algorithm": 18
+        },
+        {
+          "slot": 3,
+          "name": "OBOE",
+          "algorithm": 3
+        },
+        {
+          "slot": 4,
+          "name": "CLARINET",
+          "algorithm": 17
+        },
+        {
+          "slot": 5,
+          "name": "SAX BC",
+          "algorithm": 18
+        },
+        {
+          "slot": 6,
+          "name": "BASSOON",
+          "algorithm": 2
+        },
+        {
+          "slot": 7,
+          "name": "STRINGS 4",
+          "algorithm": 2
+        },
+        {
+          "slot": 8,
+          "name": "STRINGS 5",
+          "algorithm": 2
+        },
+        {
+          "slot": 9,
+          "name": "STRINGS 6",
+          "algorithm": 15
+        },
+        {
+          "slot": 10,
+          "name": "STRINGS 7",
+          "algorithm": 2
+        },
+        {
+          "slot": 11,
+          "name": "STRINGS 8",
+          "algorithm": 2
+        },
+        {
+          "slot": 12,
+          "name": "BRASS   4",
+          "algorithm": 22
+        },
+        {
+          "slot": 13,
+          "name": "BRASS   5",
+          "algorithm": 2
+        },
+        {
+          "slot": 14,
+          "name": "BRASS 6 BC",
+          "algorithm": 22
+        },
+        {
+          "slot": 15,
+          "name": "BRASS   7",
+          "algorithm": 8
+        },
+        {
+          "slot": 16,
+          "name": "BRASS   8",
+          "algorithm": 22
+        },
+        {
+          "slot": 17,
+          "name": "RECORDER",
+          "algorithm": 6
+        },
+        {
+          "slot": 18,
+          "name": "HARMONICA1",
+          "algorithm": 1
+        },
+        {
+          "slot": 19,
+          "name": "HRMNCA2 BC",
+          "algorithm": 1
+        },
+        {
+          "slot": 20,
+          "name": "VOICE   2",
+          "algorithm": 7
+        },
+        {
+          "slot": 21,
+          "name": "VOICE   3",
+          "algorithm": 5
+        },
+        {
+          "slot": 22,
+          "name": "GLOKENSPL",
+          "algorithm": 7
+        },
+        {
+          "slot": 23,
+          "name": "VIBE    2",
+          "algorithm": 5
+        },
+        {
+          "slot": 24,
+          "name": "XYLOPHONE",
+          "algorithm": 7
+        },
+        {
+          "slot": 25,
+          "name": "CHIMES",
+          "algorithm": 6
+        },
+        {
+          "slot": 26,
+          "name": "GONG    1",
+          "algorithm": 16
+        },
+        {
+          "slot": 27,
+          "name": "GONG    2",
+          "algorithm": 17
+        },
+        {
+          "slot": 28,
+          "name": "BELLS",
+          "algorithm": 27
+        },
+        {
+          "slot": 29,
+          "name": "COW BELL",
+          "algorithm": 6
+        },
+        {
+          "slot": 30,
+          "name": "BLOCK",
+          "algorithm": 18
+        },
+        {
+          "slot": 31,
+          "name": "FLEXATONE",
+          "algorithm": 7
+        },
+        {
+          "slot": 32,
+          "name": "LOG DRUM",
+          "algorithm": 14
+        }
+      ]
+    },
+    {
+      "bank": "ROM2B",
+      "region": "EU/JP",
+      "source": "https://yamahablackboxes.com/patches/dx7/factory/rom2b.syx",
+      "file": "ROM2B.syx",
+      "sha256": "1efb00f24e28df03470ebca19cadd63cb98b5f099b5e7502dd6f232ddb23af54",
+      "voices": [
+        {
+          "slot": 1,
+          "name": "SYN-LEAD 2",
+          "algorithm": 22
+        },
+        {
+          "slot": 2,
+          "name": "SYN-LEAD 3",
+          "algorithm": 22
+        },
+        {
+          "slot": 3,
+          "name": "SYN-LEAD 4",
+          "algorithm": 22
+        },
+        {
+          "slot": 4,
+          "name": "SYN-LEAD 5",
+          "algorithm": 1
+        },
+        {
+          "slot": 5,
+          "name": "SYN-CLAV 1",
+          "algorithm": 16
+        },
+        {
+          "slot": 6,
+          "name": "SYN-CLAV 2",
+          "algorithm": 7
+        },
+        {
+          "slot": 7,
+          "name": "SYN-CLAV 3",
+          "algorithm": 2
+        },
+        {
+          "slot": 8,
+          "name": "SYN-PIANO",
+          "algorithm": 5
+        },
+        {
+          "slot": 9,
+          "name": "SYNBRASS 1",
+          "algorithm": 22
+        },
+        {
+          "slot": 10,
+          "name": "SYNBRASS 2",
+          "algorithm": 22
+        },
+        {
+          "slot": 11,
+          "name": "SYNORGAN 1",
+          "algorithm": 22
+        },
+        {
+          "slot": 12,
+          "name": "SYNORGAN 2",
+          "algorithm": 3
+        },
+        {
+          "slot": 13,
+          "name": "SYN-VOX",
+          "algorithm": 25
+        },
+        {
+          "slot": 14,
+          "name": "SYN-ORCH",
+          "algorithm": 25
+        },
+        {
+          "slot": 15,
+          "name": "SYN-BASS 1",
+          "algorithm": 3
+        },
+        {
+          "slot": 16,
+          "name": "SYN-BASS 2",
+          "algorithm": 9
+        },
+        {
+          "slot": 17,
+          "name": "HARP-FLUTE",
+          "algorithm": 3
+        },
+        {
+          "slot": 18,
+          "name": "BELL-FLUTE",
+          "algorithm": 5
+        },
+        {
+          "slot": 19,
+          "name": "E.P-BRS BC",
+          "algorithm": 5
+        },
+        {
+          "slot": 20,
+          "name": "T.BL-EXPA",
+          "algorithm": 5
+        },
+        {
+          "slot": 21,
+          "name": "CHIME-STRG",
+          "algorithm": 5
+        },
+        {
+          "slot": 22,
+          "name": "B.DRM-SNAR",
+          "algorithm": 3
+        },
+        {
+          "slot": 23,
+          "name": "SHIMMER",
+          "algorithm": 5
+        },
+        {
+          "slot": 24,
+          "name": "EVOLUTION",
+          "algorithm": 1
+        },
+        {
+          "slot": 25,
+          "name": "WATER GDN",
+          "algorithm": 32
+        },
+        {
+          "slot": 26,
+          "name": "WASP STING",
+          "algorithm": 18
+        },
+        {
+          "slot": 27,
+          "name": "LASER GUN",
+          "algorithm": 31
+        },
+        {
+          "slot": 28,
+          "name": "DESCENT",
+          "algorithm": 1
+        },
+        {
+          "slot": 29,
+          "name": "OCTAVE WAR",
+          "algorithm": 7
+        },
+        {
+          "slot": 30,
+          "name": "GRAND PRIX",
+          "algorithm": 17
+        },
+        {
+          "slot": 31,
+          "name": "ST.HELENS",
+          "algorithm": 17
+        },
+        {
+          "slot": 32,
+          "name": "EXPLOSION",
+          "algorithm": 16
+        }
+      ]
+    },
+    {
+      "bank": "ROM3A",
+      "region": "US",
+      "source": "https://yamahablackboxes.com/patches/dx7/factory/rom3a.syx",
+      "file": "ROM3A.syx",
+      "sha256": "157b71a53a9881c8209bb5de57f6d9519d5f43cb7cae591c4606e7fb52ff9d86",
+      "voices": [
+        {
+          "slot": 1,
+          "name": "FLUTE   1",
+          "algorithm": 16
+        },
+        {
+          "slot": 2,
+          "name": "HARPSICH 1",
+          "algorithm": 5
+        },
+        {
+          "slot": 3,
+          "name": "STRG ENS 1",
+          "algorithm": 15
+        },
+        {
+          "slot": 4,
+          "name": "BRIGHT BOW",
+          "algorithm": 15
+        },
+        {
+          "slot": 5,
+          "name": "BRASSHORNS",
+          "algorithm": 18
+        },
+        {
+          "slot": 6,
+          "name": "BR TRUMPET",
+          "algorithm": 18
+        },
+        {
+          "slot": 7,
+          "name": "MARIMBA",
+          "algorithm": 7
+        },
+        {
+          "slot": 8,
+          "name": "E.PIANO 1",
+          "algorithm": 5
+        },
+        {
+          "slot": 9,
+          "name": "PIANO   1",
+          "algorithm": 4
+        },
+        {
+          "slot": 10,
+          "name": "PIPES   1",
+          "algorithm": 19
+        },
+        {
+          "slot": 11,
+          "name": "E.ORGAN 1",
+          "algorithm": 32
+        },
+        {
+          "slot": 12,
+          "name": "E.BASS  1",
+          "algorithm": 16
+        },
+        {
+          "slot": 13,
+          "name": "CLAV    1",
+          "algorithm": 18
+        },
+        {
+          "slot": 14,
+          "name": "HARMONICA1",
+          "algorithm": 1
+        },
+        {
+          "slot": 15,
+          "name": "JAZZ GUIT1",
+          "algorithm": 8
+        },
+        {
+          "slot": 16,
+          "name": "PRC SYNTH1",
+          "algorithm": 8
+        },
+        {
+          "slot": 17,
+          "name": "SAX BC",
+          "algorithm": 18
+        },
+        {
+          "slot": 18,
+          "name": "FRETLESS 1",
+          "algorithm": 17
+        },
+        {
+          "slot": 19,
+          "name": "HARP    1",
+          "algorithm": 14
+        },
+        {
+          "slot": 20,
+          "name": "TIMPANI",
+          "algorithm": 16
+        },
+        {
+          "slot": 21,
+          "name": "HEAVYMETAL",
+          "algorithm": 14
+        },
+        {
+          "slot": 22,
+          "name": "STEEL DRUM",
+          "algorithm": 15
+        },
+        {
+          "slot": 23,
+          "name": "SYN-LEAD 1",
+          "algorithm": 18
+        },
+        {
+          "slot": 24,
+          "name": "VOICES BC",
+          "algorithm": 1
+        },
+        {
+          "slot": 25,
+          "name": "CLAV ENS",
+          "algorithm": 4
+        },
+        {
+          "slot": 26,
+          "name": "LASERSWEEP",
+          "algorithm": 31
+        },
+        {
+          "slot": 27,
+          "name": "TUB ERUPT",
+          "algorithm": 5
+        },
+        {
+          "slot": 28,
+          "name": "GRAND PRIX",
+          "algorithm": 17
+        },
+        {
+          "slot": 29,
+          "name": "REFS WHISL",
+          "algorithm": 18
+        },
+        {
+          "slot": 30,
+          "name": "TRAIN",
+          "algorithm": 5
+        },
+        {
+          "slot": 31,
+          "name": "BRASS S H",
+          "algorithm": 18
+        },
+        {
+          "slot": 32,
+          "name": "TAKE OFF",
+          "algorithm": 10
+        }
+      ]
+    },
+    {
+      "bank": "ROM3B",
+      "region": "US",
+      "source": "https://yamahablackboxes.com/patches/dx7/factory/rom3b.syx",
+      "file": "ROM3B.syx",
+      "sha256": "0f21e5f28f0b6c77ef5cef839bb244d8946b2ee2243e88e1ba19f46c4aa85e30",
+      "voices": [
+        {
+          "slot": 1,
+          "name": "PIANO   2",
+          "algorithm": 4
+        },
+        {
+          "slot": 2,
+          "name": "E.GRAND 1",
+          "algorithm": 17
+        },
+        {
+          "slot": 3,
+          "name": "E.GRAND 2",
+          "algorithm": 11
+        },
+        {
+          "slot": 4,
+          "name": "HONKY TONK",
+          "algorithm": 3
+        },
+        {
+          "slot": 5,
+          "name": "E.PIANO 2",
+          "algorithm": 12
+        },
+        {
+          "slot": 6,
+          "name": "E.PIANO 3",
+          "algorithm": 6
+        },
+        {
+          "slot": 7,
+          "name": "E.PIANO 4",
+          "algorithm": 5
+        },
+        {
+          "slot": 8,
+          "name": "CELESTE",
+          "algorithm": 7
+        },
+        {
+          "slot": 9,
+          "name": "FUNK CLAV",
+          "algorithm": 18
+        },
+        {
+          "slot": 10,
+          "name": "CLAV ENS 2",
+          "algorithm": 4
+        },
+        {
+          "slot": 11,
+          "name": "PERC CLAV",
+          "algorithm": 4
+        },
+        {
+          "slot": 12,
+          "name": "HARPSICH 2",
+          "algorithm": 5
+        },
+        {
+          "slot": 13,
+          "name": "E.ORGAN 2",
+          "algorithm": 29
+        },
+        {
+          "slot": 14,
+          "name": "E.ORGAN 3",
+          "algorithm": 29
+        },
+        {
+          "slot": 15,
+          "name": "60-S ORGAN",
+          "algorithm": 29
+        },
+        {
+          "slot": 16,
+          "name": "PIPES   2",
+          "algorithm": 25
+        },
+        {
+          "slot": 17,
+          "name": "PIPES   3",
+          "algorithm": 6
+        },
+        {
+          "slot": 18,
+          "name": "CALIOPE",
+          "algorithm": 16
+        },
+        {
+          "slot": 19,
+          "name": "ACCORDION",
+          "algorithm": 4
+        },
+        {
+          "slot": 20,
+          "name": "TOY PIANO",
+          "algorithm": 30
+        },
+        {
+          "slot": 21,
+          "name": "SITAR",
+          "algorithm": 8
+        },
+        {
+          "slot": 22,
+          "name": "KOTO",
+          "algorithm": 2
+        },
+        {
+          "slot": 23,
+          "name": "JAZZ GUIT2",
+          "algorithm": 8
+        },
+        {
+          "slot": 24,
+          "name": "SPANISHGTR",
+          "algorithm": 14
+        },
+        {
+          "slot": 25,
+          "name": "FOLK GUIT",
+          "algorithm": 14
+        },
+        {
+          "slot": 26,
+          "name": "LUTE",
+          "algorithm": 14
+        },
+        {
+          "slot": 27,
+          "name": "BANJO",
+          "algorithm": 8
+        },
+        {
+          "slot": 28,
+          "name": "CLAS.GUIT",
+          "algorithm": 15
+        },
+        {
+          "slot": 29,
+          "name": "HARP    2",
+          "algorithm": 3
+        },
+        {
+          "slot": 30,
+          "name": "E.BASS  2",
+          "algorithm": 17
+        },
+        {
+          "slot": 31,
+          "name": "FRETLESS 2",
+          "algorithm": 17
+        },
+        {
+          "slot": 32,
+          "name": "PLUCK BASS",
+          "algorithm": 17
+        }
+      ]
+    },
+    {
+      "bank": "ROM4A",
+      "region": "US",
+      "source": "https://yamahablackboxes.com/patches/dx7/factory/rom4a.syx",
+      "file": "ROM4A.syx",
+      "sha256": "b34f01b5ee8690e5b45351a960eed3dea2fdd72318b419303d23f07d5e411fda",
+      "voices": [
+        {
+          "slot": 1,
+          "name": "PICCOLO",
+          "algorithm": 5
+        },
+        {
+          "slot": 2,
+          "name": "FLUTE   2",
+          "algorithm": 18
+        },
+        {
+          "slot": 3,
+          "name": "OBOE",
+          "algorithm": 3
+        },
+        {
+          "slot": 4,
+          "name": "CLARINET",
+          "algorithm": 17
+        },
+        {
+          "slot": 5,
+          "name": "BASSOON",
+          "algorithm": 2
+        },
+        {
+          "slot": 6,
+          "name": "PAN FLUTE",
+          "algorithm": 3
+        },
+        {
+          "slot": 7,
+          "name": "LEAD BRASS",
+          "algorithm": 18
+        },
+        {
+          "slot": 8,
+          "name": "HORNS",
+          "algorithm": 18
+        },
+        {
+          "slot": 9,
+          "name": "SOLO TBONE",
+          "algorithm": 8
+        },
+        {
+          "slot": 10,
+          "name": "BRASS BC",
+          "algorithm": 22
+        },
+        {
+          "slot": 11,
+          "name": "BRASS 5THS",
+          "algorithm": 2
+        },
+        {
+          "slot": 12,
+          "name": "SYNTHBRASS",
+          "algorithm": 22
+        },
+        {
+          "slot": 13,
+          "name": "STRG QRT 1",
+          "algorithm": 2
+        },
+        {
+          "slot": 14,
+          "name": "STRG ENS 2",
+          "algorithm": 9
+        },
+        {
+          "slot": 15,
+          "name": "VIOLA SECN",
+          "algorithm": 15
+        },
+        {
+          "slot": 16,
+          "name": "STRGS LOW",
+          "algorithm": 2
+        },
+        {
+          "slot": 17,
+          "name": "HIGH STRGS",
+          "algorithm": 2
+        },
+        {
+          "slot": 18,
+          "name": "PIZZ STGS",
+          "algorithm": 2
+        },
+        {
+          "slot": 19,
+          "name": "STG CRSNDO",
+          "algorithm": 2
+        },
+        {
+          "slot": 20,
+          "name": "STGS 5THS",
+          "algorithm": 15
+        },
+        {
+          "slot": 21,
+          "name": "BELLS",
+          "algorithm": 27
+        },
+        {
+          "slot": 22,
+          "name": "TUB BELLS",
+          "algorithm": 5
+        },
+        {
+          "slot": 23,
+          "name": "RECORDERS",
+          "algorithm": 6
+        },
+        {
+          "slot": 24,
+          "name": "CHIMES",
+          "algorithm": 6
+        },
+        {
+          "slot": 25,
+          "name": "VOICES",
+          "algorithm": 5
+        },
+        {
+          "slot": 26,
+          "name": "XYLOPHONE",
+          "algorithm": 7
+        },
+        {
+          "slot": 27,
+          "name": "COWBELL",
+          "algorithm": 6
+        },
+        {
+          "slot": 28,
+          "name": "WOOD BLOCK",
+          "algorithm": 18
+        },
+        {
+          "slot": 29,
+          "name": "FLEXATONE",
+          "algorithm": 7
+        },
+        {
+          "slot": 30,
+          "name": "LOG DRUM",
+          "algorithm": 14
+        },
+        {
+          "slot": 31,
+          "name": "GLOKENSPL",
+          "algorithm": 7
+        },
+        {
+          "slot": 32,
+          "name": "VIBE",
+          "algorithm": 23
+        }
+      ]
+    },
+    {
+      "bank": "ROM4B",
+      "region": "US",
+      "source": "https://yamahablackboxes.com/patches/dx7/factory/rom4b.syx",
+      "file": "ROM4B.syx",
+      "sha256": "d4eae13570569e27894a21593a9c591a474a1b945c13c3a0a933c42dee684c0b",
+      "voices": [
+        {
+          "slot": 1,
+          "name": "CLAV-E.PNO",
+          "algorithm": 9
+        },
+        {
+          "slot": 2,
+          "name": "PERC BRASS",
+          "algorithm": 22
+        },
+        {
+          "slot": 3,
+          "name": "PRC SYNTH2",
+          "algorithm": 3
+        },
+        {
+          "slot": 4,
+          "name": "HARPSI-STG",
+          "algorithm": 5
+        },
+        {
+          "slot": 5,
+          "name": "CHIME-STRG",
+          "algorithm": 5
+        },
+        {
+          "slot": 6,
+          "name": "HARP-FLUTE",
+          "algorithm": 3
+        },
+        {
+          "slot": 7,
+          "name": "BELL-FLUTE",
+          "algorithm": 5
+        },
+        {
+          "slot": 8,
+          "name": "STRG-CHIME",
+          "algorithm": 2
+        },
+        {
+          "slot": 9,
+          "name": "STRG-MARIM",
+          "algorithm": 15
+        },
+        {
+          "slot": 10,
+          "name": "STRG-PIZZT",
+          "algorithm": 15
+        },
+        {
+          "slot": 11,
+          "name": "ORCHESTRA",
+          "algorithm": 2
+        },
+        {
+          "slot": 12,
+          "name": "LEAD GUITR",
+          "algorithm": 7
+        },
+        {
+          "slot": 13,
+          "name": "PIANO-BRS",
+          "algorithm": 4
+        },
+        {
+          "slot": 14,
+          "name": "BRS-CHIME",
+          "algorithm": 22
+        },
+        {
+          "slot": 15,
+          "name": "B.DRM-SNAR",
+          "algorithm": 3
+        },
+        {
+          "slot": 16,
+          "name": "E.P-BRS BC",
+          "algorithm": 5
+        },
+        {
+          "slot": 17,
+          "name": "ORG-BRS BC",
+          "algorithm": 31
+        },
+        {
+          "slot": 18,
+          "name": "CLV-BRS BC",
+          "algorithm": 9
+        },
+        {
+          "slot": 19,
+          "name": "WHISTLES",
+          "algorithm": 25
+        },
+        {
+          "slot": 20,
+          "name": "FILTER SWP",
+          "algorithm": 17
+        },
+        {
+          "slot": 21,
+          "name": "FUNKY RISE",
+          "algorithm": 2
+        },
+        {
+          "slot": 22,
+          "name": "WILD BOAR",
+          "algorithm": 1
+        },
+        {
+          "slot": 23,
+          "name": "SHIMMER",
+          "algorithm": 5
+        },
+        {
+          "slot": 24,
+          "name": "EVOLUTION",
+          "algorithm": 1
+        },
+        {
+          "slot": 25,
+          "name": "WATER GDN",
+          "algorithm": 32
+        },
+        {
+          "slot": 26,
+          "name": "WASP STING",
+          "algorithm": 18
+        },
+        {
+          "slot": 27,
+          "name": "MULTI NOTE",
+          "algorithm": 32
+        },
+        {
+          "slot": 28,
+          "name": "DESCENT",
+          "algorithm": 1
+        },
+        {
+          "slot": 29,
+          "name": "OCTAVE WAR",
+          "algorithm": 7
+        },
+        {
+          "slot": 30,
+          "name": "..GOTCHA..",
+          "algorithm": 8
+        },
+        {
+          "slot": 31,
+          "name": "ST.HELENS",
+          "algorithm": 17
+        },
+        {
+          "slot": 32,
+          "name": "EXPLOSION",
+          "algorithm": 16
+        }
+      ]
+    }
+  ],
+  "slots": 256,
+  "uniqueParameterSets": 238,
+  "notice": "ROM1/2 与 ROM3/4 为不同地区的原厂配置，含重叠音色。此合集不含后来的商业扩展及全部用户自制音色。SYX 是 FM 合成参数，不是 WAV 录音。",
+  "sourcePage": "https://yamahablackboxes.com/collection/yamaha-dx7-synthesizer/patches/"
+}

@@ -1,0 +1,596 @@
+/* Arrangement workspace and its full-screen note editor share this palette. */
+:is(body.show-arrangement-studio, .track-detail-page.roll-workspace) {
+  --studio-dim: #81869e;
+  --studio-selection-line: #7760ad;
+  --studio-roll-row: #222632;
+  --studio-roll-outside: #171a23;
+  --studio-roll-black: #282a37;
+  --studio-roll-white: #d0d2df;
+  --studio-roll-note: #aa97f4;
+  --studio-roll-selected: #bfeaf5;
+  --studio-roll-selected-line: #8cdeed;
+  --studio-roll-grid-line: #bbbdd3;
+  --studio-clip-ink: #fff;
+  --studio-radius: 14px;
+  --studio-control: 36px;
+  --studio-row: 77px;
+  --studio-ruler: 37px;
+  --sans: system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
+  color: var(--studio-text);
+  background: var(--studio-bg);
+  font-family: system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+  :is(body.show-arrangement-studio, .track-detail-page.roll-workspace) {
+    --studio-dim: #656d85;
+    --studio-selection-line: #9c87cd;
+    --studio-roll-row: #f4f4fb;
+    --studio-roll-outside: #e6e8f2;
+    --studio-roll-black: #595e77;
+    --studio-roll-white: #fff;
+    --studio-roll-note: #bba8ff;
+    --studio-roll-selected: #a7e0eb;
+    --studio-roll-selected-line: #267990;
+    --studio-roll-grid-line: #717b98;
+    --studio-clip-ink: #252c46;
+  }
+}
+
+#arrangementView { min-width: 0; padding-top: 0; }
+#arrangementView .arrangement-heading {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 21px 0 11px;
+}
+#arrangementView .arrangement-heading h1 {
+  margin: 0;
+  color: var(--studio-text);
+  font: 650 clamp(1.45rem, 2vw, 2rem)/1.15 system-ui, sans-serif;
+  letter-spacing: -.035em;
+}
+#arrangementView #arrangeOpenAssistant { display: none; }
+#arrangementView .arrangement-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+#arrangementView .workspace-subnav {
+  margin: 0 0 11px;
+  border-radius: 8px;
+  background: var(--studio-inset);
+  border: 1px solid var(--studio-line);
+  padding: 2px;
+}
+#arrangementView .workspace-subnav a {
+  min-height: 32px;
+  padding: 3px 12px;
+  color: var(--studio-muted);
+  border-radius: 5px;
+  font-size: .8125rem;
+}
+#arrangementView .workspace-subnav a[aria-current="page"] {
+  color: var(--studio-violet);
+  background: var(--studio-raised);
+  box-shadow: none;
+}
+
+#arrangementView :is(.outline-action, .ghost-button, .transport-home, .arrangement-export-shortcut, .track-layout-tools button),
+.roll-workspace.track-detail-page .roll-workspace-header button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--studio-control);
+  padding: 5px 10px;
+  border: 1px solid var(--studio-line);
+  border-radius: 9px;
+  background: var(--studio-raised);
+  color: var(--studio-text);
+  font: 550 .8125rem/1.25 system-ui, sans-serif;
+  white-space: nowrap;
+  box-shadow: none;
+}
+#arrangementView .solid-action, #arrangementView .assistant-form button[type="submit"] {
+  min-height: var(--studio-control);
+  border: 1px solid transparent;
+  border-radius: 7px;
+  padding: 6px 12px;
+  background: var(--studio-primary);
+  color: var(--studio-on-primary);
+  font: 650 .8125rem/1.25 system-ui, sans-serif;
+  box-shadow: none;
+}
+#arrangementView :is(button, a, input, select, summary, textarea):focus-visible,
+.show-arrangement-studio #trackDialog :focus-visible,
+.roll-workspace.track-detail-page :focus-visible {
+  outline: 2px solid var(--studio-focus);
+  outline-offset: 2px;
+}
+#arrangementView :is(.outline-action, .ghost-button, .transport-home, .track-layout-tools button):hover:not(:disabled) {
+  border-color: var(--studio-violet);
+  color: var(--studio-violet);
+  transform: none;
+  background: var(--studio-hover);
+}
+#arrangementView button:disabled { opacity: .55; cursor: default; }
+#arrangementView input[type="checkbox"] { accent-color: var(--studio-violet); }
+
+.arrangement-transport-deck, #arrangementView .arrangement-console, #arrangementView .arrangement-utility,
+#arrangementView #assistantSidebar.assistant-docked, #arrangementView .inline-roll-panel {
+  min-width: 0;
+  background: var(--studio-surface);
+  border: 1px solid var(--studio-line);
+  border-radius: var(--studio-radius);
+  box-shadow: none;
+  color: var(--studio-text);
+}
+.arrangement-transport-deck { margin-bottom: 12px; }
+#arrangementView .arrangement-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  min-height: 60px;
+  padding: 9px 13px;
+  border-color: var(--studio-line);
+}
+#arrangementView .arrangement-transport { gap: 7px; }
+#arrangementView .transport-home { width: var(--studio-control); padding: 0; cursor: pointer; }
+#arrangementView .transport-home svg { width: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+#arrangePlayBtn {
+  width: 39px;
+  height: 39px;
+  min-width: 39px;
+  padding: 0;
+  border: 1px solid transparent;
+  background: var(--studio-primary);
+  color: var(--studio-on-primary);
+  box-shadow: none;
+}
+#arrangePlayBtn svg { fill: currentColor; width: 19px; height: 19px; }
+#arrangePlayBtn:hover, #arrangementView .solid-action:hover:not(:disabled) { background: var(--studio-primary-hover); }
+#arrangementView .arrangement-time-readout { min-width: 108px; margin-left: 5px; gap: 1px; }
+#arrangementView #arrangeTime {
+  font: 500 1.5rem/1.1 ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+#arrangementView #arrangeStatus { font-size: .6875rem; color: var(--studio-muted); }
+#arrangementView .arrangement-toolbar-center { flex-wrap: wrap; gap: 6px; justify-content: flex-start; }
+#arrangementView .arrangement-tempo {
+  display: flex;
+  gap: 4px;
+  padding: 0 8px;
+  min-height: var(--studio-control);
+  color: var(--studio-muted);
+  background: var(--studio-inset);
+  border: 1px solid var(--studio-line);
+  border-radius: 7px;
+  font-size: .75rem;
+}
+#arrangementView .arrangement-tempo input { width: 3.3rem; color: var(--studio-text); font: 550 .875rem ui-monospace, monospace; }
+#arrangementView #arrangeMetronomeBtn[aria-pressed="true"] { border-color: var(--studio-cyan); color: var(--studio-cyan); }
+#arrangementView .arrangement-summary { flex-wrap: wrap; gap: 6px 11px; margin-left: auto; color: var(--studio-muted); font-size: .6875rem; }
+#arrangementView .arrangement-summary span { display: inline-flex; align-items: baseline; }
+#arrangementView .arrangement-summary span[hidden] { display: none; }
+#arrangementView .arrangement-summary b { color: var(--studio-text); font: 550 .8125rem ui-monospace, monospace; }
+#arrangementView #arrangementSectionControls { margin: 0; padding: 8px 13px; }
+#arrangementView .arrangement-loop-row { gap: 4px 10px; }
+#arrangementView :is(#arrangementLoopRange, #templateNowPlaying) { color: var(--studio-muted); font-size: .75rem; }
+#arrangementView #templateNowPlaying:not(:empty) { color: var(--studio-cyan); }
+#arrangementView #arrangementLoopBtn[aria-pressed="true"],
+#arrangementView .arrangement-section-chips button[aria-pressed="true"] {
+  background: var(--studio-violet-bg);
+  color: var(--studio-violet);
+  border-color: var(--studio-selection-line);
+}
+#arrangementView .arrangement-section-chips { flex-wrap: wrap; overflow: visible; gap: 5px; padding-bottom: 0; }
+#arrangementView .arrangement-section-chips button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5px;
+  flex: 1 0 max-content;
+  min-height: var(--studio-control);
+  padding: 4px 8px;
+  background: var(--studio-inset);
+  border: 1px solid var(--studio-line);
+  border-radius: 6px;
+  color: var(--studio-text);
+  font: 550 .75rem system-ui, sans-serif;
+}
+#arrangementView .arrangement-section-chips small { color: var(--studio-muted); font: .6875rem ui-monospace, monospace; }
+
+#arrangementView .arrangement-workbench {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(265px, 24vw, 326px) !important;
+  grid-template-areas: "editor assistant" "utility assistant";
+  gap: 12px;
+}
+#arrangementView .arrangement-console { grid-area: editor; }
+#arrangementView .arrangement-utility { grid-area: utility; padding: 10px; }
+.arrangement-inspector {
+  grid-area: assistant;
+  position: sticky;
+  top: 12px;
+  align-self: start;
+  min-width: 0;
+  max-height: calc(100dvh - 24px);
+  overflow: auto;
+  scrollbar-width: thin;
+}
+.timeline-topline, .inline-roll-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 7px 14px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--studio-line);
+}
+.timeline-topline h2, .inline-roll-header h2 {
+  color: var(--studio-text);
+  margin: 0 auto 0 0;
+  font: 650 .9375rem system-ui, sans-serif;
+}
+#arrangementView .track-layout-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  color: var(--studio-muted);
+  font-size: .75rem;
+}
+#arrangementView .track-layout-tools label { color: var(--studio-muted); }
+#arrangementView .track-layout-tools output { color: var(--studio-muted); }
+#arrangementView .track-layout-tools output:not(.active) { max-width: 100%; }
+#arrangementView .track-layout-tools button { min-height: 30px; }
+#arrangementView .arrangement-editor {
+  grid-template-columns: clamp(165px, 21vw, 222px) minmax(0, 1fr);
+  max-height: clamp(220px, 62dvh, 610px);
+  overflow: auto;
+  scrollbar-width: thin;
+  min-height: 174px;
+}
+#arrangementView :is(.arrangement-ruler-head, .arrangement-ruler) {
+  height: var(--studio-ruler);
+  border-color: var(--studio-line);
+  color: var(--studio-muted);
+  font-size: .75rem;
+}
+#arrangementView .arrangement-ruler-head { padding: 0 9px; }
+#arrangementView :is(.arrangement-ruler-head,.arrangement-ruler) { position:sticky; top:0; z-index:4; }
+#arrangementView .arrangement-ruler-head { background:var(--studio-surface); }
+#arrangementView .arrangement-ruler-head small { color: var(--studio-dim); font: .6875rem system-ui, sans-serif; }
+#arrangementView .arrangement-track-side { background: var(--studio-surface); border-color: var(--studio-line); }
+#arrangementView .arrangement-timeline {
+  overflow:clip;
+  background: linear-gradient(90deg, var(--studio-grid) 1px, transparent 1px) 0 0 / var(--studio-timeline-step, 12.5%) 100%, var(--studio-inset);
+}
+#arrangementView .arrangement-ruler { background: var(--studio-ruler-bg); }
+#arrangementView .arrangement-ruler b, #arrangementView .arrangement-ruler small { color: var(--studio-muted); font: .625rem ui-monospace, monospace; }
+#arrangementView .arrangement-ruler b { top: 5px; }
+#arrangementView .arrangement-ruler small { bottom: 4px; }
+#arrangementView .arrangement-ruler > span.ruler-trailing small { left: auto; right: 3px; }
+#arrangementView :is(.arrange-track-header, .arrange-lane) { height: var(--studio-row); border-color: var(--studio-line); }
+#arrangementView .arrange-track-header {
+  display: grid;
+  grid-template: 27px 24px 12px / 19px 28px minmax(0, 1fr) 20px;
+  align-content: center;
+  padding: 2px 7px;
+  gap: 2px 5px;
+  border-left: 3px solid var(--track-color);
+}
+#arrangementView .arrange-track-header:hover { background: var(--studio-hover); }
+#arrangementView .arrange-track-header.selected {
+  border-left-color: var(--studio-violet);
+  box-shadow: inset 0 0 0 1px var(--studio-selection-line);
+  background: var(--studio-violet-bg);
+}
+#arrangementView .arrange-track-header.track-drop-target {
+  box-shadow: inset 0 3px var(--studio-cyan);
+  background: color-mix(in srgb, var(--studio-cyan) 10%, var(--studio-surface));
+}
+#arrangementView .arrange-track-buttons [data-track-fx]:not(.active) { color: var(--studio-cyan); }
+#arrangementView .arrange-track-number { display: grid; color: var(--studio-muted); padding: 0; font-size: .75rem; }
+#arrangementView .arrange-track-number small { color: var(--studio-dim); }
+#arrangementView .arrange-track-icon { width: 27px; height: 27px; padding: 3px; }
+#arrangementView .arrange-track-copy { gap: 1px; padding: 0; border: 0; background: transparent; text-align: left; cursor: pointer; }
+#arrangementView .arrange-track-color {
+  align-self:center; width:20px; height:22px; padding:3px;
+  border:1px solid var(--studio-line); border-radius:5px;
+  background:var(--studio-raised); cursor:pointer;
+}
+#arrangementView .arrange-track-color::-webkit-color-swatch-wrapper { padding:0; }
+#arrangementView .arrange-track-color::-webkit-color-swatch { border:0; border-radius:2px; }
+#arrangementView .arrange-track-color::-moz-color-swatch { border:0; border-radius:2px; }
+#arrangementView .arrange-track-copy strong { color: var(--studio-text); font-size: .8125rem; }
+#arrangementView .arrange-track-copy small { color: var(--studio-muted); font-size: .625rem; }
+#arrangementView .arrange-track-buttons {
+  position: static;
+  grid-column: 2 / -1;
+  display: grid;
+  grid-template-columns: 1.6fr repeat(5, 1fr);
+  gap: 3px;
+}
+#arrangementView .arrange-track-buttons button {
+  min-width: 0;
+  width: auto;
+  height: 23px;
+  color: var(--studio-muted);
+  border-color: var(--studio-line);
+  background: var(--studio-raised);
+  font-size: .6875rem;
+}
+#arrangementView .arrange-track-buttons button:is(.active, [aria-pressed="true"]) {
+  border-color: var(--track-color);
+  color: #14141c;
+  background: var(--track-color);
+}
+#arrangementView .arrange-volume {
+  grid-column: 2 / -1;
+  grid-template-columns: auto minmax(0, 1fr);
+  font-size: .625rem;
+  color: var(--studio-muted);
+}
+#arrangementView .arrange-volume input { height: 9px; min-width: 0; margin: 0; }
+#arrangementView .arrange-lane { padding: 5px 5px; }
+#arrangementView .arrange-clip {
+  border-radius: 6px;
+  border-color: color-mix(in srgb, var(--track-color) 45%, transparent);
+  background: color-mix(in srgb, var(--track-color) 13%, var(--studio-inset));
+}
+#arrangementView .arrange-clip.empty { background: var(--studio-inset); }
+#arrangementView .arrange-clip:not(.empty) { touch-action: pan-y; }
+#arrangementView .arrange-lane.selected .arrange-clip {
+  border-color: var(--studio-violet);
+  box-shadow: inset 0 0 0 1px var(--studio-selection-line);
+}
+#arrangementView .arrange-clip-heading { inset: 3px 4px auto 6px; gap: 4px; }
+#arrangementView .arrange-clip-heading span { color: var(--studio-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .6875rem; }
+#arrangementView .arrange-clip-heading small { color: var(--studio-muted); white-space: nowrap; font-size: .5625rem; }
+#arrangementView .track-shift-grip { font-size: .875rem; color: var(--studio-text); border-color: var(--studio-line); background: var(--studio-inset); }
+#arrangementView .arrange-clip-wave { inset: 18px 3px 3px; width: calc(100% - 6px); height: calc(100% - 21px); }
+#arrangementView .arrange-clip-wave path { stroke: color-mix(in srgb, var(--track-color) 72%, var(--studio-clip-ink)); }
+#arrangementView .arrange-clip-wave:not(.audio-clip-wave) path { stroke-width: 2.3px; }
+#arrangementView .arrangement-playhead { background: transparent; box-shadow: none; pointer-events: none; }
+#arrangementView .arrangement-playhead::after { background: var(--studio-cyan); box-shadow: none; }
+#arrangementView .arrangement-playhead::after { top:var(--track-scroll-top,0px); }
+#arrangementView #arrangementSeekHandle { color: var(--studio-cyan); pointer-events: auto; }
+#arrangementView #arrangementSeekHandle { top:calc(var(--track-scroll-top,0px) - 33px); }
+#arrangementView #arrangementSeekHandle > span {
+  width: 0;
+  height: 0;
+  margin-inline: auto;
+  border: 4px solid transparent;
+  border-top: 6px solid currentColor;
+  border-bottom: 0;
+  font-size: 0;
+}
+#arrangementView #arrangementSeekTime { color: var(--studio-cyan); background: var(--studio-inset); }
+#arrangementView .arrangement-empty {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 5px;
+  padding: 7px;
+  text-align: center;
+}
+#arrangementView .arrangement-empty[hidden] { display: none; }
+#arrangementView .arrangement-empty strong { font: 600 1rem system-ui, sans-serif; color: var(--studio-text); }
+#arrangementView .arrangement-empty p { margin: 0 0 3px; color: var(--studio-muted); font-size: .75rem; }
+
+#arrangementView .inline-roll-panel { border-width: 1px 0 0; border-radius: 0; }
+.inline-roll-header label { display: flex; align-items: center; gap: 6px; min-width: 0; color: var(--studio-muted); font-size: .75rem; }
+.inline-roll-header select { max-width: min(230px, 45vw); }
+#inlineRollEmpty, #inlineRollHost .arrangement-note-editor:not(.editable-piano-roll) { color: var(--studio-muted); padding: 12px; margin: 0; }
+#inlineRollHost .arrangement-note-editor { margin: 0; padding: 9px 11px; border: 0; }
+#inlineRollHost [data-roll-title] { display: none; }
+#inlineRollHost .roll-grid { height: clamp(174px, 30dvh, 310px); }
+:is(#inlineRollHost, .track-detail-page.roll-workspace) .editable-piano-roll {
+  background: var(--studio-surface);
+  color: var(--studio-text);
+  border-color: var(--studio-line);
+}
+:is(#inlineRollHost, .track-detail-page.roll-workspace) :is(.roll-grid,.roll-ruler) { border-color: var(--studio-line); color: var(--studio-muted); background: var(--studio-inset); }
+:is(#inlineRollHost, .track-detail-page.roll-workspace) .roll-status { color: var(--studio-muted); }
+:is(#inlineRollHost, .track-detail-page.roll-workspace) .roll-window { flex-wrap: wrap; }
+:is(#inlineRollHost, .track-detail-page.roll-workspace) .roll-tools [aria-pressed="true"] { background: var(--studio-violet-bg); color: var(--studio-violet); border-color: var(--studio-violet); }
+:is(#inlineRollHost, .track-detail-page.roll-workspace) svg rect[fill="#21332d"] { fill: var(--studio-roll-row); }
+:is(#inlineRollHost, .track-detail-page.roll-workspace) svg rect[fill="#182622"] { fill: var(--studio-roll-outside); }
+:is(#inlineRollHost, .track-detail-page.roll-workspace) svg rect[fill="#30433c"] { fill: var(--studio-roll-black); }
+:is(#inlineRollHost, .track-detail-page.roll-workspace) svg rect[fill="#bfd0c2"] { fill: var(--studio-roll-white); }
+:is(#inlineRollHost, .track-detail-page.roll-workspace) svg rect[fill="#77b69c"] { fill: var(--studio-roll-note); }
+:is(#inlineRollHost, .track-detail-page.roll-workspace) svg rect[fill="#d5f596"] { fill: var(--studio-roll-selected); stroke: var(--studio-roll-selected-line); }
+:is(#inlineRollHost, .track-detail-page.roll-workspace) svg [data-roll-cursor] { stroke: var(--studio-cyan); }
+:is(#inlineRollHost, .track-detail-page.roll-workspace) svg :is(path[stroke="#afc5b6"],path[stroke="#b9cfbf"]) { stroke: var(--studio-roll-grid-line); }
+.track-detail-page.roll-workspace { min-height: 100dvh; }
+.roll-audition-key { cursor: pointer; }
+.roll-audition-key :is(.roll-key-base,.roll-key-face) { fill: var(--studio-roll-white); }
+.roll-audition-key.black .roll-key-face { fill: var(--studio-roll-black); }
+.roll-audition-key.drum .roll-key-face { fill: var(--studio-raised); }
+.roll-audition-key text { fill: #212330; pointer-events: none; }
+.roll-audition-key.black text { fill: #f7f6ff; }
+.roll-audition-key.drum text { fill: var(--studio-text); }
+.roll-audition-key:hover .roll-key-face { filter: brightness(1.12); }
+.roll-audition-key:active .roll-key-face { fill: #ab96f9; }
+.roll-audition-key:active text { fill: #212330; }
+
+#arrangementView :is(.arrangement-template-drawer, .transcription-panel, .track-channel-panel, .material-library, .performance-panel, .drum-step-panel),
+#arrangementView :is(.assistant-status, .assistant-options, .assistant-messages, .assistant-plan, .assistant-message),
+.show-arrangement-studio :is(#trackDialog, #projectDialog) {
+  color: var(--studio-text);
+  background: var(--studio-surface);
+  border-color: var(--studio-line);
+  box-shadow: none;
+}
+#arrangementView :is(.track-channel-panel, .performance-panel, .material-library, .arrangement-footer) { margin: 8px 0; }
+#arrangementView :is(.arrangement-template-drawer, .transcription-panel) { border-radius: 8px; }
+#arrangementView :is(.arrangement-template-drawer, .transcription-panel, .track-channel-panel, .material-library) summary,
+#arrangementView :is(.arrangement-template-drawer, .transcription-panel) summary :is(span,small),
+#arrangementView :is(.track-channel-panel, .material-library, .performance-panel, .drum-step-panel) :is(h2,h3,strong,b,legend) { color: var(--studio-text); }
+#arrangementView :is(.night-pocket-demo, .transcription-body, .track-channel-groups fieldset, .material-drawer-body) {
+  min-width: 0;
+  color: var(--studio-text);
+  background: var(--studio-inset);
+  border-color: var(--studio-line);
+}
+#arrangementView :is(.arrangement-utility, #assistantSidebar) :is(p,small,output,label),
+#arrangementView :is(.arrangement-utility, #assistantSidebar) :is(a,.assistant-link),
+.show-arrangement-studio :is(#trackDialog, #projectDialog) :is(p,label,small) { color: var(--studio-muted); }
+#arrangementView .arrangement-footer :is(p,button) { font-size: .75rem; }
+#arrangementView .arrangement-footer button { color: var(--studio-violet); }
+#arrangementView :is(.transcription-body, .track-channel-panel, .material-library, .performance-panel, #assistantSidebar, .editable-piano-roll, .inline-roll-header) :is(button:not(.solid-action):not(.record-take-button),select,input:not([type="checkbox"]):not([type="range"]),textarea),
+.track-detail-page.roll-workspace .editable-piano-roll :is(button,select,input:not([type="checkbox"])),
+.show-arrangement-studio #trackDialog :is(input,button),
+.show-arrangement-studio #projectDialog :is(input,textarea) {
+  min-width: 0;
+  max-width: 100%;
+  border-color: var(--studio-line);
+  background-color: var(--studio-raised);
+  color: var(--studio-text);
+}
+#arrangementView .track-channel-panel input[type="range"] { accent-color: var(--studio-cyan); }
+#arrangementView .track-channel-panel summary { padding: 10px 12px; gap: 8px; }
+#arrangementView .track-channel-panel summary::after { content: "+"; color: var(--studio-violet); }
+#arrangementView .track-channel-panel details[open] summary::after { content: "−"; }
+#arrangementView .track-channel-body { padding: 0 12px 12px; }
+#arrangementView .track-channel-groups { grid-template-columns: minmax(0, 1fr); }
+#arrangementView .track-channel-groups legend { font: 600 13px var(--sans); letter-spacing: .04em; color: var(--studio-text); }
+#arrangementView .track-channel-toolbar { gap: 8px; }
+#arrangementView .track-channel-toolbar > label { min-width: 0; flex-wrap: wrap; }
+#arrangementView .track-channel-toolbar select { max-width: 100%; }
+#arrangementView .track-channel-pages { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin-bottom: 10px; }
+#arrangementView .track-channel-pages button[aria-pressed="true"] { background: var(--studio-violet-bg); border-color: var(--studio-selection-line); color: var(--studio-violet); }
+#arrangementView .track-channel-body[data-channel-section="basic"] :is([data-channel-category="eq"], [data-channel-category="compressor"], .track-channel-switches),
+#arrangementView .track-channel-body[data-channel-section="eq"] :is([data-channel-category="basic"], [data-channel-category="compressor"]),
+#arrangementView .track-channel-body[data-channel-section="compressor"] :is([data-channel-category="basic"], [data-channel-category="eq"]) { display: none; }
+#arrangementView .record-take-button { color: #ffe9ee; background: #7f2646; }
+#arrangementView #drumStepPanel button:is([data-drum-pattern],[data-drum-step])[aria-pressed="true"] {
+  background: var(--studio-primary);
+  border-color: var(--studio-primary);
+  color: var(--studio-on-primary);
+  box-shadow: none;
+}
+#arrangementView .drum-step-row > span { color: var(--studio-muted); }
+#arrangementView #inlineRollTrack {
+  padding: 5px 8px;
+  border: 1px solid var(--studio-line);
+  border-radius: 6px;
+  font: inherit;
+}
+@supports (appearance: base-select) {
+  #inlineRollTrack, #inlineRollTrack::picker(select) { appearance: base-select; }
+  #inlineRollTrack::picker(select) {
+    margin-top: 4px;
+    border: 1px solid var(--studio-line);
+    border-radius: 6px;
+    background: var(--studio-surface);
+    color: var(--studio-text);
+  }
+  #inlineRollTrack option { padding: 5px 8px; }
+  #inlineRollTrack option:checked { background: var(--studio-primary); color: var(--studio-on-primary); }
+  #inlineRollTrack option:is(:hover,:focus-visible):not(:checked) { background: var(--studio-violet-bg); }
+}
+#arrangementView #arrangeDrumPads .drum-pad {
+  border-color: var(--studio-selection-line);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--studio-violet) 26%, var(--studio-raised)), var(--studio-violet-bg));
+  color: var(--studio-text);
+  box-shadow: inset 0 -3px color-mix(in srgb, var(--studio-violet) 25%, transparent);
+}
+#arrangementView #arrangeDrumPads .drum-pad span { color: var(--studio-text); background: var(--studio-inset); }
+#arrangementView #arrangeDrumPads .drum-pad small { color: var(--studio-muted); }
+#arrangementView #arrangeDrumPads .drum-pad:hover { border-color: var(--studio-violet); }
+#arrangementView #arrangeDrumPads .drum-pad.active {
+  border-color: #815ad7;
+  background: linear-gradient(145deg, #d6c7fc, #a68ff0);
+  color: #241640;
+  box-shadow: none;
+}
+#arrangementView #arrangeDrumPads .drum-pad.active small { color: #3e2b61; }
+#arrangementView .night-pocket-controls audio { max-width: 100%; }
+.show-arrangement-studio :is(#trackDialog,#projectDialog) { border: 1px solid var(--studio-line); }
+.show-arrangement-studio :is(#trackDialog,#projectDialog) h2 { color: var(--studio-text); font-family: var(--sans); }
+.show-arrangement-studio #trackDialog .track-instrument-choices button[aria-current="true"] { border-color: var(--studio-violet); background: var(--studio-violet-bg); }
+.show-arrangement-studio #trackDialog .track-instrument-choices button:hover:not(:disabled) { border-color: var(--studio-violet); }
+
+#arrangementView #assistantSidebar.assistant-docked {
+  position: static;
+  transform: none !important;
+  width: 100%;
+  max-height: none;
+  overflow: visible;
+}
+#arrangementView #assistantSidebar.assistant-docked .assistant-sidebar-header { position: static; padding: 0; border-color: var(--studio-line); background: transparent; }
+#arrangementView #assistantSidebar.assistant-docked .assistant-launcher {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 43px;
+  padding: 6px 11px;
+  border: 0;
+  border-radius: 0;
+  writing-mode: horizontal-tb;
+  background: var(--studio-surface);
+  color: var(--studio-text);
+  font: 600 .875rem system-ui, sans-serif;
+}
+#arrangementView .assistant-launcher::after { content: "−"; margin-left: auto; color: var(--studio-violet); }
+#arrangementView .collapsed .assistant-launcher::after { content: "+"; }
+#arrangementView .assistant-launcher img { height: 24px; width: 24px; }
+#arrangementView .assistant-launcher-label { display: inline; }
+#arrangementView #assistantSidebar.assistant-docked .assistant-close { display: none; }
+#arrangementView #assistantSidebar.assistant-docked .arrangement-ai-panel { padding: 10px; gap: 9px; color: var(--studio-text); border-top: 1px solid var(--studio-line); }
+#arrangementView #assistantSidebar.collapsed .arrangement-ai-panel { display: none; }
+#arrangementView #assistantSidebar .assistant-intro h2 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+#arrangementView #assistantSidebar :is(.assistant-intro > p,.assistant-mode-note,.assistant-form label) { margin: 0; color: var(--studio-muted); font-size: .75rem; }
+#arrangementView #assistantSidebar .assistant-status { display: block; color: var(--studio-cyan); border: 1px solid var(--studio-line); padding: 5px 7px; margin-top: 5px; }
+#arrangementView #assistantSidebar .assistant-options { margin-top: 5px; border-top-color: var(--studio-line); }
+#arrangementView #assistantSidebar .assistant-options > summary { color: var(--studio-violet); }
+#arrangementView #assistantSidebar .assistant-mode-label { margin: 7px 0 0; }
+#arrangementView #assistantSidebar .assistant-mode-label select { width: 100%; min-height: 36px; }
+#arrangementView #assistantSidebar .assistant-messages { height: 122px; font-size: .75rem; background: var(--studio-inset); }
+#arrangementView #assistantSidebar textarea { min-height: 84px; background: var(--studio-inset); font-size: .875rem; }
+#arrangementView #assistantSidebar .assistant-form button[type="submit"] { background: var(--studio-primary); color: var(--studio-on-primary); }
+#arrangementView #assistantSidebar .assistant-form button[type="submit"]:hover:not(:disabled) { background: var(--studio-primary-hover); }
+#arrangementView #assistantSidebar .assistant-experiment-actions { flex-wrap: wrap; }
+
+@media (max-width: 1050px) {
+  #arrangementView .arrangement-summary { margin-left: 0; }
+}
+@media (max-width: 900px) {
+  #arrangementView #arrangeOpenAssistant { display: inline-flex; }
+  #arrangementView .arrangement-workbench {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-areas: "editor" "assistant" "utility";
+  }
+  .arrangement-inspector { position: static; max-height: none; overflow: visible; }
+}
+@media (max-width: 690px) {
+  body.show-arrangement-studio { --studio-control: 40px; }
+  #arrangementView .arrangement-heading { padding-top: 12px; }
+  #arrangementView .arrangement-toolbar { gap: 8px; }
+  #arrangementView .arrangement-toolbar-center { flex: 1 1 100%; }
+  #arrangementView .arrangement-toolbar-center > * { flex: 1 0 auto; }
+  #arrangementView .arrangement-tempo { flex: 0 0 auto; }
+  #arrangementView .arrangement-editor { grid-template-columns: minmax(135px, 43%) minmax(0,1fr); }
+  #arrangementView .arrangement-ruler > span:nth-child(even) small,
+  #arrangementView .arrangement-ruler-head small,
+  #arrangementView .arrange-clip-heading small { display: none; }
+  #arrangementView .track-layout-tools output { flex-basis: 100%; }
+  #arrangementView .inline-roll-header { padding-inline: 8px; }
+  #arrangementView .arrangement-utility { padding: 6px; }
+  #arrangementView .assistant-docked .assistant-launcher { min-height: 44px; }
+}
+@media (max-width: 690px), (pointer: coarse) {
+  body.show-arrangement-studio { --studio-row: 149px; }
+  #arrangementView .arrange-track-header { grid-template-rows: 34px 84px 21px; gap: 2px 4px; padding-inline: 5px; }
+  #arrangementView .arrange-track-buttons { grid-column: 1 / -1; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px; }
+  #arrangementView .arrange-track-buttons button { min-height: 40px; }
+  #arrangementView .arrange-track-icon { width: 28px; height: 33px; }
+  #arrangementView .arrange-volume { grid-column: 1 / -1; }
+  #arrangementView .arrange-volume input { height: 21px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #arrangementView :is(button, a, summary, input, select) { transition: none; }
+}

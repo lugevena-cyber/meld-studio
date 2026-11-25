@@ -1,0 +1,1 @@
+window.MELD_CLOUD_CONFIG={supabaseUrl:"",supabaseAnonKey:""};

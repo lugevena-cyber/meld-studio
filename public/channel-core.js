@@ -1,0 +1,7 @@
+(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.MeldChannelCore=api;})(typeof globalThis!=='undefined'?globalThis:this,function(){
+ const ranges={highpass:[20,1200,20],filterHz:[20,20000,16000],filterQ:[.1,18,.707],lowGain:[-18,18,0],midGain:[-18,18,0],midHz:[200,6000,1000],midQ:[.3,8,1],highGain:[-18,18,0],threshold:[-60,0,-18],ratio:[1,20,3],attack:[1,100,10],release:[20,1000,120],pan:[-1,1,0],trim:[-18,12,0]};
+ const types=['off','lowpass','highpass','bandpass','notch'];
+ function normalize(value={}){const input=value&&typeof value==='object'?value:{},out={bypass:input.bypass===true,compressor:input.compressor===true,filterType:types.includes(input.filterType)?input.filterType:'off'};for(const [key,[min,max,initial]]of Object.entries(ranges))out[key]=Number.isFinite(input[key])?Math.max(min,Math.min(max,input[key])):initial;return out;}
+ function validate(input){if(!input||typeof input!=='object'||Array.isArray(input))throw new Error('通道效果格式不正确');for(const [key,value]of Object.entries(input)){if(key==='bypass'||key==='compressor'){if(typeof value!=='boolean')throw new Error('通道开关不正确');}else if(key==='filterType'){if(!types.includes(value))throw new Error('滤波类型不正确');}else if(!Object.prototype.hasOwnProperty.call(ranges,key)||!Number.isFinite(value)||value<ranges[key][0]||value>ranges[key][1])throw new Error('通道参数超出范围');}return normalize(input);}
+ return {ranges,types,normalize,validate,defaults:normalize()};
+});

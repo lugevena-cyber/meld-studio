@@ -1,0 +1,21 @@
+Salamander Grand Piano — bundled acoustic piano recordings
+
+Piano recordings by Alexander Holm (Salamander Grand Piano, Yamaha C5).
+License: Creative Commons Attribution 3.0 Unported (CC BY 3.0).
+License text is included as LICENSE.txt.
+https://creativecommons.org/licenses/by/3.0/
+
+MP3 distribution used:
+https://github.com/Tonejs/audio/tree/master/salamander
+https://tonejs.github.io/audio/salamander/
+
+Original collection and author/license reference:
+https://archive.org/details/SalamanderGrandPianoV3
+https://github.com/sfzinstruments/SalamanderGrandPiano
+
+MELD bundles 30 MP3 recordings, copied without changing their audio files.
+MELD's player repitches nearby keys, applies gain/envelopes/filtering and optional
+room delay during playback. This is a compact single-layer browser bank; it does
+not include the complete 16-velocity-layer SFZ library or its pedal/noise layers.
+No endorsement by the sample author is implied.
+Downloaded: 2026-10-24. See manifest.json for file hashes and source URLs.

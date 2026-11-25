@@ -1,0 +1,20 @@
+{
+  "name": "meld-studio",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.*"
+  },
+  "dependencies": {
+    "@audio/neural-separate": "0.7.1",
+    "@noble/hashes": "1.8.0",
+    "@spotify/basic-pitch": "1.0.1",
+    "@tensorflow/tfjs": "3.21.0",
+    "@tonejs/midi": "2.0.28",
+    "onnxruntime-web": "1.31.1"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.5"
+  }
+}

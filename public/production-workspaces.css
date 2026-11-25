@@ -1,0 +1,311 @@
+/* Workspace components use the shared palette from system-theme.css. */
+.production-workspace {
+  --ink: var(--st-p1);
+  --ink-2: var(--st-p2);
+  --text: var(--st-tx);
+  --cream: var(--st-tx);
+  --muted: var(--st-mu);
+  --accent: var(--st-vi);
+  --accent-bright: var(--st-vi2);
+  --lime: var(--st-cy);
+  --radius-xl: 12px;
+  color: var(--st-tx);
+  font-variant-numeric: tabular-nums;
+  min-width: 0;
+}
+
+.production-workspace [hidden] { display: none !important; }
+.production-workspace :focus-visible { outline: 2px solid var(--st-cy); outline-offset: 2px; }
+.production-workspace :is(.page-heading, .collection-heading, .lab-heading) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  padding: 0;
+  margin: 0 0 16px;
+  min-height: 0;
+}
+.production-workspace :is(.page-heading, .collection-heading, .lab-heading) h1 {
+  color: var(--st-tx);
+  font: 650 clamp(24px, 3vw, 32px)/1.15 var(--sans);
+  letter-spacing: -.02em;
+  margin: 0;
+}
+.production-workspace .lede {
+  color: var(--st-mu);
+  font-size: 14px;
+  margin: 6px 0 0;
+}
+.production-workspace :is(.solid-action, .outline-action, .ghost-button, .text-button),
+.production-workspace :is(.project-card-actions, .project-filters, .view-switch, .pitch-editor-actions) button {
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 1px solid var(--st-line2);
+  border-radius: 7px;
+  background: var(--st-p2);
+  color: var(--st-tx);
+  font: 500 13px/1.25 var(--sans);
+  text-decoration: none;
+  text-align: center;
+  white-space: nowrap;
+}
+.production-workspace :is(.solid-action, .project-card-actions .project-open, .play-button, .lab-play-button > span:first-child) {
+  background: var(--st-vi);
+  color: var(--ui-on-accent);
+  border-color: var(--st-vi);
+}
+.production-workspace :is(button, summary, a) { touch-action: manipulation; }
+.production-workspace :is(button, summary, a):not(:disabled) {
+  transition: background-color .14s, border-color .14s, color .14s;
+}
+.production-workspace button:disabled { cursor: default; }
+.production-workspace :is(.outline-action, .ghost-button, .text-button, .project-card-actions button:not(.project-open)):hover:not(:disabled) {
+  background: var(--st-p3);
+  border-color: var(--st-mu);
+}
+.production-workspace .solid-action:hover:not(:disabled) { background: var(--st-vi2); }
+.production-workspace :is(button.active, button[aria-pressed="true"]):not(.record-button) { border-color: var(--st-vi); }
+.production-workspace :is(input:not([type="range"], [type="checkbox"], [type="file"]), select) {
+  min-width: 0;
+  max-width: 100%;
+  background: var(--st-bg);
+  border: 1px solid var(--st-line2);
+  border-radius: 6px;
+  color: var(--st-tx);
+}
+.production-workspace :is(input[type="checkbox"], input[type="range"]) { accent-color: var(--st-vi); }
+.production-workspace :is(.main-stage, .capture-panel, .track-rail, .instrument-shelf, .analysis-panel,
+  .library-panel, .lab-browser, .lab-main, .lab-controls, .lab-preset-drawer, .my-patches-section) {
+  min-width: 0;
+  border: 1px solid var(--st-line);
+  border-radius: 10px;
+  background: var(--st-p1);
+  color: var(--st-tx);
+  box-shadow: none;
+}
+
+/* Creation: input and recognition beside the editor, with playback below the canvas. */
+#studioView .studio-heading-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+#studioView .key-summary {
+  display: grid;
+  grid-template-columns: auto auto;
+  min-width: 0;
+  min-height: 34px;
+  gap: 3px 9px;
+  padding: 6px 10px;
+  border-color: var(--st-line2);
+  border-radius: 7px;
+  background: var(--st-p1);
+  color: var(--st-tx);
+}
+#studioView :is(.key-summary-label, .key-summary-note) { color: var(--st-mu); }
+#studioView .key-summary-note { grid-column: 1 / -1; }
+#studioView .key-summary-main { min-height: 0; color: var(--st-tx); }
+#studioView .key-summary-main strong { font: 600 14px var(--sans); }
+#studioView .studio-deck {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(250px, 290px);
+  grid-template-areas: "stage input" "voice input";
+  align-items: start;
+  gap: 12px;
+  min-height: 0;
+  padding: 0;
+  background: none;
+  overflow: visible;
+  box-shadow: none;
+}
+#studioView .studio-deck::before { display: none; }
+#studioView .studio-deck .track-rail {
+  grid-area: voice;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  padding: 8px 12px;
+  margin: 0;
+}
+#studioView .track-rail .rail-heading { padding: 0; }
+#studioView .main-stage { grid-area: stage; padding: 0; }
+#studioView .studio-deck .capture-panel {
+  grid-area: input;
+  display: flex;
+  flex-direction: column;
+  align-self: start;
+  gap: 10px;
+  padding: 12px;
+  margin: 0;
+}
+#studioView :is(.stage-header, .stage-footer, .transport-actions, .pitch-editor-actions, .canvas-empty) { flex-wrap: wrap; }
+#studioView :is(.stage-header, .stage-footer) { gap: 8px; padding: 10px 12px; border-color: var(--st-line); }
+#studioView .visualizer-wrap { min-height: 244px; height: clamp(244px, 36vh, 390px); background: var(--st-bg); }
+#studioView .empty-orbit, #studioView .record-rings, #studioView .upload-separator { display: none; }
+#studioView .canvas-empty { gap: 6px; padding: 10px; text-align: center; }
+#studioView :is(.record-zone, .source-player, .recognition-controls, .studio-material-save) {
+  margin: 0;
+  min-width: 0;
+  border-color: var(--st-line);
+  background: var(--st-p2);
+}
+#studioView .record-zone { min-height: 0; padding: 8px; gap: 6px; }
+#studioView .record-button { width: 48px; height: 48px; }
+#studioView .record-core { width: 100%; height: 100%; background: #f4758c; box-shadow: none; }
+#studioView .level-meter { flex: none; margin: 0; min-width: 0; }
+#studioView .capture-panel .upload-button {
+  display: flex;
+  min-width: 0;
+  width: 100%;
+  margin: 0;
+  padding: 8px 10px;
+  border-color: var(--st-line2);
+  background: var(--st-p2);
+  color: var(--st-tx);
+  border-radius: 7px;
+}
+#studioView :is(.recognition-controls small, .recognition-controls p, .upload-button small,
+  .studio-material-save output, .canvas-empty p, .pitch-editor small) { color: var(--st-mu); }
+#studioView .studio-material-save { padding: 8px; }
+#studioView .studio-material-save input { flex: 1 1 110px; width: auto; }
+#studioView .lower-deck { gap: 12px; margin-top: 12px; }
+#studioView :is(.instrument-shelf, .analysis-panel) { padding: 12px; }
+#studioView .note-inspector { grid-template-columns: repeat(auto-fit, minmax(min(100%, 116px), 1fr)); }
+
+/* My Works: project information, note preview, and actions on the same row. */
+#worksView .collection-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+#worksView .library-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  padding: 10px 12px;
+  margin: 0 0 12px;
+  border: 1px solid var(--st-line);
+  border-radius: 8px;
+  background: var(--st-p1);
+}
+#worksView .library-stats > div { padding: 0; min-height: 0; background: none; border: 0; color: var(--st-mu); }
+#worksView .library-stats > div:not(.library-stats-note) { display: flex; align-items: baseline; gap: 7px; }
+#worksView .library-stats > div > strong { font: 600 14px var(--sans); color: var(--st-tx); }
+#worksView .library-stats > div > small { display: none; }
+#worksView .library-panel { padding: 0; }
+#worksView .library-toolbar { padding: 10px 12px; display: flex; flex-wrap: wrap; gap: 8px; border-color: var(--st-line); }
+#worksView .project-filters { display: flex; flex-wrap: wrap; }
+#worksView .project-filters button.active { color: var(--st-vi2); background: var(--st-p3); }
+#worksView .project-search { background: var(--st-bg); border-color: var(--st-line2); width: min(100%, 320px); min-width: 0; }
+#worksView .project-search input { flex: 1; width: 100%; border: 0; }
+#worksView .project-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; padding: 0; }
+#worksView .project-card {
+  display: grid;
+  grid-template-columns: minmax(145px, 1fr) minmax(95px, .58fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 0;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 0;
+  border-top: 1px solid var(--st-line);
+  border-radius: 0;
+  color: var(--st-tx);
+  background: transparent;
+  box-shadow: none;
+}
+#worksView .project-card:hover { background: var(--st-p2); transform: none; }
+#worksView .project-body { grid-column: 1; grid-row: 1; min-width: 0; padding: 0; overflow-wrap: anywhere; }
+#worksView .project-body h3 { margin: 0 0 4px; font: 650 15px var(--sans); color: var(--st-tx); }
+#worksView .project-body p { margin: 0 0 5px; color: var(--st-mu); font-size: 13px; }
+#worksView .project-meta-row { display: flex; justify-content: flex-start; flex-wrap: wrap; gap: 4px 12px; color: var(--st-mu); }
+#worksView .project-art {
+  grid-column: 2;
+  grid-row: 1;
+  min-height: 0;
+  height: 48px;
+  padding: 0;
+  border: 1px solid var(--st-line);
+  border-radius: 6px;
+  background: var(--st-bg);
+}
+#worksView .project-wave { width: 100%; height: 100%; inset: 0; }
+#worksView .project-card-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 5px; padding: 0; border: 0; }
+#worksView .project-card-actions .project-delete:hover { color: #ff9baa; }
+#worksView .project-empty { min-height: 0; padding: 30px 14px; color: var(--st-mu); }
+#worksView .project-empty h2 { color: var(--st-tx); font: 650 18px var(--sans); }
+
+/* Sound Lab: browsable rack, live instrument surface, then parameter controls. */
+#labView .lab-deck {
+  display: grid;
+  grid-template-columns: minmax(180px, .82fr) minmax(0, 2fr) minmax(200px, .9fr);
+  grid-template-areas: "browser sound controls";
+  align-items: start;
+  gap: 12px;
+  padding: 0;
+  overflow: visible;
+  min-height: 0;
+  background: transparent;
+  box-shadow: none;
+}
+#labView .lab-browser { grid-area: browser; padding: 10px; }
+#labView .lab-sound-column { grid-area: sound; min-width: 0; }
+#labView .lab-main { padding: 0; overflow: hidden; }
+#labView .lab-controls { grid-area: controls; padding: 12px; }
+#labView :is(.lab-panel-heading, .lab-main-heading, .lab-transport, .keyboard-hint) { border-color: var(--st-line); color: var(--st-tx); }
+#labView :is(.lab-main-heading, .lab-transport) { flex-wrap: wrap; gap: 8px; padding: 10px 12px; }
+#labView :is(.lab-panel-heading, .lab-main-heading small, .lab-panel-heading small, .lab-slider output, .lab-bank-field, .keyboard-hint, .lab-now-playing) { color: var(--st-mu); }
+#labView :is(.lab-rack-drawer, .lab-instrument-button, .lab-preset, .my-patch-card, .control-section) {
+  min-width: 0;
+  background: var(--st-p2);
+  border-color: var(--st-line);
+  color: var(--st-tx);
+  border-radius: 7px;
+  box-shadow: none;
+}
+#labView .lab-rack-drawer summary { flex-wrap: wrap; gap: 4px; }
+#labView .lab-rack-drawer summary span { overflow-wrap: anywhere; }
+#labView :is(.lab-instrument-list, .lab-dx7-list) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+  max-height: min(48vh, 340px);
+  overflow: auto;
+}
+#labView .lab-instrument-button { min-height: 38px; padding: 5px 7px; text-align: left; }
+#labView .lab-instrument-button:is(.active, :hover) { background: var(--st-p3); border-color: var(--st-vi); }
+#labView .lab-instrument-button small { color: var(--st-mu); white-space: normal; }
+#labView .lab-instrument-filters { display: grid; gap: 5px; padding: 7px; }
+#labView .lab-instrument-filters :is(input, select) { width: 100%; padding: 7px; }
+#labView .lab-instrument-filters output { color: var(--st-mu); font-size: 12px; }
+#labView .lab-scope { height: clamp(138px, 28vh, 270px); min-height: 0; margin: 0 10px; background: var(--st-bg); border-color: var(--st-line); }
+#labView :is(.lab-keyboard-wrap, .lab-note-readout, .control-section, .my-patches-section) { margin-top: 10px; }
+#labView .piano-keyboard { min-width: 0; }
+#labView .lab-params-note { color: var(--st-mu); background: var(--st-p2); border-color: var(--st-line); }
+#labView .my-patches-section { padding: 12px; }
+#labView .my-patches-heading h2 { color: var(--st-tx); font: 650 18px var(--sans); }
+#labView :is(.my-patches-heading p, .my-patch-empty) { color: var(--st-mu); }
+#labView .my-patches-heading .eyebrow { display: none; }
+
+@media (max-width: 1040px) {
+  #labView .lab-deck {
+    grid-template-columns: minmax(170px, .65fr) minmax(0, 1.5fr);
+    grid-template-areas: "browser sound" "controls controls";
+  }
+  #labView .lab-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 12px; }
+  #labView .lab-controls > :is(.lab-panel-heading, .lab-params-note) { grid-column: 1 / -1; }
+}
+@media (max-width: 830px) {
+  #worksView .project-card { grid-template-columns: minmax(0, 1fr) minmax(70px, .4fr); }
+  #worksView .project-card-actions { grid-column: 1 / -1; justify-content: flex-start; }
+}
+@media (max-width: 720px) {
+  #studioView .studio-deck { grid-template-columns: minmax(0, 1fr); grid-template-areas: "stage" "input" "voice"; }
+  #studioView .lower-deck { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+  #labView .lab-deck { grid-template-columns: minmax(0, 1fr); grid-template-areas: "browser" "sound" "controls"; }
+  #labView :is(.lab-instrument-list, .lab-dx7-list) { max-height: 210px; }
+  #labView .lab-controls { grid-template-columns: minmax(0, 1fr); }
+}
+@media (pointer: coarse) {
+  .production-workspace :is(.solid-action, .outline-action, .ghost-button, .view-switch button,
+    .project-card-actions button, .lab-instrument-button) { min-height: 40px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .production-workspace :is(button, summary, a) { transition: none; }
+}

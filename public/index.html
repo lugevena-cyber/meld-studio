@@ -1,0 +1,1178 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="Melohum 哼唱作曲工作台：把哼唱的旋律实时转成电吉他、木吉他、钢琴、萨克斯、弦乐或合成器演奏。"
+    />
+    <meta name="theme-color" content="#121615" />
+    <meta name="application-name" content="Melohum" />
+    <meta name="apple-mobile-web-app-title" content="Melohum" />
+    <meta property="og:site_name" content="Melohum" />
+    <meta property="og:title" content="Melohum · 哼唱作曲工作台" />
+    <meta property="og:image" content="https://melohum-studio.iridescentpeanut.chatgpt.site/brand/melohum-circle-512.png" />
+    <link rel="icon" href="/favicon.ico?v=20261107-type1" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/brand/melohum-mark.svg?v=20261107-type1" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/brand/melohum-mark-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/brand/melohum-mark-180.png" />
+    <link rel="manifest" href="/manifest.webmanifest?v=20261107-type1" />
+    <title>Melohum — 哼唱作曲工作台</title>
+    <link rel="preload" href="brand/quicksand-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="styles.css?v=visible-loop1" />
+    <link rel="stylesheet" href="workspace-pages.css?v=lab-library1" />
+    <link rel="stylesheet" href="sound-library.css?v=2" />
+    <link rel="stylesheet" href="night-pocket.css?v=afterglow1" />
+    <link rel="stylesheet" href="arrangement-studio.css?v=7" />
+    <link rel="stylesheet" href="production-workspaces.css?v=3" />
+    <link rel="stylesheet" href="system-theme.css?v=11" />
+  </head>
+  <body>
+    <div class="page-noise" aria-hidden="true"></div>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Melohum 首页">
+          <span class="brand-mark" aria-hidden="true"><img src="brand/melohum-circle.svg" alt="" width="48" height="48" decoding="async" fetchpriority="high" /></span>
+          <span class="brand-copy">
+            <strong>Melohum</strong>
+            <small>哼唱作曲工作台</small>
+          </span>
+        </a>
+
+        <nav class="main-nav" aria-label="主导航">
+          <button class="nav-item active" type="button" data-view="studio">创作台</button>
+          <button class="nav-item" type="button" data-view="works">我的作品</button>
+          <button class="nav-item" type="button" data-view="lab">音色实验室</button>
+          <button class="nav-item" type="button" data-view="arrangement">编曲台</button>
+          <button class="nav-item" type="button" data-view="sounds">采样库</button>
+        </nav>
+
+        <div class="top-actions">
+          <span class="save-state" id="cloudStatus"><i></i> 未连接云端</span>
+          <button class="icon-button" id="helpBtn" type="button" aria-label="使用帮助">?</button>
+          <button class="outline-action" id="adminOpenBtn" type="button" hidden>管理台</button>
+          <button class="save-project-button" id="saveProjectBtn" type="button" disabled>
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M4 3.5h10.5l1.5 1.5v11H4v-12.5ZM7 3.5v4h6v-4M7 16v-5h6v5" />
+            </svg>
+            保存作品
+          </button>
+          <button class="export-button" id="exportBtn" type="button" disabled>
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M10 13V3m0 0L6.5 6.5M10 3l3.5 3.5M4 12v4h12v-4" />
+            </svg>
+            导出 MIDI
+          </button>
+          <button class="avatar" id="authBtn" type="button" aria-label="登录云端">登录</button>
+        </div>
+      </header>
+
+      <aside class="standalone-mode-note" id="standaloneModeNote" hidden><strong>离线文件模式 · 真实采样已内置</strong><span>可直接试听、编曲与导出 MIDI。账户数据库请双击“启动Melohum.cmd”，或查看随包的“离线使用说明”。</span></aside>
+      <main>
+        <section class="view-panel production-workspace active" id="studioView" aria-label="创作台">
+          <section class="page-heading">
+            <div class="heading-copy">
+              <h1>创作台</h1>
+              <p class="lede">
+                录制或导入音频，编辑识别出的旋律，再试听或继续编曲。
+              </p>
+            </div>
+
+            <div class="studio-heading-actions">
+              <button class="solid-action" id="studioOpenAssistant" type="button">AI 成曲</button>
+            <button class="key-summary" id="keySummary" type="button" aria-label="查看调性分析">
+              <span class="key-summary-label">当前调性</span>
+              <span class="key-summary-main">
+                <strong id="headerKey">等待哼唱</strong>
+                <i id="keyConfidenceDial" aria-hidden="true"></i>
+              </span>
+              <span class="key-summary-note" id="headerKeyNote">音高识别后自动填入</span>
+            </button>
+            </div>
+          </section>
+
+          <section class="studio-deck" aria-label="哼唱编曲工作台">
+          <aside class="track-rail">
+            <div class="rail-heading">
+              <span>主奏音色</span>
+            </div>
+            <button type="button" class="rail-instrument studio-open-instruments" id="studioOpenInstruments" aria-controls="studioInstrumentDrawer">打开音色库</button>
+          </aside>
+
+          <section class="main-stage">
+            <header class="stage-header">
+              <div class="take-info">
+                <span class="live-status"><i></i><span id="stageStateText">准备录音</span></span>
+                <span class="take-divider"></span>
+                <span id="stageDetail">尚无旋律片段</span>
+              </div>
+              <div class="view-switch" aria-label="可视化视图">
+                <button class="active" id="pitchViewBtn" type="button">音高</button>
+                <button id="waveViewBtn" type="button">波形</button>
+              </div>
+              <button class="scale-snap-toggle" id="scaleSnapBtn" type="button" aria-pressed="false" title="可选：把识别结果修正为调内音；默认保留半音">
+                <i></i>识别调内音
+              </button>
+            </header>
+
+            <div class="visualizer-wrap">
+              <canvas id="melodyCanvas" tabindex="0" aria-label="旋律音高与波形可视化，可拖动音符调整音高"></canvas>
+              <div class="note-handles" id="noteHandles" role="group" aria-label="音符音高调节手柄" hidden></div>
+              <div class="canvas-scale-rail" id="canvasScaleRail" aria-label="当前音阶"></div>
+              <div class="canvas-empty" id="canvasEmpty">
+                <span class="empty-orbit" aria-hidden="true">
+                  <i></i><i></i><i></i>
+                  <svg viewBox="0 0 28 28">
+                    <path d="M11 5v11.2a4.2 4.2 0 1 0 2 3.6V9l8-2v8.2a4.2 4.2 0 1 0 2 3.6V3l-12 2Z" />
+                  </svg>
+                </span>
+                <strong>轻哼一段旋律</strong>
+                <p>点击右侧录音，或载入一段示例开始</p>
+                <button class="text-button" id="demoBtn" type="button">载入示例旋律 <span>↗</span></button>
+                <button class="text-button" id="startBlankBtn" type="button">从空白手写旋律 ↗</button>
+              </div>
+
+              <div class="live-note" id="liveNote" aria-live="polite">
+                <span class="note-name" id="noteName">—</span>
+                <span class="note-octave" id="noteOctave"></span>
+                <span class="note-cents" id="noteCents">等待音高</span>
+              </div>
+
+              <div class="scale-legend">
+                <span><i class="legend-dot detected"></i> 已吸附音符</span>
+                <span><i class="legend-dot scale"></i> 当前音阶</span>
+              </div>
+            </div>
+
+            <div class="pitch-editor" id="pitchEditor" role="group" aria-label="音符编辑器">
+              <div class="pitch-editor-selection"><span class="pitch-editor-badge">↔ 音符编辑</span><output id="pitchSelection" aria-live="polite">拖动音符移动，可与其他音符重叠</output></div>
+              <div class="pitch-editor-actions">
+                <button id="pitchAddBtn" type="button">＋ 添加音符</button><button id="pitchDrawBtn" type="button" aria-pressed="false">画笔添加</button>
+                <button id="pitchDeleteBtn" type="button" disabled>删除选中</button>
+                <button id="pitchDownBtn" type="button" aria-label="降低音高" disabled>− 音高</button><button id="pitchUpBtn" type="button" aria-label="升高音高" disabled>＋ 音高</button>
+                <button id="pitchUndoBtn" type="button" disabled>↶ 撤销</button><button id="pitchRedoBtn" type="button" disabled>↷ 重做</button>
+              </div>
+              <div class="note-inspector">
+                <label>选择音符<select id="noteSelect" aria-label="选择要编辑的音符"></select></label>
+                <label>音高<select id="notePitch" aria-label="音符音高"></select></label>
+                <label>起点（秒）<input id="noteStart" type="number" min="0" max="600" step="0.001" aria-label="音符起点（秒）" /></label>
+                <label>时长（秒）<input id="noteDuration" type="number" min="0.01" max="60" step="0.001" aria-label="音符时长（秒）" /></label>
+                <label>编辑主音<select id="editorKeyTonic" aria-label="编辑主音"></select></label><label>调式<select id="editorKeyMode" aria-label="编辑调式"><option value="major">自然大调</option><option value="minor">自然小调</option></select></label>
+                <label class="inline-check"><input type="checkbox" id="editScaleSnap" checked /> 编辑吸附调内音</label>
+                <label class="inline-check"><input type="checkbox" id="noteTimeSnap" /> 1/16 节拍吸附</label>
+              </div>
+              <output class="harmony-reference" id="studioHarmonyReference" hidden></output>
+              <small>上下跟手拖动，松手落在当前调式内；↑ ↓ 按调内音移动。默认时间连续，勾选节拍吸附后才按网格调整。左右拖动移时间 · 右侧 ↔ 改时长 · 双击空白加音符 · Delete 删除 · Ctrl/⌘ Z 撤销。允许重叠与和弦。</small>
+            </div>
+
+            <section id="rhythmReview" class="rhythm-review" aria-label="未定音高的节奏起音" hidden>
+              <strong id="rhythmReviewSummary"></strong>
+              <p>“嚓、咔”等闷音先保留节奏，不猜音高。选择音高后，点击标记加入可编辑旋律。</p>
+              <label>为标记指定音高<select id="rhythmPitch" aria-label="为节奏标记指定音高"></select></label>
+              <div id="rhythmHitList" class="rhythm-hit-list"></div>
+            </section>
+            <section class="grand-piano-panel" id="grandPianoPanel" aria-label="真实乐器采样试听">
+              <div><small>REAL INSTRUMENT / SAMPLES</small><strong id="sampleInstrumentTitle">Grand Piano · 三角钢琴</strong><output id="grandPianoStatus" aria-live="polite">正在准备钢琴采样…</output><span id="sampleInstrumentDetail">真实琴槌起音、琴弦共鸣与自然余韵</span><a id="sampleInstrumentCredit" href="samples/grand-piano/ATTRIBUTION.txt" target="_blank" rel="noopener">采样：Alexander Holm / Salamander · CC BY 3.0</a></div><button id="grandPianoAuditionBtn" type="button">▶ 试听 Grand Piano</button>
+            </section>
+            <div class="timeline-strip" aria-hidden="true">
+              <span>00:00</span>
+              <div class="timeline-ticks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              <span id="durationLabel">00:08</span>
+            </div>
+
+            <footer class="transport">
+              <div class="transport-left">
+                <button class="play-button" id="playBtn" type="button" aria-label="播放旋律" disabled>
+                  <svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M8.5 5.3 19 12 8.5 18.7V5.3Z" />
+                  </svg>
+                  <svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M8 5h3v14H8zm5 0h3v14h-3z" />
+                  </svg>
+                </button>
+                <div class="play-copy">
+                  <span id="playLabel">试听旋律</span>
+                  <small id="playSubLabel">先录入一段哼唱</small>
+                </div>
+              </div>
+
+              <label class="tempo-control">
+                <span>速度</span>
+                <input id="tempoInput" type="number" value="84" min="50" max="160" step="1" aria-label="速度 BPM" />
+                <small>BPM</small>
+              </label>
+
+              <div class="transport-actions">
+                <button class="ghost-button" id="loopBtn" type="button" aria-pressed="false">
+                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                    <path d="M4 6h9.5L11 3.5M16 14H6.5L9 16.5M14 6l2 2-2 2M6 14l-2-2 2-2" />
+                  </svg>
+                  循环
+                </button>
+                <button class="ghost-button" id="metronomeBtn" type="button" aria-pressed="false">
+                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                    <path d="M7 3h6l3 14H4L7 3Zm0 8h6M10 3l-2 8" />
+                  </svg>
+                  节拍器
+                </button>
+              </div>
+            </footer>
+          </section>
+
+          <aside class="capture-panel">
+            <div class="capture-heading">
+              <div>
+                <span>录音与导入</span>
+              </div>
+              <span class="privacy-badge">本地处理</span>
+            </div>
+
+            <div class="external-input-controls">
+              <label>录音输入<select id="studioAudioInput"><option value="">系统默认输入</option></select></label>
+              <button type="button" id="studioRefreshInputs">选择麦克风或音频接口</button>
+              <label><input id="studioRawRecording" type="checkbox"> 仅录原声</label>
+            </div>
+            <div class="record-zone">
+              <div class="record-rings" aria-hidden="true"></div>
+              <button class="record-button" id="recordBtn" type="button" aria-label="开始录音">
+                <span class="record-core">
+                  <svg class="mic-icon" viewBox="0 0 28 28" aria-hidden="true">
+                    <rect x="10" y="4" width="8" height="13" rx="4" />
+                    <path d="M7 13.5a7 7 0 0 0 14 0M14 20.5V24M10 24h8" />
+                  </svg>
+                  <svg class="stop-icon" viewBox="0 0 28 28" aria-hidden="true">
+                    <rect x="8" y="8" width="12" height="12" rx="2" />
+                  </svg>
+                </span>
+              </button>
+              <strong id="recordLabel">点击开始哼唱</strong>
+              <span class="record-time" id="recordTime">00:00.0</span>
+            </div>
+
+            <div class="level-meter" id="levelMeter" aria-hidden="true"></div>
+
+            <div class="upload-separator"><span>或者</span></div>
+
+            <button class="upload-button" id="uploadBtn" type="button">
+              <svg viewBox="0 0 22 22" aria-hidden="true">
+                <path d="M11 15V3m0 0L7 7m4-4 4 4M4 13v5h14v-5" />
+              </svg>
+              <span>
+                <strong>上传音频 / 视频</strong>
+                <small>MP3、WAV、M4A、MP4、MOV · 分析前 45 秒</small>
+              </span>
+              <b>＋</b>
+            </button>
+            <input id="audioInput" type="file" accept="audio/*,video/mp4,video/quicktime,.mp4,.mov,.m4a,.aac,.wav,.mp3,.flac,.ogg,.aiff,.aif" hidden />
+
+            <section class="recognition-controls" aria-label="选择输入识别方式">
+              <label>输入方式<select id="recognitionMode"><option value="vocal">人声哼唱</option><option value="instrument">模仿乐器</option></select></label>
+              <label id="recognitionInstrumentField" hidden>模仿对象（识别方式）<select id="recognitionInstrument"></select></label>
+              <label class="recognition-onset"><input id="recognitionOnsetFirst" type="checkbox" /> 按每次发声识别（如 Bang）</label>
+              <small>以第一个稳定音高为准，延音不拆分；连奏旋律可关闭。</small>
+              <p id="recognitionHint">以连贯音高为主，保留自然延音与颤音。</p>
+              <small>识别方式不改变回放音色；拨弦音节先识别节奏，再确定音高。</small>
+              <output id="recognitionResultMode" aria-live="polite">当前结果：尚未解析</output>
+              <button id="recognitionReanalyze" type="button" disabled>按此模式重新解析原声</button>
+              <button id="recognitionUndo" type="button" hidden>撤销本次解析</button>
+            </section>
+            <div class="source-player" id="sourcePlayer">
+              <div class="source-player-head">
+                <span class="source-file-icon">
+                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                    <path d="M6 2.5h5l3 3v12H6v-15Zm5 0v3h3M8.5 9v4.2a1.7 1.7 0 1 0 1 .9V8l3-.8v3.9a1.7 1.7 0 1 0 1 .9V5.5" />
+                  </svg>
+                </span>
+                <span class="source-file-copy">
+                  <strong id="sourceFileName">我的哼唱</strong>
+                  <small id="sourceFileMeta">已准备好</small>
+                </span>
+                <button class="source-delete" id="sourceDeleteBtn" type="button" aria-label="移除录音">×</button>
+              </div>
+              <audio id="sourceAudio" preload="metadata"></audio>
+              <button class="source-play" id="sourcePlayBtn" type="button" aria-label="播放原始人声">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m5 3 8 5-8 5V3Z" /></svg>
+              </button>
+            </div>
+
+            <section class="studio-material-save" aria-label="保存录音与旋律">
+              <output id="studioMaterialStatus" aria-live="polite">录音后可保存原声</output>
+              <label class="sr-only" for="materialNameInput">录音或旋律名称</label>
+              <input id="materialNameInput" maxlength="60" placeholder="名称（选填）" />
+              <button id="saveMaterialBtn" type="button" disabled>保存录音</button>
+              <button id="downloadStudioAudio" type="button" hidden>下载原声</button>
+              <button id="studioOpenLibraryBtn" type="button">已存素材</button>
+            </section>
+            <button class="upload-button" id="studioSongTranscription" type="button">转为 MIDI</button>
+
+            <ol class="processing-steps" id="processingSteps">
+              <li class="active"><i></i><span>收集声音</span><b>01</b></li>
+              <li><i></i><span>追踪音高</span><b>02</b></li>
+              <li><i></i><span>识别调性</span><b>03</b></li>
+            </ol>
+          </aside>
+          </section>
+
+          <section class="lower-deck">
+          <details class="instrument-shelf studio-instrument-drawer" id="studioInstrumentDrawer">
+            <summary><strong>音色库</strong><small id="studioCurrentInstrument">当前音色</small></summary>
+            <label class="sr-only" for="studioInstrumentSearch">搜索音色</label>
+            <input type="search" id="studioInstrumentSearch" placeholder="搜索音色（如 DX7）…" />
+            <div class="instrument-cards" id="instrumentCards"></div>
+            <p id="studioInstrumentEmpty" hidden>没有匹配的音色</p>
+          </details>
+
+          <aside class="analysis-panel" id="analysisPanel">
+            <div class="analysis-topline">
+              <span>MELODY ANALYSIS</span>
+              <span class="analysis-status" id="analysisStatus">等待分析</span>
+            </div>
+            <div class="key-display">
+              <span id="keyName">—</span>
+              <div>
+                <strong id="scaleName">调性与音阶将在这里出现</strong>
+                <small id="keyFriendly">唱得越稳定，识别越准确</small>
+              </div>
+            </div>
+            <div class="scale-notes" id="scaleNotes">
+              <span>—</span><span>—</span><span>—</span><span>—</span><span>—</span><span>—</span><span>—</span>
+            </div>
+            <div class="analysis-stats">
+              <div><strong id="noteCount">0</strong><span>音符</span></div>
+              <div><strong id="rangeStat">—</strong><span>音域</span></div>
+              <div><strong id="confidenceStat">—</strong><span>可信度</span></div>
+            </div>
+            <div class="analysis-footer">
+              <span>相近调性</span>
+              <strong id="relatedKey">等待旋律</strong>
+            </div>
+          </aside>
+          </section>
+        </section>
+
+        <section class="view-panel production-workspace works-view" id="worksView" aria-labelledby="worksTitle" hidden>
+          <header class="collection-heading">
+            <div>
+              <h1 id="worksTitle">我的作品</h1>
+              <p class="lede">查找、试听和管理已保存的音乐项目。</p>
+            </div>
+            <div class="collection-actions">
+              <button class="outline-action" id="worksNewBtn" type="button">＋ 新建作品</button>
+              <button class="solid-action" id="worksSaveBtn" type="button">保存当前旋律</button>
+            </div>
+          </header>
+
+          <section class="library-stats" aria-label="作品统计">
+            <div><span>作品总数</span><strong id="projectTotal">00</strong><small>PROJECTS</small></div>
+            <div><span>累计音符</span><strong id="projectNotesTotal">000</strong><small>NOTES</small></div>
+            <div><span>最近编辑</span><strong id="projectLatest">—</strong><small>LAST EDITED</small></div>
+            <div class="library-stats-note">
+              <i></i>
+              <span id="libraryStorageCopy">未连接云端<br /><small>登录后可跨设备同步作品</small></span>
+            </div>
+          </section>
+
+          <section class="library-panel">
+            <div class="library-toolbar">
+              <div class="project-filters" aria-label="作品筛选">
+                <button class="active" type="button" data-project-filter="all">全部</button>
+                <button type="button" data-project-filter="major">大调</button>
+                <button type="button" data-project-filter="minor">小调</button>
+              </div>
+              <label class="project-search">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <circle cx="8.5" cy="8.5" r="5.5" />
+                  <path d="m13 13 4 4" />
+                </svg>
+                <input id="projectSearch" type="search" placeholder="搜索作品名称、调性或音色" />
+              </label>
+            </div>
+
+            <div class="project-grid" id="projectGrid"></div>
+
+            <div class="project-empty" id="projectEmpty">
+              <h2>暂无作品</h2>
+              <p>录制一段哼唱或载入示例，识别完成后就能将它保存到这里。</p>
+              <div class="empty-actions">
+                <button class="solid-action" id="emptyBackBtn" type="button">去创作台</button>
+                <button class="outline-action" id="emptyDemoBtn" type="button">载入示例旋律</button>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="view-panel production-workspace lab-view" id="labView" aria-labelledby="labTitle" hidden>
+          <header class="lab-heading">
+            <div>
+              <h1 id="labTitle">音色实验室</h1>
+              <p class="lede">浏览音色，用键盘或琶音试听，并实时调整声音参数。</p>
+            </div>
+          </header>
+
+          <details class="lab-presets-section lab-preset-drawer">
+            <summary>
+              <strong>情绪预设</strong>
+              <span id="labPresetSelection"></span>
+            </summary>
+            <div class="lab-preset-grid" id="labPresetGrid" role="group" aria-label="选择情绪预设"></div>
+          </details>
+
+          <section class="lab-deck">
+            <aside class="lab-browser">
+              <div class="lab-panel-heading">
+                <span>乐器机架</span>
+              </div>
+              <div class="lab-rack-libraries">
+                <details class="lab-rack-drawer" name="lab-rack" open>
+                  <summary><strong>内置乐器</strong><span id="labBuiltinSelection"></span><small>键盘、弦乐、管乐、贝斯、鼓组与合成器</small></summary>
+                  <div class="lab-instrument-filters">
+                    <label class="sr-only" for="labInstrumentSearch">搜索内置乐器</label>
+                    <input id="labInstrumentSearch" type="search" placeholder="搜索乐器" autocomplete="off" />
+                    <label class="sr-only" for="labInstrumentFamily">乐器类别</label>
+                    <select id="labInstrumentFamily">
+                      <option value="all">全部乐器</option>
+                      <option value="keys">键盘与槌击</option>
+                      <option value="strings">吉他与弦乐</option>
+                      <option value="bass">贝斯</option>
+                      <option value="winds">管乐</option>
+                      <option value="synth">合成器</option>
+                      <option value="drums">鼓组</option>
+                      <option value="other">其他</option>
+                    </select>
+                    <output id="labInstrumentCount" role="status"></output>
+                  </div>
+                  <div class="lab-instrument-list" id="labInstrumentList" role="group" aria-label="选择内置乐器"></div>
+                </details>
+                <details class="lab-rack-drawer" id="labDx7Drawer" name="lab-rack" hidden>
+                  <summary><strong>DX7 原厂库</strong><span id="labDx7Selection"></span><small>FM 电钢琴、铜管、弦乐、贝斯与合成器</small></summary>
+                  <div class="dx7-lab-controls">
+                    <label for="dx7LabBank">音色库</label>
+                    <div class="lab-bank-field"><select id="dx7LabBank"></select></div>
+                    <label class="sr-only" for="dx7LabSearch">搜索 DX7 音色</label>
+                    <input type="search" id="dx7LabSearch" placeholder="搜索音色" autocomplete="off" />
+                    <output id="dx7LabCount" role="status"></output>
+                  </div>
+                  <div class="lab-dx7-list" id="dx7LabVoices" role="group" aria-label="选择 DX7 音色"></div>
+                </details>
+              </div>
+              <div id="labSamplePacks" class="lab-rack-libraries"></div>
+              <div class="lab-browser-tip">
+                <span>⌘</span>
+                <p>可以用键盘 <b>A–K</b> 演奏<br />空格试听一段琶音</p>
+              </div>
+            </aside>
+
+            <div class="lab-sound-column">
+              <section class="lab-main">
+                <header class="lab-main-heading">
+                  <div>
+                    <span id="labPresetName">夜航电吉他</span>
+                    <small id="labPresetMeta">ELECTRIC · WARM DRIVE</small>
+                  </div>
+                  <button class="lab-reset" id="labResetBtn" type="button">重置参数</button>
+                </header>
+
+                <div class="lab-scope">
+                  <canvas id="labCanvas" aria-label="实时音色波形"></canvas>
+                  <div class="scope-grid" aria-hidden="true"></div>
+                  <span class="scope-label">实时波形</span>
+                  <div class="lab-note-readout" id="labNoteReadout">
+                    <strong>—</strong>
+                    <span>PRESS A KEY</span>
+                  </div>
+                </div>
+
+                <div class="lab-keyboard-wrap">
+                  <div class="keyboard-hint">
+                    <span>演奏键盘</span>
+                    <label>音域 <select id="labOctave" aria-label="演奏键盘音域"></select></label>
+                  </div>
+                  <div class="piano-keyboard" id="labKeyboard"></div>
+                </div>
+
+                <footer class="lab-transport">
+                  <button class="outline-action" type="button" data-midi-connect>连接 MIDI 键盘</button>
+                  <button class="lab-play-button" id="labArpBtn" type="button">
+                    <span>
+                      <svg viewBox="0 0 22 22" aria-hidden="true"><path d="m7 4 11 7-11 7V4Z" /></svg>
+                    </span>
+                    <span>
+                      <strong>试听琶音</strong>
+                      <small>SPACE</small>
+                    </span>
+                  </button>
+                  <div class="lab-now-playing">
+                    <span id="labStatusText">等待你的第一次触碰</span>
+                    <div class="lab-mini-meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                  </div>
+                  <button class="lab-save" id="labSavePresetBtn" type="button">
+                    <svg viewBox="0 0 20 20" aria-hidden="true">
+                      <path d="M4 3.5h10.5l1.5 1.5v11H4v-12.5ZM7 3.5v4h6v-4M7 16v-5h6v5" />
+                    </svg>
+                    保存音色
+                  </button>
+                </footer>
+              </section>
+
+              <div class="lab-saved-workspace">
+                <section class="my-patches-section">
+                <div class="my-patches-heading">
+                  <div>
+                    <p class="eyebrow"><span>MY SOUNDS</span> / SAVED PATCHES</p>
+                    <h2>我的音色</h2>
+                  </div>
+                  <p>保存后的音色会出现在编曲台“我的音色”分组中，可分轨录制；未登录时保存在本机。</p>
+                </div>
+                <div class="my-patch-grid" id="myPatchGrid"></div>
+                <div class="my-patch-empty" id="myPatchEmpty">
+                  还没有保存的音色。调整上方参数后，点击“保存音色”。
+                </div>
+                </section>
+                <section class="lab-recording" aria-labelledby="labRecordingTitle">
+                <h2 id="labRecordingTitle">即兴录音</h2>
+                <p>录下实验室键盘和琶音，保留演奏时的音色和效果。</p>
+                <div class="lab-recording-actions">
+                  <button class="solid-action" type="button" id="labRecordButton" aria-pressed="false">开始录音</button>
+                  <button class="outline-action" type="button" id="labSaveRecording" hidden>保存到编曲素材库</button>
+                  <a class="outline-action" id="labDownloadRecording" hidden>下载录音</a>
+                </div>
+                <audio id="labRecordingPlayer" aria-label="试听即兴录音" controls hidden></audio>
+                <output id="labRecordingStatus" role="status"></output>
+                </section>
+              </div>
+                </div>
+            <aside class="lab-controls">
+              <div class="lab-panel-heading">
+                <span>声音塑形</span>
+                <small>ENVELOPE &amp; TONE</small>
+              </div>
+
+              <div class="control-section">
+                <span class="control-section-title">音量包络 <b>ADSR</b></span>
+                <label class="lab-slider">
+                  <span><b>起音</b><output id="attackValue">28 ms</output></span>
+                  <input id="attackControl" type="range" min="5" max="1200" value="28" />
+                </label>
+                <label class="lab-slider">
+                  <span><b>衰减</b><output id="decayValue">260 ms</output></span>
+                  <input id="decayControl" type="range" min="20" max="2000" value="260" />
+                </label>
+                <label class="lab-slider">
+                  <span><b>持续</b><output id="sustainValue">42%</output></span>
+                  <input id="sustainControl" type="range" min="5" max="100" value="42" />
+                </label>
+                <label class="lab-slider">
+                  <span><b>释音</b><output id="releaseValue">700 ms</output></span>
+                  <input id="releaseControl" type="range" min="80" max="3500" value="700" />
+                </label>
+              </div>
+
+              <div class="control-section">
+                <span class="control-section-title">声音质地 <b>TEXTURE</b></span>
+                <label class="lab-slider">
+                  <span><b>亮度</b><output id="brightnessValue">2.8 kHz</output></span>
+                  <input id="brightnessControl" type="range" min="300" max="9000" value="2800" />
+                </label>
+                <label class="lab-slider">
+                  <span><b>空间</b><output id="spaceValue">18%</output></span>
+                  <input id="spaceControl" type="range" min="0" max="100" value="18" />
+                </label>
+                <label class="lab-slider">
+                  <span><b>驱动</b><output id="driveValue">12%</output></span>
+                  <input id="driveControl" type="range" min="0" max="100" value="12" />
+                </label>
+              </div>
+
+              <div class="lab-params-note">
+                <span>实验小贴士</span>
+                <p>把弦乐的“起音”拉长，会有更辽阔的呼吸感；合成器提高“驱动”则会得到更明亮的边缘。</p>
+              </div>
+            </aside>
+          </section>
+
+        </section>
+
+        <section class="view-panel sound-library" id="soundsView" aria-labelledby="soundsTitle" hidden>
+          <header class="sound-library-heading">
+            <p class="eyebrow">MELOHUM / OPEN SAMPLES</p>
+            <h1 id="soundsTitle">开放采样库</h1>
+            <p>试听和下载免费采样。每条都附原创来源与许可证。</p>
+          </header>
+          <section class="sound-browser" aria-label="浏览采样">
+            <div class="sound-toolbar">
+              <div class="sound-filters" role="group" aria-label="乐器分类">
+                <button type="button" data-sound-filter="all" aria-pressed="true">全部</button>
+                <button type="button" data-sound-filter="keys" aria-pressed="false">键盘</button>
+                <button type="button" data-sound-filter="guitar" aria-pressed="false">吉他</button>
+                <button type="button" data-sound-filter="bass" aria-pressed="false">贝斯</button>
+                <button type="button" data-sound-filter="drums" aria-pressed="false">鼓组</button>
+                <button type="button" data-sound-filter="ambient" aria-pressed="false">氛围</button>
+              </div>
+              <label class="sound-search">
+                <span class="sr-only">搜索采样</span>
+                <input id="soundLibrarySearch" type="search" placeholder="搜索音色、用途或许可证" />
+              </label>
+            </div>
+            <div class="sound-result-bar">
+              <p id="soundLibraryCount" class="sound-count" role="status"></p>
+              <button type="button" id="soundLibraryReset" hidden>清除搜索与筛选</button>
+            </div>
+            <ul id="soundSampleList" class="sound-sample-list"></ul>
+            <p id="soundLibraryEmpty" class="sound-empty" hidden>没有匹配的采样。试试其他关键词或乐器分类。</p>
+            <p id="soundPlaybackStatus" class="sound-playback-status" role="status" hidden></p>
+          </section>
+          <section class="sound-packs" aria-labelledby="soundPacksTitle">
+            <h2 id="soundPacksTitle">更多完整音色包</h2>
+            <ul>
+              <li><a href="https://github.com/facebookincubator/Meta-open-sound#collections" target="_blank" rel="noopener noreferrer">Meta Open Sound</a><p>钢琴与吉他为 CC0。Oculus 音效适用 CC BY 4.0，需署名。</p></li>
+              <li><a href="https://github.com/alex-esc/sample-pi#sample-pi" target="_blank" rel="noopener noreferrer">Sample Pi</a><p>鼓、电子低音与氛围采样。原仓库记录了采样出处。</p></li>
+              <li><a href="https://github.com/sgossner/VCSL" target="_blank" rel="noopener noreferrer">Versilian Community Sample Library</a><p>CC0 管弦乐音色库，可在原仓库下载。</p></li>
+            </ul>
+          </section>
+          <details class="sound-extra sound-browser">
+            <summary>Yamaha DX7 原厂音色</summary>
+            <div id="dx7LibraryHost"></div>
+          </details>
+          <details class="sound-extra sound-browser">
+            <summary>Hong Kong 原曲采样</summary>
+            <div id="hongKongLibraryHost"><p id="hongKongLibraryLoading" role="status">正在载入原曲采样…</p></div>
+          </details>
+        </section>
+
+        <section class="view-panel arrangement-view" id="arrangementView" aria-labelledby="arrangementTitle" hidden>
+          <header class="arrangement-heading">
+            <div>
+              <h1 id="arrangementTitle">编曲台</h1>
+            </div>
+            <div class="arrangement-actions">
+              <button class="outline-action" id="arrangeBrowseDemo" type="button">示范曲</button>
+              <button class="outline-action" id="arrangeOpenAssistant" type="button" aria-controls="arrangementAIPanel">AI 助手</button>
+              <button class="outline-action" id="arrangeAutoFillBtn" type="button">智能配器</button>
+              <button class="solid-action" id="addTrackBtn" type="button">＋ 添加音轨</button>
+            </div>
+          </header>
+
+
+          <details class="arrangement-template-drawer" id="arrangementDemoDrawer">
+            <summary>示范乐曲与编曲模板 <span>Night Pocket · Afterglow Drive · Hong Kong</span></summary>
+            <section class="night-pocket-demo" aria-labelledby="nightPocketTitle">
+              <div class="night-pocket-info">
+                <p class="night-pocket-meta">放克流行 · 113 BPM · 35 秒</p>
+                <h2 id="nightPocketTitle">Night Pocket</h2>
+                <p>试听成品，或载入 7 条可编辑音符轨。钢琴和贝斯按乐句衔接，鼓和吉他保留切分。</p>
+                <a href="examples/night-pocket/credits.txt" target="_blank" rel="noopener">采样与许可</a>
+              </div>
+              <div class="night-pocket-controls">
+                <audio id="nightPocketMix" controls preload="none" src="examples/night-pocket/mix.mp3" aria-label="试听 Night Pocket 成品"></audio>
+                <div class="night-pocket-actions">
+                  <button class="solid-action" id="editNightPocketBtn" type="button">载入可编辑音符</button>
+                  <button class="outline-action" id="loadNightPocketBtn" type="button">载入成品分轨</button>
+                  <button class="outline-action" id="restoreNightPocketBtn" type="button" disabled>恢复载入前编曲</button>
+                  <button class="outline-action" id="undoNightPocketPhrase" type="button" hidden>撤销连贯调整</button>
+                </div>
+                <p id="nightPocketStatus" role="status"></p>
+              </div>
+            </section>
+            <section class="night-pocket-demo" aria-labelledby="afterglowDriveTitle">
+              <div class="night-pocket-info">
+                <p class="night-pocket-meta">Synthwave · 108 BPM · A 小调 · 49 秒</p>
+                <h2 id="afterglowDriveTitle">Afterglow Drive</h2>
+                <p>试听成品，或载入 8 条可编辑音符轨。约 0:18 进入 DX7 Flute 1 主旋律。</p>
+              </div>
+              <div class="night-pocket-controls">
+                <audio id="afterglowDriveMix" controls preload="metadata" src="examples/afterglow-drive/mix-v2.mp3" aria-label="试听 Afterglow Drive"></audio>
+                <div class="night-pocket-actions">
+                  <button class="solid-action" id="loadAfterglowDriveBtn" type="button">载入可编辑音符</button>
+                  <button class="outline-action" id="restoreAfterglowDriveBtn" type="button" disabled>恢复载入前编曲</button>
+                </div>
+                <p class="afterglow-status" id="afterglowDriveStatus" role="status"></p>
+              </div>
+            </section>
+            <div id="hongKongSessionHost"></div>
+          </details>
+
+          <div class="arrangement-transport-deck">
+            <header class="arrangement-toolbar">
+              <div class="arrangement-transport">
+                <button class="transport-home" id="arrangeReturnStart" type="button" aria-label="回到开头" title="回到开头">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5v14M19 6l-9 6 9 6z" /></svg>
+                </button>
+                <button class="play-button" id="arrangePlayBtn" type="button" aria-label="播放编曲">
+                  <svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M8.5 5.3 19 12 8.5 18.7V5.3Z" />
+                  </svg>
+                  <svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M8 5h3v14H8zm5 0h3v14h-3z" />
+                  </svg>
+                </button>
+                <div class="arrangement-time-readout">
+                  <strong id="arrangeTime">00:00.0</strong>
+                  <span id="arrangeStatus">等待播放</span>
+                </div>
+              </div>
+              <div class="arrangement-toolbar-center">
+                <label class="tempo-control arrangement-tempo">
+                  <span>速度</span>
+                  <input id="arrangementTempoInput" type="number" value="84" min="50" max="160" step="1" aria-label="编曲速度 BPM" />
+                  <small>BPM</small>
+                </label>
+                <button class="ghost-button" id="arrangeMetronomeBtn" type="button" aria-pressed="false">
+                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                    <path d="M7 3h6l3 14H4L7 3Zm0 8h6M10 3l-2 8" />
+                  </svg>
+                  节拍器
+                </button>
+                <button class="outline-action" id="arrangeSaveBtn" type="button">保存编曲</button>
+                <button class="arrangement-export-shortcut" id="arrangementExportTopBtn" type="button" disabled>导出多轨 MIDI</button>
+              </div>
+              <div class="arrangement-summary">
+                <span><b id="arrangementTrackCount">0</b> 音轨</span>
+                <span><b id="arrangementNoteCount">0</b> 音符</span><span id="arrangementAudioSummary" hidden><b id="arrangementAudioCount">0</b> 原声</span>
+                <span><b id="arrangementLength">00:12</b> 长度</span>
+              </div>
+            </header>
+
+          <div id="arrangementSectionControls">
+            <div class="arrangement-loop-row">
+              <button class="outline-action" id="arrangementLoopBtn" type="button" aria-describedby="arrangementLoopRange" aria-pressed="false" disabled>段落循环</button>
+              <output id="arrangementLoopRange" aria-live="polite">当前编曲没有段落，可载入示范曲</output>
+              <span id="templateNowPlaying"></span>
+            </div>
+            <div class="arrangement-section-chips" id="arrangementSections" aria-label="选择编曲段落"></div>
+          </div>
+
+          </div>
+
+          <div class="arrangement-workbench" id="arrangementWorkbench">
+          <section class="arrangement-console" aria-label="编曲编辑区">
+            <header class="timeline-topline">
+              <h2>多轨时间线</h2>
+              <div class="track-layout-tools"><label><input id="arrangementMoveSnap" type="checkbox" checked /> 移动吸附 1/16 音符</label><button id="trackLayoutUndo" type="button" disabled>↶ 撤销音轨操作</button><button id="trackLayoutRedo" type="button" disabled>↷ 重做</button><output id="trackLayoutStatus" aria-live="polite">左侧 ⇅ 排序，轨内 ↔ 左右移动</output></div>
+            </header>
+            <div class="arrangement-editor">
+              <aside class="arrangement-track-side">
+                <div class="arrangement-ruler-head">
+                  <span>音轨</span>
+                  <small>拖动排序 · FX 调音</small>
+                </div>
+                <div class="arrangement-track-headers" id="arrangementTrackHeaders"></div>
+              </aside>
+              <div class="arrangement-timeline">
+                <div class="arrangement-ruler" id="arrangementRuler" title="点击或拖动时间尺定位"></div>
+                <div class="arrangement-lanes" id="arrangementLanes"></div>
+                <div class="arrangement-playhead" id="arrangementPlayhead"><button type="button" id="arrangementSeekHandle" role="slider" aria-label="播放位置，左右拖动定位；方向键微调" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0"><span aria-hidden="true">▼</span><output id="arrangementSeekTime" aria-hidden="true">00:00.0</output></button></div>
+                <div class="arrangement-empty" id="arrangementEmpty">
+                  <strong>还没有音轨</strong>
+                  <p>添加空白音轨，用下方键盘逐轨录制，也可填入创作台旋律。</p>
+                  <button class="solid-action" id="arrangementEmptyAddBtn" type="button">添加第一条音轨</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="track-list-actions">
+              <button type="button" id="addEmptyTrack">＋ 空音轨</button>
+              <button type="button" id="removeTracks">− 删除音轨</button>
+            </div>
+            <section class="inline-roll-panel" aria-labelledby="inlineRollTitle">
+              <header class="inline-roll-header">
+                <h2 id="inlineRollTitle">钢琴卷帘</h2>
+                <label>音轨 <select id="inlineRollTrack" aria-label="钢琴卷帘音轨" disabled></select></label>
+                <button class="outline-action" type="button" data-midi-connect>连接 MIDI 键盘</button>
+                <button class="outline-action" id="inlineRollExpand" type="button" disabled>全屏编辑</button>
+              </header>
+              <div id="inlineRollHost"></div>
+              <p id="inlineRollEmpty">添加音轨后即可在此编辑音符。</p>
+            </section>
+          </section>
+          <section class="arrangement-utility" aria-label="录制与素材工具">
+          <section class="arrangement-audio-tools" aria-label="音频工具">
+          <details class="transcription-panel" id="transcriptionPanel" name="arrangement-audio">
+            <summary><span>音频转 MIDI</span><small>可编辑音符</small></summary>
+            <div class="transcription-body">
+              <p class="transcription-description" id="transcriptionServiceStatus" role="status">适合哼唱、独奏和简单录音。在设备上识别，无需加载分离模型。</p>
+
+              <form class="transcription-form" id="transcriptionForm">
+                <label class="transcription-mode">识别方式
+                  <select id="transcriptionMode">
+                    <option value="quick">快速识别 · 整段音频</option>
+                    <option value="stems">分轨识别 · 人声、贝斯、伴奏</option>
+                  </select>
+                </label>
+                <button id="transcriptionChoose" type="button" class="transcription-picker">
+                  <span class="transcription-file-copy">
+                    <strong id="transcriptionFileName">选择音频</strong>
+                    <small id="transcriptionFormatHint">音频、MP4 或 MOV · 前 45 秒</small>
+                  </span>
+                  <span class="transcription-picker-action" aria-hidden="true">浏览</span>
+                </button>
+                <input id="transcriptionFile" type="file" accept="audio/*,video/mp4,video/quicktime,.wav,.mp3,.flac,.ogg,.m4a,.mp4,.mov" hidden />
+                <div class="transcription-actions">
+                  <button id="transcriptionStart" class="transcription-primary" type="submit" disabled>识别音符</button>
+                  <button id="transcriptionCancel" type="button" hidden>取消</button>
+                  <button id="transcriptionImport" type="button">导入 MIDI</button>
+                  <input id="transcriptionMidiFile" type="file" accept=".mid,.midi,audio/midi,audio/x-midi" hidden />
+                </div>
+              </form>
+
+              <output class="transcription-feedback" id="transcriptionStatus" role="status" hidden></output>
+              <section class="transcription-results" id="transcriptionResults" aria-label="转写结果" hidden>
+                <canvas id="transcriptionRoll" width="900" height="150" role="img" aria-label="待加入编曲的 MIDI 音符预览"></canvas>
+                <ul id="transcriptionSummary"></ul>
+                <div class="transcription-actions">
+                  <button id="transcriptionPreview" type="button">试听 MIDI</button>
+                  <button id="transcriptionApply" class="transcription-primary" type="button" disabled>加入编曲</button>
+                  <button id="transcriptionDownload" type="button" hidden>下载 MIDI</button>
+                </div>
+              </section>
+              <button class="transcription-undo" id="transcriptionUndo" type="button" hidden>撤销本次导入</button>
+
+            </div>
+          </details>
+          <details class="transcription-panel" id="stemPanel" name="arrangement-audio">
+            <summary><span>原声分离</span><small>4 条音轨</small></summary>
+            <div class="transcription-body">
+              <p class="transcription-description">在设备上提取人声、鼓、贝斯和伴奏。首次使用需要下载模型。</p>
+              <button id="stemChoose" type="button" class="transcription-picker">
+                <span class="transcription-file-copy">
+                  <strong id="stemFileName">选择歌曲</strong>
+                  <small>音频、MP4 或 MOV · 最长 45 秒</small>
+                </span>
+                <span class="transcription-picker-action" aria-hidden="true">浏览</span>
+              </button>
+              <input id="stemFile" type="file" accept="audio/*,video/mp4,video/quicktime,.m4a,.mp3,.wav,.mp4,.mov" hidden />
+              <output class="transcription-feedback" id="stemStatus" role="status" hidden></output>
+              <div class="transcription-actions">
+                <button id="stemFromStudio" type="button" hidden>使用创作台原声</button>
+                <button class="transcription-primary" id="stemStart" type="button" disabled>开始分离</button>
+                <button id="stemCancel" type="button" hidden>取消</button>
+                <button class="transcription-primary" id="stemApply" type="button" hidden>追加 4 条原声音轨</button>
+              </div>
+            </div>
+          </details>
+          </section>
+            <section class="material-library" id="arrangementLibrary" aria-label="编曲素材库">
+              <details id="materialLibraryDetails">
+                <summary><span><b>素材库房</b><small>从创作台带来的声音，随时再用</small></span><span class="material-count"><b id="materialLibraryCount">0</b> 段素材 ▾</span></summary>
+                <div class="material-library-body">
+                  <div class="material-library-tools"><label class="sr-only" for="materialSearch">搜索素材</label><input id="materialSearch" type="search" placeholder="搜索你的灵感片段…" /><button id="materialImportBtn" type="button">导入素材备份</button><input id="materialImportInput" type="file" accept=".meldclip,.json" hidden /><button id="materialTrashToggle" type="button" aria-pressed="false">回收站</button></div>
+                  <div id="materialList" class="material-list"></div><p id="materialEmpty" class="material-empty">正在打开本机素材库…</p>
+                  <div class="material-selection"><output id="materialSelected">先选择一段素材</output><div><button id="materialPreviewOriginal" type="button" disabled>▶ 试听原声</button><button id="materialToMidi" type="button" hidden>转为 MIDI</button><button id="materialPreviewMelody" type="button" disabled>♫ 试听旋律</button><button id="materialExportBtn" type="button" disabled>导出素材备份</button><button id="materialRemoveBtn" type="button" disabled>移入回收站</button></div><audio id="materialOriginalAudio" controls hidden></audio></div>
+                  <div class="material-insert-controls">
+                    <label>放入内容<select id="materialInsertMode"><option value="melody">旋律音符 · 可换音色</option><option value="audio">原声录音 · 保留原速与原音高</option></select></label>
+                    <label>目标音轨<select id="materialInsertTarget"><option value="new">新建一条音轨</option><option value="current">当前音轨</option></select></label>
+                    <label>放入位置<select id="materialInsertAt"><option value="cursor">播放线所在位置</option><option value="bar">指定小节</option></select></label>
+                    <label>第几小节<input id="materialInsertBar" type="number" min="1" max="999" step="1" value="1" disabled /></label>
+                    <label class="inline-check"><input id="materialUseTimbre" type="checkbox" checked /> 使用素材音色</label>
+                    <button id="materialInsertBtn" class="material-primary" type="button" disabled>＋ 放入音轨</button><button id="materialUndoInsert" type="button" disabled>↶ 撤销素材操作</button>
+                  </div>
+                  <div id="placedAudioClips" class="placed-audio-clips" aria-label="当前音轨的原声片段"></div>
+                  <p class="material-footnote" id="materialStorageNote">素材独立保存在此浏览器。原声保持自然速度；旋律随工程速度播放。换设备或清理浏览器前，请导出素材备份。</p>
+                </div>
+              </details>
+            </section>
+
+            <section class="performance-panel" aria-label="分轨键盘录制">
+              <div class="performance-heading"><div><h2>分轨录制</h2></div><output id="performanceStatus" aria-live="polite">选择待录音轨，开始演奏</output></div>
+              <div class="performance-controls">
+                <button class="outline-action" type="button" data-midi-connect>连接 MIDI 键盘</button>
+                <label>待录音轨<select id="arrangeInputTrack" aria-label="待录音轨"></select></label>
+                <label>音色<select id="arrangeInputInstrument" aria-label="待录音轨音色"></select></label>
+                <label>开始拍（1=开头）<input id="arrangeRecordBeat" type="number" min="1" max="999" value="1" step="1" aria-label="录制开始拍（1=开头）" /></label>
+                <label>录制方式<select id="arrangeRecordMode" aria-label="录制方式"><option value="overdub">叠录 · 保留原音符</option><option value="replace">重录 · 替换选中轨</option></select></label>
+                <label class="inline-check"><input id="arrangeRecordQuantize" type="checkbox" checked /> 1/16 量化</label>
+                <label class="inline-check"><input id="arrangeRecordBacking" type="checkbox" checked /> 播放已有声部</label>
+              </div>
+              <div class="performance-actions">
+                <button class="record-take-button" id="arrangeRecordBtn" type="button">● 开始录制</button>
+                <button id="arrangeCancelTakeBtn" type="button" disabled>取消本次</button>
+                <button id="arrangeUndoTakeBtn" type="button" disabled>↶ 撤销写入</button>
+                <button id="arrangeOpenLibraryBtn" type="button">素材库房 ↑</button>
+                <button id="arrangeExportBtn" type="button">导出多轨 MIDI</button>
+                <div class="performance-octave" id="arrangeOctaveControls"><button id="arrangeOctaveDown" type="button" aria-label="键盘降低八度">−</button><span id="arrangeKeyboardRange">C3 — C5</span><button id="arrangeOctaveUp" type="button" aria-label="键盘升高八度">＋</button></div>
+              </div>
+              <div id="performancePlayArea" tabindex="0" aria-label="编曲键盘与打击垫">
+                <div class="performance-keyboard-scroll" id="arrangeKeyboardScroll"><div class="performance-keyboard" id="arrangeKeyboard" tabindex="0" role="group" aria-label="编曲演奏键盘"></div></div>
+                <div class="drum-pad-grid" id="arrangeDrumPads" role="group" aria-label="鼓组打击垫" hidden></div>
+              </div>
+              <section class="drum-step-panel" id="drumStepPanel" aria-label="16 步鼓机" hidden>
+                <div class="drum-step-heading"><div><strong>16 步鼓机</strong><p>当前待录轨 · 从所选开始拍写入一小节 · 每步为十六分音符</p></div><div class="drum-pattern-actions"><button type="button" data-drum-pattern="funk">Funk 切分</button><button type="button" data-drum-pattern="pop80">80s 流行</button><button type="button" data-drum-pattern="dance">四拍舞曲</button><button type="button" data-drum-pattern="clear">清空本小节</button><button type="button" id="previewDrumBar">▶ 试听本小节</button></div></div>
+                <div class="drum-step-scroll"><div id="drumStepLanes"></div></div>
+              </section>
+              <p class="performance-hint">A W S E D F T G Y H U J K 弹奏 · Z / X 切换八度 · R 开始 / 停止录制 · 按住延音，松开结束音符 · 支持和弦。录好后换一条轨，继续叠加。</p>
+            </section>
+
+            <footer class="arrangement-footer">
+              <p><i></i> <span id="arrangementFooterStorage">编曲草稿保存在本机；保存作品可同步到已登录账户</span></p>
+              <button class="text-button" id="arrangeBackStudioBtn" type="button">返回创作台</button>
+            </footer>
+          </section>
+            <div class="arrangement-inspector">
+            <div id="arrangementAssistantDock">
+            <aside class="assistant-sidebar assistant-floating collapsed" id="assistantSidebar" aria-label="AI 编曲助手">
+              <header class="assistant-sidebar-header"><button class="assistant-launcher" type="button" id="assistantSidebarToggle" aria-expanded="false" aria-controls="arrangementAIPanel" aria-label="打开 AI 编曲助手" title="AI 编曲助手"><img src="brand/melohum-mark.svg" alt="" /><span class="assistant-launcher-label">AI 编曲助手</span></button><button class="assistant-close" type="button" id="assistantSidebarClose" aria-label="收起 AI 编曲助手" title="收起">×</button></header>
+<section class="arrangement-ai-panel" id="arrangementAIPanel" aria-label="AI 编曲实验助手">
+            <div class="assistant-intro">
+              <h2>AI 编曲助手</h2>
+              <div class="assistant-task-tabs" role="group" aria-label="助手用途">
+                <button type="button" data-assistant-task="chat" aria-pressed="true">通用问答</button>
+                <button type="button" data-assistant-task="compose" aria-pressed="false">AI 成曲</button>
+              </div>
+              <output class="assistant-status" id="assistantStatus" aria-live="polite">本地示例模式 · 尚未接入模型</output>
+              <select id="assistantMode" hidden aria-label="助手服务状态"><option value="demo">本机示例</option><option value="online" disabled>在线服务</option></select>
+              <details class="assistant-options"><summary>助手设置与快捷示例</summary>
+              <label class="inline-check"><input type="checkbox" id="assistantPreferRecorded" checked /> 优先使用真实采样</label>
+              <p class="assistant-mode-note">AI 成曲会生成主旋律、和声、贝斯与鼓组音符，并分配段落。需登录且模型服务可用；示例模式仅演示预设操作。应用完整分轨将替换当前编曲，可撤销恢复。</p>
+              <button class="assistant-link" id="assistantReconnect" type="button">检测模型服务 ↗</button>
+              <div id="assistantExamples" class="assistant-examples" aria-label="示例想法">
+                <button type="button" data-assistant-example="我要动次打次，军鼓混响强一点">动次打次 + 强混响军鼓 ↗</button>
+                <button type="button" data-assistant-example="让当前音轨更明亮，音量小一点">当前音色更亮、音量更小 ↗</button>
+                <button type="button" data-assistant-example="新增一条切分 Funk 吉他实验轨">新增切分 Funk 吉他 ↗</button>
+              </div>
+              <div class="assistant-range-controls">
+                <label>实验目标<select id="assistantScope" aria-label="实验目标"><option value="new">优先新建实验轨</option><option value="selected">优先调整当前轨</option></select></label>
+                <label>从第几小节<input id="assistantStartBar" type="number" value="1" min="1" max="256" step="1" aria-label="实验开始小节" /></label>
+                <label>实验小节数<input id="assistantBars" type="number" value="4" min="1" max="16" step="1" aria-label="实验小节数" /></label>
+              </div>
+              </details>
+              <output class="assistant-selected-track" id="assistantSelectedTrack">当前轨：—</output>
+            </div>
+            <div class="assistant-conversation">
+              <div class="assistant-messages" id="assistantMessages" role="log" aria-label="编曲对话" aria-live="polite"></div>
+              <div class="assistant-reading-tools">
+                <button id="assistantExpandReading" type="button" aria-haspopup="dialog" aria-controls="assistantReadingDialog">展开阅读</button>
+              </div>
+              <section class="assistant-plan" id="assistantPlan" aria-label="待试听方案" hidden><strong id="assistantPlanLabel">示例实验方案</strong><ul id="assistantChanges"></ul></section>
+              <section id="assistantSingleTrack" class="assistant-plan" aria-label="单轨草稿" hidden>
+                <label id="assistantTrackInstrumentLabel" hidden>选择单轨乐器<select id="assistantTrackInstrument"></select></label>
+                <output id="assistantTrackStatus" role="status"></output>
+                <div id="assistantTrackChoices" hidden>
+                  <button type="button" data-single-track="save">保存到素材库</button>
+                  <button type="button" data-single-track="append">追加为新轨</button>
+                  <button type="button" data-single-track="replace">替换全部音轨</button>
+                </div>
+              </section>
+              <form id="assistantForm" class="assistant-form"><label for="assistantPrompt">你的音乐想法</label><div class="assistant-image-tools"><button type="button" id="assistantImagePick">＋ 添加参考图</button><input id="assistantImageInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden /><span>也可直接粘贴图片</span></div><div class="assistant-image-preview" id="assistantImagePreview" hidden></div><textarea id="assistantPrompt" maxlength="4000" rows="3" placeholder="例如：生成 32 小节 Dubstep，140 BPM；前奏、主题、Drop、结尾，鼓、低音、和声与主旋律分工明确。可粘贴曲谱、参考图或编曲截图。"></textarea><div><small>Enter 提交 · Shift + Enter 换行</small><span class="assistant-submit-actions"><button type="submit" id="assistantSend">提交</button><button type="button" id="assistantApply" hidden>应用到编曲</button></span></div></form>
+              <div class="assistant-experiment-actions"><button id="assistantPreview" type="button" disabled>▶ 单独试听本次实验</button><button id="assistantUndo" type="button" disabled>↶ 撤销本次实验</button></div>
+              <output class="assistant-effect-readout" id="assistantEffectReadout">可单独调整军鼓混响</output>
+            </div>
+          </section>
+            </aside>
+            </div>
+            <section class="track-channel-panel" id="trackChannelPanel" aria-label="音轨通道处理">
+              <details id="trackChannelDetails"><summary><span><b>音轨通道</b><small id="trackChannelName">选择一条音轨</small></span><output id="trackChannelReduction">压缩衰减 0.0 dB</output></summary>
+                <div class="track-channel-body" data-channel-section="basic">
+                  <div class="track-channel-pages" role="group" aria-label="通道参数分类">
+                    <button type="button" data-channel-page="basic" aria-pressed="true">基础</button>
+                    <button type="button" data-channel-page="eq" aria-pressed="false">EQ</button>
+                    <button type="button" data-channel-page="compressor" aria-pressed="false">压缩</button>
+                  </div>
+                  <div class="track-channel-toolbar"><label>当前音轨<select id="trackChannelSelect" aria-label="当前调音音轨"></select></label><label data-channel-category="basic">素材起点（拍）<input id="trackChannelPosition" type="number" min="1" step="0.25" value="1" /></label><label data-channel-category="basic"><input id="channel-bypass" type="checkbox" /> 旁路通道处理</label><button id="trackChannelReset" data-channel-category="basic" type="button">重置通道</button></div>
+                <div class="track-channel-switches"><label data-channel-category="eq">滤波类型<select id="channel-filterType"><option value="off">关闭</option><option value="lowpass">低通 LPF</option><option value="highpass">高通 HPF</option><option value="bandpass">带通 BPF</option><option value="notch">陷波 NOTCH</option></select></label><label data-channel-category="compressor"><input id="channel-compressor" type="checkbox" /> 启用压缩器</label><small>滤波、EQ、压缩和声像可边播放边调整；MIDI、采样乐器和原声录音均经过通道处理。</small></div><div id="trackChannelGroups" class="track-channel-groups"></div></div>
+              </details>
+            </section>
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+      <footer class="site-footer">
+        <span>Melohum / 让旋律先被听见</span>
+        <span>所有声音均在你的浏览器中处理</span>
+        <span>SPACE 播放 · R 录音</span>
+      </footer>
+    </div>
+
+    <dialog class="auth-dialog" id="deleteTracksDialog" aria-labelledby="deleteTracksTitle">
+      <h2 id="deleteTracksTitle">删除音轨</h2>
+      <form id="deleteTracksForm">
+        <label>轨道编号<input id="deleteTrackNumbers" required autocomplete="off" aria-describedby="deleteTracksHint" /></label>
+        <p id="deleteTracksHint">可输入 01、1 或 01-03。多条用逗号或顿号分隔，例如 01、07。</p>
+        <output id="deleteTracksStatus" role="status"></output>
+        <div class="dialog-actions"><button type="button" id="cancelDeleteTracks">取消</button><button type="submit">删除所选音轨</button></div>
+      </form>
+    </dialog>
+    <dialog id="assistantReadingDialog" aria-labelledby="assistantReadingTitle">
+      <header>
+        <h2 id="assistantReadingTitle">AI 助手对话</h2>
+        <form method="dialog"><button type="button" id="assistantReadingApply" hidden>应用到编曲</button><button type="submit" autofocus>收起</button></form>
+      </header>
+      <div class="assistant-reading-messages" id="assistantReadingMessages" role="log" aria-label="AI 助手对话内容" tabindex="0"></div>
+    </dialog>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <dialog class="help-dialog" id="helpDialog">
+      <button class="dialog-close" id="helpCloseBtn" type="button" aria-label="关闭">×</button>
+      <p class="eyebrow"><span>HOW IT WORKS</span> / 30 SECONDS</p>
+      <h2>从一句哼唱开始</h2>
+      <ol>
+        <li><b>01</b><span><strong>捕捉</strong>点击录音键哼唱 5–20 秒，或上传已有的人声音频。</span></li>
+        <li><b>02</b><span><strong>识别</strong>音高曲线会实时出现；停止后自动计算主音、调式和音阶。</span></li>
+        <li><b>03</b><span><strong>配器</strong>选择喜欢的乐器音色，试听、调整速度、导出 MIDI。</span></li>
+      </ol>
+      <p class="dialog-tip">提示：用“嘟”或“啦”保持单音哼唱，识别效果最好。建议佩戴耳机以避免伴奏串音。</p>
+    </dialog>
+
+    <dialog class="project-dialog" id="projectDialog">
+      <button class="dialog-close" id="projectDialogCloseBtn" type="button" aria-label="关闭">×</button>
+      <p class="eyebrow"><span>SAVE PROJECT</span> / LOCAL LIBRARY</p>
+      <h2 id="projectDialogTitle">保存这段旋律</h2>
+      <form id="projectForm">
+        <label>
+          <span>作品名称</span>
+          <input id="projectNameInput" type="text" maxlength="42" placeholder="给这段旋律一个名字" required />
+        </label>
+        <label>
+          <span>创作备注 <small>可选</small></span>
+          <textarea id="projectMemoInput" maxlength="140" placeholder="记录灵感、编曲方向或下一次想尝试的声音…"></textarea>
+        </label>
+        <div class="project-form-summary" id="projectFormSummary"></div>
+        <div class="dialog-actions">
+          <button class="outline-action" id="projectCancelBtn" type="button">取消</button>
+          <button class="solid-action" type="submit" id="projectSubmitBtn">保存到我的作品</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="delete-dialog" id="deleteDialog">
+      <span class="delete-icon" aria-hidden="true">×</span>
+      <p class="eyebrow"><span>REMOVE PROJECT</span> / PLEASE CONFIRM</p>
+      <h2 id="deleteDialogTitle">移除这首作品？</h2>
+      <p id="deleteDialogCopy">作品会从当前浏览器中删除，此操作无法撤销。</p>
+      <div class="dialog-actions">
+        <button class="outline-action" id="deleteCancelBtn" type="button">保留作品</button>
+        <button class="danger-action" id="deleteConfirmBtn" type="button">确认移除</button>
+      </div>
+    </dialog>
+
+    <dialog class="project-dialog patch-dialog" id="patchDialog">
+      <button class="dialog-close" id="patchDialogCloseBtn" type="button" aria-label="关闭">×</button>
+      <p class="eyebrow"><span>SAVE SOUND</span> / CUSTOM PATCH</p>
+      <h2>保存这个音色</h2>
+      <form id="patchForm">
+        <label>
+          <span>音色名称</span>
+          <input id="patchNameInput" type="text" maxlength="32" placeholder="例如：雾中的电吉他" required />
+        </label>
+        <div class="project-form-summary" id="patchFormSummary"></div>
+        <div class="dialog-actions">
+          <button class="outline-action" id="patchCancelBtn" type="button">取消</button>
+          <button class="solid-action" type="submit">保存并同步</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="track-dialog" id="trackDialog" aria-labelledby="trackDialogTitle" aria-describedby="trackDialogCopy">
+      <button class="dialog-close" id="trackDialogCloseBtn" type="button" aria-label="关闭">×</button>
+      <h2 id="trackDialogTitle">添加一条音轨</h2>
+      <p class="track-dialog-copy" id="trackDialogCopy">选一个音色，为新音轨录制或填写音符。</p>
+      <label class="track-instrument-search">搜索音色
+        <input type="search" id="trackInstrumentSearch" placeholder="钢琴、贝斯、DX7…" autocomplete="off" autofocus />
+      </label>
+      <p class="track-instrument-status" id="trackInstrumentStatus" role="status"></p>
+      <div class="track-instrument-choices" id="trackInstrumentChoices"></div>
+    </dialog>
+
+    <dialog class="auth-dialog" id="authDialog">
+      <button class="dialog-close" id="authCloseBtn" type="button" aria-label="关闭">×</button>
+      <p class="eyebrow" id="authEyebrow"><span>CLOUD SYNC</span> / YOUR ACCOUNT</p>
+      <h2 id="authTitle">登录 Melohum</h2>
+      <p class="auth-copy" id="authCopy">登录后，作品、编曲和自定义音色会同步到你的云端账户。</p>
+      <div class="auth-tabs">
+        <button class="active" type="button" data-auth-mode="login">登录</button>
+        <button type="button" data-auth-mode="signup">创建账户</button>
+      </div>
+      <a id="chatgptLoginLink" class="outline-action" href="/signin-with-chatgpt?return_to=%2F" target="_top" hidden>也可使用 ChatGPT 登录</a>
+      <div class="auth-social" id="authSocial" hidden>
+        <a class="outline-action" data-social-provider="google" href="/api/auth/google/start" target="_top" hidden>使用 Google 登录</a>
+        <a class="outline-action" data-social-provider="wechat" href="/api/auth/wechat/start" target="_top" hidden>微信扫码登录</a>
+        <small>首次授权自动创建账户，无需填写本站验证码。</small>
+      </div>
+      <p id="authServiceStatus" class="auth-service-status" role="status" hidden></p>
+      <form id="authForm">
+        <label>
+          <span>邮箱</span>
+          <input id="authEmailInput" type="email" maxlength="254" autocomplete="email" placeholder="you@example.com" required />
+        </label>
+        <div id="authCodeBlock" hidden>
+          <p id="authCodeHint" class="auth-hint">先获取邮箱验证码，再设置本站密码。</p>
+          <button id="authSendCodeBtn" type="button" class="outline-action">发送验证码</button>
+          <label id="authCodeLabel" hidden><span>邮箱验证码</span><input id="authCodeInput" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="邮件中的 6 位数字" /></label>
+        </div>
+        <label id="authPasswordLabel">
+          <span id="authPasswordCaption">Melohum 网站密码</span>
+          <input id="authPasswordInput" type="password" autocomplete="current-password" minlength="8" maxlength="16" pattern="(?=.*[A-Za-z])(?=.*[0-9])[A-Za-z0-9]{8,16}" placeholder="8–16 位字母和数字" required />
+          <small class="auth-hint">仅限字母和数字，且两者都要包含。这是本站密码，与邮箱本身的密码无关。</small>
+        </label>
+        <label id="authConfirmLabel" hidden><span>确认本站密码</span><input id="authConfirmInput" type="password" autocomplete="new-password" minlength="8" maxlength="16" placeholder="再次输入相同密码" /></label>
+        <button id="authForgotBtn" type="button" class="text-button">忘记密码？</button>
+        <p class="auth-message" id="authMessage"></p>
+        <div class="dialog-actions">
+          <button class="outline-action" id="authCancelBtn" type="button">稍后</button>
+          <button class="solid-action" type="submit" id="authSubmitBtn">登录并同步</button>
+        </div>
+      </form>
+      <section class="backend-account-panel" aria-label="用户数据存储"><output id="backendDataStatus" aria-live="polite">正在检查用户数据服务…</output><div><button type="button" id="backendSyncBtn">立即保存修改</button><button type="button" id="backendImportGuestBtn">导入本机访客数据</button><button type="button" id="backendRecoveryBtn">备份当前编辑数据</button></div></section>
+      <p class="auth-footnote">使用 ChatGPT 登录；你的账户数据云端保存。</p>
+      <button class="text-button auth-logout" id="authLogoutBtn" type="button" hidden>退出当前账户</button>
+    </dialog>
+
+    <dialog class="auth-dialog" id="adminOverviewDialog" aria-labelledby="adminOverviewTitle">
+      <h2 id="adminOverviewTitle">Melohum 管理台</h2>
+      <p id="adminOverviewStatus" role="status"></p>
+      <dl id="adminOverviewMetrics"></dl>
+      <div class="dialog-actions">
+        <a class="outline-action" href="/ai-settings.html">AI 服务设置</a>
+        <form method="dialog"><button class="outline-action" type="submit" autofocus>关闭</button></form>
+      </div>
+    </dialog>
+
+    <script src="sample-loader.js?v=sample-retry1"></script>
+    <script src="backend-config.js?v=20261107-type1"></script>
+    <script src="local-backend.js?v=20261107-type1"></script>
+    <script src="cloud-config.js?v=20261107-type1"></script>
+    <script src="cloud.js?v=20261107-type1"></script>
+    <script src="instruments.js?v=20261107-type1"></script>
+    <script src="dx7-presets.js?v=20261105-play1"></script>
+    <script src="drums.js?v=pattern-highlight1"></script>
+    <script src="performance.js?v=external-midi1"></script>
+    <script src="pitch-detector.js?v=yin3"></script>
+    <script src="pitch-client.js?v=vocal-body1"></script>
+    <script src="pitch-analysis.js?v=vocal-body1"></script>
+    <script src="recognition.js?v=vocal-body1"></script>
+    <script src="piano-roll.js?v=key-harmony1"></script>
+    <script src="pitch-editor.js?v=harmony-midi1"></script>
+    <script src="templates.js?v=track-loop1"></script>
+    <script src="ai-config.js?v=20261107-type1"></script>
+    <script src="assistant-engine.js?v=20261110-song"></script>
+    <script src="channel-core.js?v=20261107-type1"></script>
+    <script src="channel-audio.js?v=20261107-type1"></script>
+    <script src="track-layout.js?v=track-delete1"></script>
+    <script src="channel-strip.js?v=track-selection1"></script>
+    <script src="effects.js?v=20261107-type1"></script>
+    <script src="arrangement-assistant.js?v=task-modes1"></script>
+    <script src="transport.js?v=20261107-type1"></script>
+    <script src="material-core.js?v=20261107-type1"></script>
+    <script src="materials.js?v=section-loop1"></script>
+    <script src="piano-sampler.js?v=phrase-tail1"></script>
+    <script src="string-sampler.js?v=recorded-kit1"></script>
+    <script src="email-auth-ui.js?v=social-login1"></script>
+    <script src="admin-overview.js?v=1"></script>
+    <script src="workspace-sync.js?v=20261107-type1"></script>
+    <script src="dx7-engine.js?v=authenticated-worklet2"></script>
+    <script src="night-pocket-phrasing.js?v=1"></script>
+    <script src="night-pocket.js?v=3"></script>
+    <script src="afterglow-drive.js?v=arrangement-load1"></script>
+    <script src="open-sample-instruments.js?v=pack1"></script>
+    <script src="lab-recording.js?v=1"></script>
+    <script src="app.js?v=track-actions2"></script>
+    <script src="sound-library.js?v=fischer808-1"></script>
+    <script src="song-study.js?v=20261107-type1"></script>
+    <script src="stem-session.js?v=20261107-type1"></script>
+    <script src="instrument-portraits.js?v=20261107-type1"></script>
+    <script src="source-instruments.js?v=sample-packs1"></script>
+  <script src="dx7-playable-library.js?v=afterglow1"></script><script src="arrangement-piano-roll.js?v=key-harmony1"></script><script src="workspace-pages.js?v=open-samples1"></script><script src="local-audio-workers.js?v=3"></script><script src="transcription-core.js?v=20261113"></script><script src="transcription.js?v=recording-midi1"></script><script src="external-midi.js?v=1"></script><script src="arrangement-additions.js?v=2"></script>
+  <script src="stem-separation.js?v=3"></script>
+  </body>
+</html>

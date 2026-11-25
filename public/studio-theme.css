@@ -1,0 +1,81 @@
+/* MELOHUM studio theme v1 — additive, scoped to the arrangement page.
+   Loaded after styles.css. Colour, type, radius and spacing only; no markup, JS or layout-grid changes.
+   Remove the <link> in index.html to roll back. */
+.arrangement-view{
+  --st-bg:#0e1012;--st-p1:#15181b;--st-p2:#1b1f23;--st-p3:#23282d;
+  --st-line:rgba(255,255,255,.08);--st-line2:rgba(255,255,255,.16);
+  --st-tx:#e9ebee;--st-mu:#8a929b;--st-vi:#9b8cff;--st-vi2:#b3a8ff;--st-cy:#4dd4e6;
+  --st-ease:cubic-bezier(.2,.7,.2,1);
+  --accent:var(--st-vi);--accent-bright:var(--st-vi2);--lime:var(--st-cy);
+  color:var(--st-tx);background:var(--st-bg);border-radius:18px;
+  padding:clamp(12px,2vw,24px);
+  font-feature-settings:"tnum" 1;
+}
+.arrangement-view :where(h1,h2,h3){color:var(--st-tx)}
+#arrangementView .arrangement-heading h1{font-size:clamp(22px,3vw,30px);letter-spacing:-.01em}
+.arrangement-view :focus-visible{outline:2px solid var(--st-vi);outline-offset:2px}
+
+/* Buttons */
+.arrangement-view :where(.solid-action,.outline-action,.ghost-button){
+  border-radius:9px;font-size:12px;min-height:34px;
+  transition:background .16s var(--st-ease),border-color .16s var(--st-ease),transform .1s}
+.arrangement-view .solid-action{background:var(--st-vi);border-color:var(--st-vi);color:#14121f;font-weight:600}
+.arrangement-view .solid-action:hover{background:var(--st-vi2);border-color:var(--st-vi2)}
+.arrangement-view :where(.outline-action,.ghost-button){background:var(--st-p2);border:1px solid var(--st-line);color:var(--st-tx)}
+.arrangement-view :where(.outline-action,.ghost-button):hover{border-color:var(--st-line2);background:var(--st-p3)}
+.arrangement-view :where(button):active:not(:disabled){transform:scale(.97)}
+.arrangement-view .workspace-subnav a{color:var(--st-mu);border-radius:8px}
+.arrangement-view .workspace-subnav a[aria-current="page"]{color:var(--st-tx);background:var(--st-p2);box-shadow:inset 0 -2px 0 var(--st-vi)}
+
+/* Console and transport */
+#arrangementView .arrangement-console{background:var(--st-p1);border:1px solid var(--st-line);border-radius:14px;box-shadow:none}
+#arrangementView .arrangement-toolbar{border-bottom:1px solid var(--st-line);min-height:68px;gap:16px}
+#arrangementView .arrangement-time-readout strong{font:500 24px ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:.02em;color:var(--st-tx)}
+#arrangementView .arrangement-time-readout span{color:var(--st-mu);font-size:11px}
+#arrangementView .play-button{background:var(--st-vi);color:#14121f;border:0;transition:background .16s var(--st-ease),transform .1s}
+#arrangementView .play-button:hover{background:var(--st-vi2)}
+#arrangementView .arrangement-summary span{color:var(--st-mu);font-size:11px}
+#arrangementView .arrangement-summary b{color:var(--st-tx);font-weight:500}
+#arrangementView .arrangement-export-shortcut{border-radius:9px;border:1px solid var(--st-line);background:var(--st-p2);color:var(--st-tx)}
+#arrangementView .arrangement-export-shortcut:hover:not(:disabled){border-color:var(--st-cy);color:var(--st-cy)}
+
+/* Track headers and ruler */
+#arrangementView .arrangement-track-side{background:var(--st-p1);border-right:1px solid var(--st-line)}
+#arrangementView .arrangement-ruler-head{border-bottom:1px solid var(--st-line);color:var(--st-mu);font-size:11px;height:39px}
+#arrangementView .arrange-track-header{border-bottom:1px solid var(--st-line)}
+#arrangementView .arrange-track-header:hover{background:rgba(255,255,255,.025)}
+#arrangementView .arrange-track-header.selected{box-shadow:inset 3px 0 var(--st-vi);background:rgba(155,140,255,.08)}
+#arrangementView .arrange-track-header.track-drop-target{box-shadow:inset 0 3px var(--st-cy);background:rgba(77,212,230,.08)}
+#arrangementView .track-order-grip{color:var(--st-mu)}
+#arrangementView .track-order-grip:hover,#arrangementView .track-order-grip:focus-visible{border-color:var(--st-vi)}
+#arrangementView .arrange-track-buttons [data-track-fx]{color:var(--st-cy);font-size:10px}
+
+/* Timeline */
+#arrangementView .arrangement-timeline{background:
+  linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px),var(--st-bg);background-size:12.5% 100%,100% 100%}
+#arrangementView .arrangement-ruler{border-bottom:1px solid var(--st-line);background:rgba(255,255,255,.02)}
+#arrangementView .arrangement-ruler b{color:var(--st-mu);font-size:10px}
+#arrangementView .arrangement-ruler small{color:#5b636b;font-size:9px}
+#arrangementView .arrangement-playhead{box-shadow:none;background:transparent}
+#arrangementView .arrangement-playhead::after{background:var(--st-cy);box-shadow:none}
+#arrangementView .arrangement-playhead.seeking::after{background:var(--st-cy)}
+#arrangementView .arrangement-playhead.seeking #arrangementSeekHandle{color:var(--st-cy)}
+#arrangementView .arrange-clip:not(.empty){border-radius:7px}
+#arrangementView .arrange-clip-heading .track-shift-grip{background:var(--st-p2);color:var(--st-mu);border-color:var(--st-line2)}
+#arrangementView .arrangement-empty strong{color:var(--st-tx)}
+#arrangementView .arrangement-empty p{color:var(--st-mu)}
+
+/* Layout tools, channel strip, library, footer */
+#arrangementView .track-layout-tools{color:var(--st-mu);font-size:12px}
+#arrangementView .track-layout-tools button{border-radius:8px;background:var(--st-p2);border:1px solid var(--st-line);color:var(--st-tx)}
+#arrangementView .track-channel-panel{background:var(--st-p2);border:1px solid var(--st-line);color:var(--st-tx);border-radius:12px}
+#arrangementView .material-library{background:var(--st-p2);border:1px solid var(--st-line);border-radius:12px;color:var(--st-tx)}
+#arrangementView .arrangement-footer{color:var(--st-mu)}
+#arrangementView .arrangement-footer p i{background:var(--st-cy)}
+
+/* AI sidebar */
+#arrangementView .assistant-sidebar{background:var(--st-p1);border:1px solid var(--st-line);color:var(--st-tx);border-radius:14px}
+#arrangementView .assistant-sidebar .assistant-options{border-top-color:var(--st-line)}
+#arrangementView .assistant-sidebar .assistant-options>summary{color:var(--st-vi2)}
+
+@media (prefers-reduced-motion:reduce){.arrangement-view *{transition:none!important}}

@@ -1,0 +1,16 @@
+Night Pocket — Melohum 原创放克流行示范
+
+113 BPM，16 小节。包含立体声成品和从同一编曲导出的七条同期音频轨。
+电吉他与电贝斯录音：Karoryfer。Nicholaus P. Brosowsky 整理与分发。
+https://github.com/nbrosowsky/tonejs-instruments
+三角钢琴录音：Alexander Holm，Salamander Grand Piano。
+https://archive.org/details/SalamanderGrandPianoV3
+以上乐器采样采用 CC BY 3.0：https://creativecommons.org/licenses/by/3.0/
+
+底鼓录音：Zajo，https://freesound.org/s/4832/
+军鼓录音：menegass，https://freesound.org/s/100058/
+闭合踩镲录音：menegass，https://freesound.org/s/100053/
+鼓组采样来自 Sample Pi（https://github.com/alex-esc/sample-pi），
+采用 CC0 1.0：https://creativecommons.org/publicdomain/zero/1.0/
+
+采样在编曲时做了音高转换、裁剪、动态处理和混音。

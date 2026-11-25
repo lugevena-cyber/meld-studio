@@ -1,0 +1,63 @@
+.night-pocket-demo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 16px 28px;
+  padding: clamp(16px, 3vw, 24px);
+  border-top: 1px solid #33493d;
+  background: #1b2923;
+  color: #f4f7ed;
+}
+
+.night-pocket-info h2 {
+  margin: 4px 0 8px;
+  font: 700 clamp(24px, 4vw, 36px)/1.15 var(--workspace-font);
+  letter-spacing: -.035em;
+}
+
+.night-pocket-info p,
+#nightPocketStatus,
+.afterglow-status {
+  margin: 0;
+  font-size: .9375rem;
+  line-height: 1.55;
+  color: #d5e0d5;
+}
+
+.night-pocket-info .night-pocket-meta {
+  font-size: .875rem;
+  color: #b8dc9d;
+}
+
+.night-pocket-info a {
+  display: inline-block;
+  margin-top: 10px;
+  color: #d5e0d5;
+  font-size: .875rem;
+  text-underline-offset: 3px;
+}
+
+.night-pocket-controls {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.night-pocket-controls audio { width: 100%; }
+
+.night-pocket-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.night-pocket-actions button { min-height: 44px; }
+.night-pocket-actions .solid-action { background: #d5ecad; color: #172319; }
+.night-pocket-actions .outline-action { border-color: #a1b0a5; color: #eff5ec; }
+.night-pocket-actions button:disabled { opacity: .54; cursor: default; }
+#nightPocketStatus:empty,
+.afterglow-status:empty { display: none; }
+
+@media (max-width: 720px) {
+  .night-pocket-demo { grid-template-columns: minmax(0, 1fr); }
+}

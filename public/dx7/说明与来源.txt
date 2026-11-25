@@ -1,0 +1,9 @@
+Yamaha DX7 一代原厂 ROM 备份
+8 个音色库，每库 32 个槽位，共 256 个槽位；参数去重后 238 组。
+ROM1/2 与 ROM3/4 是地区配置，存在重复音色。不是所有第三方或用户自制音色。
+格式：Yamaha MIDI SysEx (.syx)，可导入兼容软件或硬件；本文件不是音频采样。
+所有银行文件均已验证长度、格式与 Yamaha SysEx 校验和。
+下载来源：https://yamahablackboxes.com/collection/yamaha-dx7-synthesizer/patches/
+官方背景：https://europe.yamaha.com/en/musical-instruments/keyboards/explore/montage-portal/essentials/fm-x.html
+兼容音源：https://github.com/asb2m10/dexed
+保留原作者及 Yamaha 的相关权利；此下载不构成额外再分发或商用授权。

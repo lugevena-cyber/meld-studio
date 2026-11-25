@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>AI 服务设置 — Melohum</title>
+  <link rel="stylesheet" href="ai-settings.css" />
+  <script src="ai-settings.js" defer></script>
+</head>
+<body>
+  <main class="settings-shell">
+    <a class="back-link" href="/?page=arrangement">← 返回 Melohum</a>
+    <section class="settings-card">
+      <p class="eyebrow">OWNER SETTINGS / AI</p>
+      <h1>AI 服务设置</h1>
+      <p class="intro">配置 Melohum 编曲助手使用的模型代理。只有站点所有者登录后才能查看和保存。</p>
+      <div id="accessState" class="notice" role="status" aria-live="polite">正在验证所有者权限…</div>
+      <form id="settingsForm" hidden>
+        <label for="endpoint">代理接口地址</label>
+        <input id="endpoint" name="endpoint" type="url" required autocomplete="url" spellcheck="false" />
+        <label for="model">模型名称</label>
+        <input id="model" name="model" type="text" required maxlength="80" autocomplete="off" spellcheck="false" />
+        <label for="proxyKey">代理密钥 <span id="keyState"></span></label>
+        <input id="proxyKey" name="proxyKey" type="password" minlength="24" maxlength="512" autocomplete="new-password" spellcheck="false" placeholder="首次设置时填写 MELOHUM_PROXY_TOKEN" />
+        <p class="field-help">首次配置必填；保存后不会回显。之后留空即可保留现有密钥。</p>
+        <button id="saveButton" type="submit">保存 AI 配置</button>
+        <p id="saveState" class="save-state" role="status" aria-live="polite"></p>
+      </form>
+      <aside class="security-note">
+        <strong>密钥保护</strong>
+        <p>密钥通过 HTTPS 发送到 Melohum 后端，在服务器端使用独立加密密钥进行 AES-GCM 加密后保存；不会写入网页代码、浏览器存储或日志，也不会从页面读回。</p>
+        <p>此页保存的是 Melohum 的 AI 运行配置，不会直接修改 Cloudflare Workers 的环境变量。</p>
+      </aside>
+    </section>
+  </main>
+</body>
+</html>

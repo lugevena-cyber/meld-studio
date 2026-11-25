@@ -1,0 +1,4 @@
+webDX7 by Jari Kleimola, MIT; MSFA by Google, Apache 2.0; tuning-library, MIT.
+Source: https://github.com/webaudiomodules/webdx7
+MELD adds voice pooling, scheduled notes, stop/release and effects. Original WASM DSP unchanged.
+Bundled engine SHA256: 9f89e3b0965305969b4608fb025c4f88a2320fa99d57f82aba7132ded51fee03
