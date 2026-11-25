@@ -75,17 +75,27 @@
   panel.hidden=assistantTask!=='compose'||(!current&&!status.textContent);
   instrumentLabel.hidden=!pickFor;
   choices.hidden=!current;
+  const append=choices.querySelector('[data-single-track="append"]');
+  const appended=draft?.appliedId&&arrangement.tracks.some(track=>track.id===draft.appliedId);
+  append.textContent=appended?'撤销新轨':'追加为新轨';
+  choices.querySelector('[data-single-track="replace"]').hidden=Boolean(appended);
   for(const button of choices.querySelectorAll('button'))button.disabled=busy||(button.dataset.singleTrack==='save'&&draft?.saved);
  }
- function request(message){
+ function request(message,preferTrack=false){
   const scope=/(?:只|仅)(?:想)?\s*(?:用|使用|要)|单(?:一)?轨|独奏|\b(?:only|solo|single[ -]track)\b/i.exec(message);
-  if(!scope)return false;
+  const full=/(?:整首|全曲|完整(?:歌曲|分轨|编曲)|多轨|全部音轨|[2-9２-９]\s*轨|\b(?:full song|whole song|multitrack)\b)/i.test(message);
+  const add=/(?:再|另|额外)\s*(?:写|生成|加|做|来|编)|追加|新增|另加|加一[条轨段]|\b(?:append|add a track)\b/i.test(message);
+  const catalog=assistantCatalog();
+  const namedInstrument=resolveInstrument(catalog,message);
+  const genericSong=/(?:生成|创作|制作|编|写|来|做).*(?:[首段]|一支)[^，。！？\n]{0,32}(?:歌曲|音乐|舞曲|曲子|乐曲|伴奏)/.test(message);
+  if(!scope&&!add&&(!preferTrack||full||(!namedInstrument&&genericSong)))return false;
   if(busy)return true;
+  arrangementAssistant.pending=null;draft=null;
+  renderAssistantState();
   if(!arrangementAssistant.connected){status.textContent='单轨生成需要连接在线 AI 服务。';renderChoices();return true;}
   if(arrangementAssistant.images.length){status.textContent='单轨生成使用文字描述，请先移除参考图。';renderChoices();return true;}
-  const catalog=assistantCatalog();
-  const instrument=resolveInstrument(catalog,message.slice(scope.index+scope[0].length))||resolveInstrument(catalog,message)
-   ||(pickFor===message&&catalog.find(item=>item.id===instrumentInput.value));
+  const instrument=(pickFor===message&&catalog.find(item=>item.id===instrumentInput.value))
+   ||(scope&&resolveInstrument(catalog,message.slice(scope.index+scope[0].length)))||namedInstrument;
   if(!instrument){
    if(pickFor!==message)instrumentInput.innerHTML='<option value="">请选择乐器</option>'+instrumentSelectOptions();
    pickFor=message;
@@ -100,10 +110,16 @@
  window.MeldSingleTrack={request,render:renderChoices,clear(){draft=null;pickFor='';status.textContent='';renderChoices();}};
  async function generateTrack(message,instrument){
   const account=assistantChatStorageKey();
+  const context=assistantContext();
+  const key=selectedArrangementTrack()?.noteEditKey||arrangement.templateMeta?.key||state.key;
+  const history=arrangementAssistant.messages.filter(item=>item.mode==='online'&&item.kind!=='error').slice(-12).map(({role,text})=>({role,text}));
+  appendAssistantMessage('user',message,'online');
   busy=true;arrangementAssistant.busy=true;status.textContent='正在生成单轨…';renderAssistantState();
   try{
    const response=await fetch('/api/assistant/track',{method:'POST',headers:{'Content-Type':'application/json'},signal:AbortSignal.timeout(100000),
-    body:JSON.stringify({message,bpm:arrangement.bpm,instrument:{id:instrument.id,name:instrument.name,isDrum:instrument.isDrum}})});
+    body:JSON.stringify({message,bpm:arrangement.bpm,history,research:true,instrument:{id:instrument.id,name:instrument.name,isDrum:instrument.isDrum},
+     accompaniment:context.tracks.length?{key,tracks:context.tracks.filter(track=>!track.isDrum&&track.noteCount).slice(0,8)
+      .map(track=>({name:track.name,notes:track.sampleNotes}))}:null})});
    const data=await response.json();
    if(account!==assistantChatStorageKey())return;
    if(!response.ok)throw new Error(data.error||'暂时无法生成单轨');
@@ -117,6 +133,7 @@
    arrangementAssistant.pending=null;
    if(prompt.value.trim()===message)prompt.value='';
    status.textContent=`${song.title} · ${song.bpm} BPM · ${song.bars} 小节 · ${notes.length} 个音符`;
+   appendAssistantMessage('assistant',status.textContent+'\n单轨草稿已就绪，可追加为新轨或保存到素材库。'+assistantReferenceText(data.references),'online','track');
   }catch(error){
    if(account===assistantChatStorageKey())status.textContent=error.name==='TimeoutError'?'单轨生成超时，请重试':error.message;
   }finally{busy=false;arrangementAssistant.busy=false;renderAssistantState();}
@@ -138,6 +155,21 @@
   }
   if(layoutLocked()){showToast('请先停止分轨录制');return;}
   if(arrangementAssistant.busy){showToast('请等待当前 AI 请求完成');return;}
+  const appended=arrangement.tracks.find(track=>track.id===draft.appliedId);
+  if(action==='append'&&appended){
+   if(JSON.stringify(cloneArrangementTrackData(appended))!==draft.appliedTrack&&
+    !window.confirm('这条新轨已继续编辑，仍要撤销追加并移除它吗？'))return;
+   const history=arrangementAssistant.history;
+   const entry=history.find(item=>item.addedTrackId===appended.id);
+   if(entry===history.at(-1)&&entry&&entry.after===MeldArrangementAI.fingerprint(assistantSnapshot())){
+    undoAssistantExperiment();
+   }else{
+    if(!deleteArrangementTracks(new Set([appended.id])))return;
+    if(entry)history.splice(history.indexOf(entry),1);
+   }
+   draft.appliedId=null;
+   renderAssistantState();showToast('已撤销追加的新轨');return;
+  }
   const replace=action==='replace';
   if(!replace&&arrangement.tracks.length>=48){showToast('最多支持 48 条音轨，请先删除一条');return;}
   if(replace&&arrangement.tracks.length&&!window.confirm('用这条素材替换当前全部音轨？可使用「撤销本次实验」恢复。'))return;
@@ -151,13 +183,18 @@
   releasePerformanceKeys();
   const empty=replace||!before.tracks.length;
   const duration=Math.max(empty?0:before.duration,song.bars*240/baseBpm);
-  const next={...before,tracks:empty?[track]:[...before.tracks,track],bpm,baseBpm,duration,
+  const next={...before,tracks:empty?[track]:[...arrangement.tracks,track],bpm,baseBpm,duration,
    sections:empty?[{name:material.name,start:0}]:before.sections,templateMeta:empty?null:before.templateMeta,
    activeProjectId:empty?null:before.activeProjectId};
   performanceInput.trackId=track.id;
   assignAssistantSnapshot(next);
   selectArrangementTrack(track.id);
-  arrangementAssistant.history.push({before,after:MeldArrangementAI.fingerprint(assistantSnapshot())});
+  if(!replace){
+   draft.appliedId=track.id;
+   draft.appliedTrack=JSON.stringify(cloneArrangementTrackData(track));
+  }
+  arrangementAssistant.history.push({before,after:MeldArrangementAI.fingerprint(assistantSnapshot()),addedTrackId:replace?null:track.id});
+  if(replace){draft=null;status.textContent='';}
   if(arrangementAssistant.history.length>15)arrangementAssistant.history.shift();
   renderAssistantState();
   showToast(replace?'已替换当前音轨，可撤销':'已追加单轨，可撤销');

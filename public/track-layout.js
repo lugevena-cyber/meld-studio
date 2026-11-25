@@ -21,6 +21,7 @@ function selectArrangementTrack(id,{restartLoop=true}={}){
  if(arrangementTrackSelection===id)return;
  arrangementTrackSelection=id;
  syncArrangementTrackSelection();
+ renderPerformanceKeyboard();
  renderTrackChannelStrip();
  window.MeldArrangementRoll?.render();
  renderArrangementSectionControls();

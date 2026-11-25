@@ -191,7 +191,8 @@ test('the assistant offers the recovery draft, applies it on demand and can undo
   return nodes.get(key);
  };
  node('assistantMode').value='online';
- const ctx=vm.createContext({structuredClone,AbortSignal,document:{getElementById:node,createElement:()=>({})},
+ let confirmed=false;
+ const ctx=vm.createContext({structuredClone,AbortSignal,window:{confirm:()=>confirmed},document:{getElementById:node,createElement:()=>({})},
   fetch:async()=>Response.json(data),assistantChatStorageKey:()=>'test-account',readSnapshot:()=>structuredClone(current),writeSnapshot:s=>{current=structuredClone(s);},
   instruments,get arrangement(){return current;},makeId:()=>String(++id),performanceInput:{},drumKitFromTrack:()=>false,isSampledInstrument:()=>false,
   stopArrangementPlayback(){},stopMelodyPlayback(){},releasePerformanceKeys(){},renderPerformancePanel(){}});
@@ -202,6 +203,9 @@ test('the assistant offers the recovery draft, applies it on demand and can undo
  assert.equal(node('assistantPlan').hidden,false);
  assert.deepEqual(current,original);
  vm.runInContext('applyAssistantExperiment()',ctx);
+ assert.deepEqual(current,original);
+ confirmed=true;
+ vm.runInContext('applyAssistantExperiment()',ctx);
  assert.equal(current.bpm,140);assert.equal(current.tracks.length,4);
  assert.ok(current.tracks.every(track=>track.notes.length>=32));
  vm.runInContext('undoAssistantExperiment()',ctx);
@@ -210,4 +214,44 @@ test('the assistant offers the recovery draft, applies it on demand and can undo
  assert.equal(vm.runInContext("isAssistantQuestion('为什么生成的音乐没声音？')",ctx),true);
  assert.equal(vm.runInContext("isAssistantQuestion('换成小调呢','chat')",ctx),true);
  assert.equal(vm.runInContext("isAssistantQuestion('生成一首 Funk','chat')",ctx),false);
+});
+
+test('the SawLead edit rewrites just its notes and playable sound',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const vm=await import('node:vm');
+ const sandbox=vm.createContext({});
+ vm.runInContext(await readFile(new URL('../public/assistant-engine.js',import.meta.url),'utf8'),sandbox);
+ const ai=sandbox.MeldArrangementAI;
+ const tracks=[
+  {id:'bass',name:'贝斯',instrument:'bass',notes:[{midi:38,start:0,duration:.3}],audioClips:[{id:'original'}]},
+  {id:'lead',name:'SawLead旋律',instrument:'synth',color:'#5730a0',volume:61,notes:[{midi:62,start:1,duration:.5}]},
+  {id:'drums',name:'鼓',instrument:'drums',notes:[{midi:36,start:0,duration:.2}],solo:true},
+ ];
+ const snapshot={tracks,bpm:104,baseBpm:120,sections:[{name:'主题',start:0}],activeProjectId:'existing'};
+ const scope=ai.trackEditRequest('这个SawLead旋律音色听着都很难听 只改动这个轨道，换个音色旋律，其他不变',tracks,'bass');
+ assert.equal(scope.target.id,'lead');assert.equal(scope.notes,true);assert.equal(scope.tone,true);
+ const part={instrument:'flute',clips:[{startBar:0,bars:2,repeat:1,notes:[{midi:72,beat:2,duration:1,velocity:.8}]}]};
+ const prepared=ai.prepareTrackEdit(snapshot,'lead',{notes:true,tone:true,bars:2},{tracks:[part]},[{id:'flute',name:'长笛'}]);
+ assert.equal(prepared.session.tracks[0],tracks[0]);assert.equal(prepared.session.tracks[2],tracks[2]);
+ assert.equal(prepared.session.tracks[1].instrument,'flute');assert.equal(prepared.session.tracks[1].volume,61);
+ assert.equal(prepared.session.tracks[1].notes[0].start,1);
+ assert.equal(prepared.session.activeProjectId,'existing');assert.equal(prepared.session.bpm,104);
+ assert.equal(prepared.session.sections,snapshot.sections);
+ assert.throws(()=>ai.prepareTrackEdit(snapshot,'lead',scope,{tracks:[part,part]},[]));
+ assert.equal(ai.trackEditRequest('再写一段钢琴旋律',tracks,'lead'),null);
+ assert.equal(ai.trackEditRequest('只换第2轨音色，旋律不变',tracks,'bass').notes,false);
+});
+
+test('a vague artist reference combines Melohum studies and public lookup',async t=>{
+ const {musicReferences}=await import('../worker/music-references.js');
+ t.mock.method(globalThis,'fetch',async address=>{
+  const url=new URL(address);
+  assert.equal(url.hostname,'en.wikipedia.org');
+  assert.equal(url.searchParams.get('gsrsearch'),'Michael Jackson');
+  return Response.json({query:{pages:[{pageid:14995351,title:'Michael Jackson',extract:'American singer, songwriter, dancer, and philanthropist.'}]}});
+ });
+ const references=await musicReferences('你生成一段MJ舞曲风格的音乐',true);
+ assert.match(references[0].notes,/syncopated electric bass/);
+ assert.equal(references[1].url,'https://en.wikipedia.org/?curid=14995351');
+ assert.equal((await musicReferences('生成 16 小节 MJ 舞曲，前奏 4 小节',true)).length,1);
 });

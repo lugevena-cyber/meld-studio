@@ -119,6 +119,61 @@
   if(actions.length)return {reply:'示例方案已生成。点击“应用并试听”，可以听到实际的节奏与音色变化；修改后可撤销。',actions};
   return {reply:/怎么|为什么|是什么|建议/.test(message)?'示例说明：动次打次可由四拍底鼓、第二和第四拍军鼓及八分踩镲组成。军鼓单独加混响，可增加空间感并保留底鼓的清晰度。当前是本地示例模式，自由问答需要以后连接模型服务。':'当前为本地示例模式，暂时能演示动次打次/Funk 鼓点、单独军鼓混响、音色亮暗、音量、静音/独奏和新增吉他实验轨。可点击上方示例试用；接入模型后再使用自由问答。',actions:[]};
  }
+ function trackEditRequest(message,tracks,selectedId){
+  const compact=value=>String(value||'').toLowerCase().replace(/[^\p{L}\p{N}]/gu,'');
+  const input=compact(message);
+  const numbered=/(?:第\s*0*(\d{1,2})\s*(?:号|条)?\s*(?:音轨|轨道|轨)|(?:音轨|轨道|轨)\s*[#＃]?\s*0*(\d{1,2})(?!\d))/i.exec(message);
+  const named=tracks.filter(track=>[track.name,track.instrumentName,track.instrument].some(value=>{
+   const name=compact(value);
+   return name.length>=2&&input.includes(name);
+  }));
+  const roleNames={lead:/主旋律|\bsaw\s*lead\b/i,bass:/贝斯|低音轨|\bbass\b/i,drums:/鼓组|鼓轨|\bdrums\b/i,harmony:/和声轨|和弦轨|\bharmony\b/i};
+  const role=Object.values(roleNames).find(pattern=>pattern.test(message));
+  const candidates=named.length?named:role?tracks.filter(track=>role.test([track.name,track.instrumentName,track.instrument].join(' '))):[];
+  const local=/(?:只|仅)(?:想|要)?\s*(?:改|动|调整|修改|重写|换|替换)|(?:其他|其它|其余|剩余)[^，。！？\n]{0,18}(?:不变|别动|保留|保持|不要改|不动)|(?:这|该|当前|选中)(?:一|个|条|的)?\s*(?:音轨|轨道|轨)|\b(?:this|selected) track\b|\b(?:other tracks unchanged|only change|only edit)\b/i.test(message);
+  const notes=/旋律|音符|音高|节奏|重写|重编|改写|\b(?:melody|notes|rhythm|rewrite)\b/i.test(message);
+  const tone=/音色|换乐器|换成|\b(?:timbre|sound|instrument|preset)\b/i.test(message);
+  const edit=/改|调|换|替换|重写|重编|\b(?:change|edit|replace|rewrite|swap)\b/i.test(message);
+  if(!local&&!(edit&&(numbered||candidates.length)&&(notes||tone)&&!/(?:全曲|整首|全部音轨|重新生成一首|重做整)/.test(message)))return null;
+  if(/(?:只|仅)(?:想)?\s*(?:用|使用)|单轨素材/.test(message)&&!edit)return null;
+  const preserveNotes=/(?:旋律|音符|节奏)\s*(?:保持|别动|不变|不动|不改|不要改)|(?:只|仅)\s*(?:改|换|调整)\s*(?:乐器|音色)(?!\s*[、和与及]?(?:和|与|及)?\s*旋律)/.test(message);
+  const preserveTone=/(?:音色|乐器)\s*(?:保持|别动|不变|不动|不改|不要改)|(?:只|仅)\s*(?:改|重写)\s*(?:旋律|音符)(?!\s*[、和与及]?(?:和|与|及)?\s*音色)/.test(message);
+  const selected=tracks.find(track=>track.id===selectedId);
+  const target=numbered?tracks[Number(numbered[1]||numbered[2])-1]:
+   candidates.length===1?candidates[0]:!candidates.length||candidates.includes(selected)?selected:null;
+  return {target,notes:notes&&!preserveNotes,tone:tone&&!preserveTone};
+ }
+ function prepareTrackEdit(session,targetId,edit,song,catalog){
+  const target=session.tracks.find(track=>track.id===targetId);
+  if(!target||!Array.isArray(song?.tracks)||song.tracks.length!==1)fail('单轨草稿无效，请重新生成');
+  const part=song.tracks[0];
+  const definition=catalog.find(item=>item.id===part.instrument);
+  if(!definition)fail('草稿里的音色不可用');
+  const track={...target};
+  const changes=[];
+  if(edit.tone){
+   const defaults=definition.params||definition.defaults||{};
+   Object.assign(track,{instrument:definition.id,instrumentBase:definition.baseInstrument||definition.id,
+    instrumentName:definition.name,instrumentPatch:{...defaults,...part.params}});
+   changes.push(`「${track.name}」音色改为 ${definition.name}`);
+  }
+  if(edit.notes){
+   const beat=60/session.baseBpm;
+   const notes=[];
+   for(const clip of part.clips)for(let repeat=0;repeat<clip.repeat;repeat++)for(const note of clip.notes){
+    const start=clip.startBar*4+repeat*clip.bars*4+note.beat;
+    if(start+note.duration>edit.bars*4+.00001)fail('草稿超出目标音轨的编辑范围');
+    notes.push({midi:note.midi,start:start*beat,duration:note.duration*beat,velocity:note.velocity,confidence:1,manualEdited:true});
+   }
+   if(!notes.length)fail('单轨草稿没有音符');
+   const end=edit.bars*4*beat;
+   track.notes=[...notes,...target.notes.filter(note=>note.start>=end-.00001)]
+    .sort((a,b)=>a.start-b.start||a.midi-b.midi);
+   changes.push(`「${track.name}」改写前 ${edit.bars} 小节的音符`);
+  }
+  if(!changes.length)fail('请指定需要修改的旋律或音色');
+  return {session:{...session,tracks:session.tracks.map(item=>item.id===targetId?track:item)},affected:[targetId],changes};
+ }
  function fingerprint(session){const value=JSON.stringify({tracks:session.tracks,bpm:session.bpm,baseBpm:session.baseBpm,templateMeta:session.templateMeta||null,sections:session.sections||[],activeProjectId:session.activeProjectId||null});let hash=2166136261;for(let i=0;i<value.length;i++)hash=Math.imul(hash^value.charCodeAt(i),16777619);return `${hash>>>0}:${value.length}`;}
- return {schema,validatePlan,prepare,demo,action,fingerprint,LIMITS};
+ return {schema,validatePlan,prepare,demo,action,fingerprint,trackEditRequest,prepareTrackEdit,LIMITS};
 });

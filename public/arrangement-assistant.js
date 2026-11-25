@@ -1,6 +1,10 @@
 const arrangementAssistant = {busy:false,connected:false,pending:null,messages:[],history:[],lastAffected:[],images:[]};
 let assistantTask='chat';
+let assistantComposeScope='track';
 const assistantElement=id=>document.getElementById(id);
+function assistantReferenceText(references){
+ return references?.length?'\n创作参考 · '+references.map(item=>item.title).join('、'):'';
+}
 function assistantSnapshot(){return arrangementTemplateSnapshot();}
 function assistantCatalog(){return getAllInstrumentDefinitions().map(item=>({id:item.id,name:item.name,baseInstrument:item.baseInstrument||item.id,color:item.color,isDrum:isDrumInstrument(item.baseInstrument||item.id),defaults:{...LAB_DEFAULTS[item.baseInstrument||item.id]},params:item.params?{...item.params}:null}));}
 function assistantContext(){
@@ -74,13 +78,20 @@ function renderAssistantState(){
  const mode=assistantElement('assistantMode').value;
  assistantElement('assistantStatus').textContent=arrangementAssistant.busy?'正在处理…':mode==='online'?'AI 已连接 · 可答音乐与页面问题，或生成完整分轨':'本地示例模式 · 音乐问答和 AI 成曲需在线服务';
  const composing=assistantTask==='compose';
+ const scope=assistantElement('assistantComposeScope');
+ scope.hidden=!composing;
+ for(const tab of scope.querySelectorAll('button')){
+  tab.setAttribute('aria-pressed',String(tab.dataset.composeScope===assistantComposeScope));
+  tab.disabled=arrangementAssistant.busy;
+ }
  const prompt=assistantElement('assistantPrompt');
  const readyToApply=composing&&Boolean(arrangementAssistant.pending)&&!prompt.value.trim();
  const send=assistantElement('assistantSend');
  send.hidden=readyToApply;
  send.disabled=arrangementAssistant.busy;
  send.textContent=arrangementAssistant.busy?'正在处理…':!composing?'提交':mode==='online'?'生成草稿':'生成示例';
- prompt.placeholder=composing?'例如：只用电钢琴写 8 小节 Synthwave，前两小节留白。也可以描述整首编曲。':'例如：Synthwave 常用哪些和弦？';
+ prompt.placeholder=!composing?'例如：Synthwave 常用哪些和弦？':assistantComposeScope==='track'?
+  '例如：再写一段钢琴旋律，或只改第 3 轨的音色。':'例如：生成一首 16 小节的 Synthwave，包含主旋律、和声、贝斯和鼓。';
  for(const tab of document.querySelectorAll('[data-assistant-task]')){
   tab.setAttribute('aria-pressed',String(tab.dataset.assistantTask===assistantTask));
   tab.disabled=arrangementAssistant.busy;
@@ -89,10 +100,11 @@ function renderAssistantState(){
  assistantElement('assistantPlan').hidden=!composing||!arrangementAssistant.pending;
  globalThis.MeldSingleTrack?.render();
  assistantElement('assistantUndo').disabled=!arrangementAssistant.history.length||arrangementAssistant.busy;
- const selected=selectedPerformanceTrack();
+ const selected=selectedArrangementTrack()||selectedPerformanceTrack();
  assistantElement('assistantSelectedTrack').textContent=selected?`当前轨：${selected.name}`:'当前还没有音轨，可先生成鼓点实验';
  assistantElement('assistantApply').disabled=!arrangementAssistant.pending||arrangementAssistant.busy||Boolean(performanceInput.recording);
  const readingApply=assistantElement('assistantReadingApply');
+ readingApply.textContent=assistantElement('assistantApply').textContent;
  readingApply.hidden=!composing||!arrangementAssistant.pending;
  readingApply.disabled=assistantElement('assistantApply').disabled;
  assistantElement('assistantPreview').disabled=!arrangementAssistant.lastAffected.length||Boolean(performanceInput.recording);
@@ -120,6 +132,10 @@ async function requestArrangementAssistance(message,intent){
  const account=assistantChatStorageKey();
  const attachedImages=[...arrangementAssistant.images];
  const mode=assistantElement('assistantMode').value,context=assistantContext(),snapshot=assistantSnapshot(),revision=MeldArrangementAI.fingerprint(snapshot);
+ if(intent!=='chat'){
+  arrangementAssistant.pending=null;
+  globalThis.MeldSingleTrack?.clear();
+ }
  arrangementAssistant.busy=true;
  appendAssistantMessage('user',message+(attachedImages.length?`\n（已附 ${attachedImages.length} 张参考图）`:''),mode);assistantElement('assistantPrompt').value='';renderAssistantState();
  try{
@@ -133,10 +149,27 @@ async function requestArrangementAssistance(message,intent){
     const data=await response.json();if(!response.ok)throw new Error(data.error||'AI 助手暂时无法响应');
     arrangementAssistant.images=[];renderAssistantImages();appendAssistantMessage('assistant',data.answer,'online','chat');return;
    }
-   const response=await fetch('/api/assistant/song',{method:'POST',headers:{'Content-Type':'application/json'},signal:AbortSignal.timeout(120000),body:JSON.stringify({message,history,preferRecorded:assistantElement('assistantPreferRecorded')?.checked===true,images:attachedImages.map(image=>image.dataUrl),currentArrangement:{bpm:context.bpm,bars:Math.max(1,Math.round(snapshot.duration*context.bpm/240)),tracks:context.tracks.map(track=>({name:track.name,instrument:track.instrument,instrumentName:track.instrumentName,volume:track.volume,muted:track.muted,solo:track.solo,noteCount:track.noteCount,audioClipCount:track.audioClipCount}))},catalog:context.catalog.map(x=>({id:x.id,name:x.name,baseInstrument:x.baseInstrument,isDrum:x.isDrum}))})});
+   const response=intent?.trackEdit?await fetch('/api/assistant/track',{method:'POST',headers:{'Content-Type':'application/json'},signal:AbortSignal.timeout(100000),
+    body:JSON.stringify({message,history,bpm:context.bpm,instrument:intent.trackEdit.instrument,edit:intent.trackEdit.details})}):
+    await fetch('/api/assistant/song',{method:'POST',headers:{'Content-Type':'application/json'},signal:AbortSignal.timeout(120000),body:JSON.stringify({message,history,research:true,preferRecorded:assistantElement('assistantPreferRecorded')?.checked===true,images:attachedImages.map(image=>image.dataUrl),currentArrangement:{bpm:context.bpm,bars:Math.max(1,Math.round(snapshot.duration*context.bpm/240)),tracks:context.tracks.map(track=>({name:track.name,instrument:track.instrument,instrumentName:track.instrumentName,volume:track.volume,muted:track.muted,solo:track.solo,noteCount:track.noteCount,audioClipCount:track.audioClipCount}))},catalog:context.catalog.map(x=>({id:x.id,name:x.name,baseInstrument:x.baseInstrument,isDrum:x.isDrum}))})});
    if(account!==assistantChatStorageKey())return;
    const data=await response.json();if(!response.ok)throw new Error(data.error||'模型服务暂时无法响应');
    const song=data.song,actions=[];
+   if(intent?.trackEdit){
+    const {targetId,details}=intent.trackEdit;
+    const prepared=MeldArrangementAI.prepareTrackEdit(snapshot,targetId,
+     {tone:details.changeTone,notes:details.changeNotes,bars:details.bars},song,context.catalog);
+    const target=snapshot.tracks.find(track=>track.id===targetId);
+    arrangementAssistant.pending={prepared,revision,targetId,context:{startBeat:0,bars:details.bars}};
+    arrangementAssistant.images=[];renderAssistantImages();
+    assistantElement('assistantPlanLabel').textContent=`单轨草稿 · ${target.name}`;
+    assistantElement('assistantApply').textContent='应用到这条音轨';
+    assistantElement('assistantChanges').replaceChildren(...prepared.changes.map(change=>{
+     const item=document.createElement('li');item.textContent=change;return item;
+    }));
+    appendAssistantMessage('assistant',prepared.changes.join('\n'),mode,'track');
+    return;
+   }
    const rulesDraft=data.source==='rules';
    for(let i=0;i<song.tracks.length;i++){
     const t=song.tracks[i],target='new:song-'+i,notes=[];
@@ -147,7 +180,7 @@ async function requestArrangementAssistance(message,intent){
    const soundNotes=song.tracks.filter(track=>track.soundDesign).map(track=>`${track.name}：${track.soundDesign}`).join('；');
    const notice=rulesDraft?'AI 曲谱未能通过检查。这里提供一份规则草稿。'+(attachedImages.length?'此草稿仅采用文字参数。':'')+'\n':'';
    const recordedCount=song.tracks.filter(track=>isSampledInstrument(track.instrument)).length;
-   plan={reply:(notice+song.title+' · '+song.bpm+' BPM · '+song.bars+' 小节\n'+song.summary+(recordedCount?'\n真实采样：'+recordedCount+'/'+song.tracks.length+' 轨':'')+(soundNotes?'\n音色设计：'+soundNotes:'')).slice(0,4000),actions};
+   plan={reply:(notice+song.title+' · '+song.bpm+' BPM · '+song.bars+' 小节\n'+song.summary+(recordedCount?'\n真实采样：'+recordedCount+'/'+song.tracks.length+' 轨':'')+(soundNotes?'\n音色设计：'+soundNotes:'')+assistantReferenceText(data.references)).slice(0,4000),actions};
    const duration=song.bars*4*60/song.bpm;
    const keyName=song.key?`${MeldPianoRollCore.label(60+song.key.tonic).slice(0,-1)} ${{major:'大调',minor:'小调',dorian:'多利亚'}[song.key.mode]}`:'调式未标注';
    const clean={...snapshot,tracks:[],bpm:song.bpm,baseBpm:song.bpm,duration,sections:song.sections.map(x=>({...x,start:x.firstBar*4*60/song.bpm})),templateMeta:{id:'assistant-song',title:song.title,key:song.key||null,keyName,duration,bars:song.bars,trackCount:song.tracks.length},activeProjectId:null};
@@ -157,13 +190,13 @@ async function requestArrangementAssistance(message,intent){
     if(filled) prepared.changes.push('鼓与贝斯已衔接 '+filled+' 个空小节');
    }
    prepared.changes.unshift('应用后替换当前编曲：'+song.title+'，'+song.bars+' 小节；可撤销恢复。');
-   arrangementAssistant.pending={plan,prepared,revision,context:{startBeat:0,bars:16}};
+   arrangementAssistant.pending={plan,prepared,revision,replacesArrangement:true,context:{startBeat:0,bars:16}};
    globalThis.MeldSingleTrack?.clear();
    arrangementAssistant.images=[];renderAssistantImages();
    appendAssistantMessage('assistant',plan.reply,mode,'song');
    const changes=assistantElement('assistantChanges');changes.replaceChildren();for(const change of prepared.changes){const li=document.createElement('li');li.textContent=change;changes.append(li);}
    assistantElement('assistantPlan').hidden=false;assistantElement('assistantPlanLabel').textContent=rulesDraft?'规则草稿 · 应用将替换当前编曲':'完整分轨已生成 · 应用将替换当前编曲';
-   assistantElement('assistantApply').textContent='应用到编曲';
+   assistantElement('assistantApply').textContent='应用全曲';
    return;
   }else{
    if(intent==='chat')throw new Error('在线 AI 就绪后可发送问题。现在可点击「生成示例方案」体验编曲。');
@@ -221,14 +254,19 @@ function applyAssistantExperiment(){
  const pending=arrangementAssistant.pending;if(!pending||arrangementAssistant.busy)return;
  if(performanceInput.recording||performanceInput.preparing){showToast('先停止当前录制，再应用编曲方案');return;}
  if(MeldArrangementAI.fingerprint(assistantSnapshot())!==pending.revision){appendAssistantMessage('assistant','编曲在生成方案后已有新改动，请重新生成，以保留你刚才的编辑。');return;}
+ if(pending.replacesArrangement&&arrangement.tracks.length&&!window.confirm('应用全曲会替换当前所有音轨。确定应用？'))return;
  const before=assistantSnapshot();stopArrangementPlayback();stopMelodyPlayback();releasePerformanceKeys();
- assignAssistantSnapshot(pending.prepared.session);
+ if(pending.targetId){
+  const changed=pending.prepared.session.tracks.find(track=>track.id===pending.targetId);
+  arrangement.tracks=arrangement.tracks.map(track=>track.id===pending.targetId?changed:track);
+  persistArrangement();renderArrangement();
+ }else assignAssistantSnapshot(pending.prepared.session);
  arrangementAssistant.lastAffected=pending.prepared.affected;
  if(arrangementAssistant.lastAffected.length)performanceInput.trackId=arrangementAssistant.lastAffected[0];
  renderPerformancePanel();
  arrangementAssistant.history.push({before,after:MeldArrangementAI.fingerprint(assistantSnapshot())});if(arrangementAssistant.history.length>15)arrangementAssistant.history.shift();
  arrangementAssistant.pending=null;assistantElement('assistantPlan').hidden=true;
- appendAssistantMessage('assistant','实验已应用。可以单独试听这次修改，也可以播放全曲比较；“撤销本次实验”会恢复应用前的编曲。',assistantElement('assistantMode').value);
+ appendAssistantMessage('assistant',pending.targetId?`已应用到「${arrangement.tracks.find(track=>track.id===pending.targetId).name}」。可单独试听或撤销本次修改。`:'实验已应用。可单独试听，也可撤销本次实验。',assistantElement('assistantMode').value);
  arrangementAssistant.previewRange={startBeat:pending.context.startBeat,bars:pending.context.bars};renderAssistantState();
  previewAssistantExperiment();
 }
@@ -321,16 +359,48 @@ function setupArrangementAssistant(){
  function submitPrompt(){
   const message=prompt.value.trim();
   if(!message||arrangementAssistant.busy)return;
-  if(assistantTask==='compose'&&globalThis.MeldSingleTrack?.request(message))return;
+  if(assistantTask==='compose'){
+   const tracks=arrangement.tracks;
+   const edit=MeldArrangementAI.trackEditRequest(message,tracks,selectedArrangementTrack()?.id);
+   if(edit){
+    arrangementAssistant.pending=null;globalThis.MeldSingleTrack?.clear();renderAssistantState();
+    const {target}=edit;
+    if(!target){showToast('请先点击要修改的音轨，或在描述里写明轨道编号');return;}
+    if(!edit.notes&&!edit.tone){showToast('请说明要修改这条轨道的旋律还是音色');return;}
+    if(target.audioClips?.length&&!target.notes.length){showToast('这条是原声录音。请选择一条可编辑音符的轨道');return;}
+    if(!arrangementAssistant.connected){showToast('修改单轨需要在线 AI 服务');return;}
+    if(arrangementAssistant.images.length){showToast('单轨修改使用文字描述，请先移除参考图');return;}
+    const catalog=assistantCatalog();
+    const isDrum=Boolean(drumKitFromTrack(target));
+    const instrument={id:target.instrument,name:target.instrumentName||target.name,isDrum};
+    const units=arrangement.baseBpm/60;
+    const scoreNotes=(track,limit)=>track.notes.slice(0,limit).map(note=>({midi:note.midi,beat:note.start*units,duration:note.duration*units}));
+    const trackBars=Math.ceil(Math.max(0,...target.notes.map(note=>(note.start+note.duration)*units/4))-.00001);
+    const bars=Math.min(32,Math.max(1,trackBars||arrangement.templateMeta?.bars||8));
+    const details={bars,changeNotes:edit.notes,changeTone:edit.tone,key:target.noteEditKey||arrangement.templateMeta?.key||state.key,
+     notes:scoreNotes(target,128),backing:tracks.filter(track=>track.id!==target.id&&track.notes.length&&!drumKitFromTrack(track)).slice(0,8)
+      .map(track=>({name:track.name,notes:scoreNotes(track,48)})),
+     instruments:edit.tone?catalog.filter(item=>item.isDrum===isDrum).map(({id,name,isDrum})=>({id,name,isDrum})):[]};
+    requestArrangementAssistance(message,{trackEdit:{targetId:target.id,instrument,details}});
+    return;
+   }
+   if(globalThis.MeldSingleTrack?.request(message,assistantComposeScope==='track'))return;
+  }
   requestArrangementAssistance(message,assistantTask==='chat'?'chat':'song');
  }
+ assistantElement('assistantComposeScope').addEventListener('click',event=>{
+  const button=event.target.closest('[data-compose-scope]');if(!button||arrangementAssistant.busy)return;
+  assistantComposeScope=button.dataset.composeScope;
+  renderAssistantState();
+ });
  document.querySelectorAll('[data-assistant-task]').forEach(button=>button.addEventListener('click',()=>switchTask(button.dataset.assistantTask)));
  assistantElement('assistantForm').addEventListener('submit',event=>{event.preventDefault();submitPrompt();});
  prompt.addEventListener('input',renderAssistantState);
  prompt.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing&&event.keyCode!==229){event.preventDefault();submitPrompt();}});
  assistantElement('assistantExamples').addEventListener('click',event=>{
   const button=event.target.closest('[data-assistant-example]');if(!button)return;
-  switchTask('compose');prompt.value=button.dataset.assistantExample;submitPrompt();
+  switchTask('compose');prompt.value=button.dataset.assistantExample;
+  if(arrangementAssistant.connected)submitPrompt();else requestArrangementAssistance(prompt.value,'song');
  });
  assistantElement('assistantApply').addEventListener('click',applyAssistantExperiment);
  assistantElement('assistantUndo').addEventListener('click',undoAssistantExperiment);

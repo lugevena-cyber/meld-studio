@@ -10,7 +10,10 @@ function renderPerformanceKeyboard() {
   const track=selectedPerformanceTrack(),sourcePads=window.MeldSourceInstruments?.drumPads?.(track?.instrumentBase||track?.instrument);
   const pads = (sourcePads||drumPadsForKit(drumKitFromTrack(track))).map(pad => `<button class="drum-pad" type="button" data-perform-midi="${pad.midi}" aria-label="演奏${pad.name}"><strong>${pad.name}</strong><span>${pad.key}</span><small>MIDI ${pad.midi}</small></button>`).join('');
   if(performanceElement('arrangeDrumPads').innerHTML !== pads) performanceElement('arrangeDrumPads').innerHTML = pads;
-  if(performanceInput.keyboardOctave===performanceInput.octave)return;
+  const scale=MeldPianoRollCore.key(selectedArrangementTrack()?.noteEditKey||track?.noteEditKey||arrangement.templateMeta?.key||state.key);
+  const keyboardSignature=`${performanceInput.octave}:${scale.tonic}:${scale.mode}`;
+  if(performanceInput.keyboardOctave===keyboardSignature)return;
+  const harmony=MeldPianoRollCore.harmonyData(scale);
   const base=(performanceInput.octave+1)*12,whites=[],blacks=[];
   let whiteCount=0;
   for(let step=0;step<=24;step++) {
@@ -18,9 +21,12 @@ function renderPerformanceKeyboard() {
     if(black)blacks.push({midi,left:whiteCount/15*100});else{whites.push(midi);whiteCount++;}
   }
   const keyLabels=Object.fromEntries(Object.entries(LAB_KEY_MAP).map(([key,midi])=>[base+midi-60,key.toUpperCase()]));
-  const keyHtml=(midi,black,left='')=>`<button type="button" class="performance-key ${black?'black':'white'}" data-perform-midi="${midi}" style="${black?`left:calc(${left}% - 2.1%);`:''}" aria-label="演奏 ${pitchLabel(midi)}"><span>${pitchLabel(midi)}</span><small>${keyLabels[midi]||''}</small></button>`;
+  const keyHtml=(midi,black,left='')=>{
+    const {note,chord,symbol}=MeldPianoRollCore.harmonyAt(harmony,midi);
+    return `<button type="button" class="performance-key ${black?'black':'white'}" data-perform-midi="${midi}" style="${black?`left:calc(${left}% - 2.1%);`:''}" aria-label="演奏 ${note}${chord?' · '+chord:''}" title="${chord||note}"><span>${note}</span>${symbol?`<b class="piano-chord-label">${symbol}</b>`:''}<small>${keyLabels[midi]||''}</small></button>`;
+  };
   performanceElement('arrangeKeyboard').innerHTML=whites.map(midi=>keyHtml(midi,false)).join('')+blacks.map(({midi,left})=>keyHtml(midi,true,left)).join('');
-  performanceInput.keyboardOctave=performanceInput.octave;
+  performanceInput.keyboardOctave=keyboardSignature;
   performanceElement('arrangeKeyboardRange').textContent=`C${performanceInput.octave} — C${performanceInput.octave+2}`;
   performanceElement('arrangeOctaveDown').disabled=performanceInput.octave<=1;
   performanceElement('arrangeOctaveUp').disabled=performanceInput.octave>=5;

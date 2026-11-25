@@ -1698,10 +1698,11 @@ function updateAnalysisUI(key, notes, duration) {
         `<span class="${usedPitchClasses.has(note.pitchClass) ? "detected " : ""}${index === 0 ? "root" : ""}" data-pitch-class="${note.pitchClass}">${note.name}</span>`
     )
     .join("");
+  const editorHarmony=MeldPianoRollCore.harmonyData(key);
   els.canvasScaleRail.innerHTML = scaleData
     .map(
       (note, index) =>
-        `<span class="${usedPitchClasses.has(note.pitchClass) ? "detected " : ""}${index === 0 ? "root" : ""}" data-pitch-class="${note.pitchClass}">${note.name}</span>`
+        `<span class="${usedPitchClasses.has(note.pitchClass) ? "detected " : ""}${index === 0 ? "root" : ""}" data-pitch-class="${note.pitchClass}">${note.name}<b class="piano-chord-label">${MeldPianoRollCore.harmonyAt(editorHarmony,60+note.pitchClass).symbol}</b></span>`
     )
     .join("");
   els.canvasScaleRail.classList.add("visible");
@@ -3746,52 +3747,58 @@ function loadLabInstrument(id) {
   prepareSampledInstrument(instrument.id, getAudioContext()).catch(error => showToast(error.message));
 }
 
-let labOctaveOverride=null;
-function labKeyboardOffset(){
-  return labOctaveOverride===null?(window.MeldSourceInstruments?.labOffset?.(labState.instrument)||0):(labOctaveOverride-4)*12;
+let labOctaveOverride=null, labKeyOverride=null;
+const labChordShapes={
+  major:['',[0,4,7]], minor:['m',[0,3,7]], dim:['dim',[0,3,6]], aug:['aug',[0,4,8]],
+  7:['7',[0,4,7,10]], m7:['m7',[0,3,7,10]], maj7:['maj7',[0,4,7,11]],
+  mMaj7:['mMaj7',[0,3,7,11]], m7b5:['m7♭5',[0,3,6,10]], dim7:['dim7',[0,3,6,9]]
+};
+function labKeyboardKey(){
+  return MeldPianoRollCore.key(labKeyOverride||selectedArrangementTrack()?.noteEditKey||arrangement.templateMeta?.key||state.key);
+}
+function labKeyboardBase(octave=null){
+  const defaultOctave=4+(window.MeldSourceInstruments?.labOffset?.(labState.instrument)||0)/12;
+  const tonic=labKeyboardKey().tonic;
+  const safeOctave=octave??Math.min(labOctaveOverride??defaultOctave,tonic>7?7:8);
+  return (safeOctave+1)*12+tonic;
+}
+function labKeyboardOffset(){return labKeyboardBase()-60;}
+function labChordNotes(){
+  const shape=labChordShapes[document.getElementById('labChordShape').value];
+  return shape?shape[1].map(interval=>labKeyboardBase()+interval):[];
 }
 function renderLabKeyboard() {
-  const offset=labKeyboardOffset();
+  const scale=labKeyboardKey(),harmony=MeldPianoRollCore.harmonyData(scale);
   const pads=window.MeldSourceInstruments?.drumPads?.(labState.instrument);
-  const range=document.getElementById('labOctave');
-  if(!range.options.length)for(let octave=0;octave<=8;octave++)range.add(new Option(`C${octave} — C${octave+1}`,octave));
-  range.value=String(4+offset/12);
-  range.disabled=Boolean(pads);
-  if(pads){els.labKeyboard.innerHTML=pads.map(pad=>`<button type="button" class="drum-pad" data-midi="${pad.midi}">${escapeHtml(pad.name)}<small>${pad.key}</small></button>`).join('');els.labKeyboard.querySelectorAll('[data-midi]').forEach(key=>key.addEventListener('pointerdown',event=>{event.preventDefault();triggerLabNote(Number(key.dataset.midi),false);}));return;}
-  const whiteNotes = [60, 62, 64, 65, 67, 69, 71, 72];
-  const blackNotes = [
-    { midi: 61, left: 12.5, key: "W" },
-    { midi: 63, left: 25, key: "E" },
-    { midi: 66, left: 50, key: "T" },
-    { midi: 68, left: 62.5, key: "Y" },
-    { midi: 70, left: 75, key: "U" },
-  ];
-  const whiteKeys = ["A", "S", "D", "F", "G", "H", "J", "K"];
-  els.labKeyboard.innerHTML =
-    whiteNotes
-      .map((midi, index) => {
-        midi+=offset;const note = noteNameFromMidi(midi);
-        return `
-          <button class="piano-key white" type="button" data-midi="${midi}" aria-label="${note.name}${note.octave}">
-            ${note.name}${note.octave}<br /><small>${whiteKeys[index]}</small>
-          </button>
-        `;
-      })
-      .join("") +
-    blackNotes
-      .map(({ midi, left, key }) => {
-        midi+=offset;const note = noteNameFromMidi(midi);
-        return `
-          <button
-            class="piano-key black"
-            type="button"
-            data-midi="${midi}"
-            style="left:${left}%"
-            aria-label="${note.name}${note.octave}"
-          >${key}</button>
-        `;
-      })
-      .join("");
+  const range=document.getElementById('labOctave'),tonic=document.getElementById('labTonic'),mode=document.getElementById('labScaleMode');
+  const base=labKeyboardBase();
+  const keyName=midi=>MeldPianoRollCore.harmonyAt(harmony,midi).note;
+  if(!tonic.options.length)for(let i=0;i<12;i++)tonic.add(new Option(pitchLabel(60+i).slice(0,-1),i));
+  tonic.value=String(scale.tonic);
+  mode.value=scale.mode;
+  const octaveOptions=Array.from({length:9},(_,octave)=>{
+    const start=labKeyboardBase(octave);
+    return start+12<=127?`<option value="${octave}">${keyName(start)} — ${keyName(start+12)}</option>`:'';
+  }).join('');
+  if(range.innerHTML!==octaveOptions)range.innerHTML=octaveOptions;
+  range.value=String(Math.floor(base/12)-1);
+  range.disabled=tonic.disabled=mode.disabled=Boolean(pads);
+  document.getElementById('labChordGuide').hidden=Boolean(pads);
+  if(pads){els.labKeyboard.style.paddingInline='';els.labKeyboard.innerHTML=pads.map(pad=>`<button type="button" class="drum-pad" data-midi="${pad.midi}">${escapeHtml(pad.name)}<small>${pad.key}</small></button>`).join('');els.labKeyboard.querySelectorAll('[data-midi]').forEach(key=>key.addEventListener('pointerdown',event=>{event.preventDefault();triggerLabNote(Number(key.dataset.midi),false);}));return;}
+  const black=midi=>[1,3,6,8,10].includes(midi%12);
+  const notes=Array.from({length:13},(_,i)=>base+i),whites=notes.filter(midi=>!black(midi));
+  const inset=black(base)?4:0;
+  const shortcuts=Object.fromEntries(Object.entries(LAB_KEY_MAP).map(([key,midi])=>[midi+base-60,key.toUpperCase()]));
+  const chordNotes=labChordNotes(),shape=labChordShapes[document.getElementById('labChordShape').value];
+  document.getElementById('labChordName').textContent=shape?keyName(base).replace(/\d+$/,'')+shape[0]:'';
+  document.getElementById('labChordPlay').disabled=!shape;
+  els.labKeyboard.style.paddingInline=`${inset}%`;
+  els.labKeyboard.innerHTML=notes.map(midi=>{
+    const isBlack=black(midi),position=inset+(100-2*inset)*whites.filter(white=>white<midi).length/whites.length;
+    const {note,chord,symbol}=MeldPianoRollCore.harmonyAt(harmony,midi);
+    return `<button class="piano-key ${isBlack?'black':'white'}${chordNotes.includes(midi)?' chord-tone':''}" type="button" data-midi="${midi}" ${isBlack?`style="left:${position}%"`:''}
+      aria-label="${note}${chord?' · '+chord:''}" title="${chord||note}"><span class="piano-key-caption"><span>${note}</span>${symbol?`<b class="piano-chord-label">${symbol}</b>`:''}<small>${shortcuts[midi]}</small></span></button>`;
+  }).join('');
   els.labKeyboard.querySelectorAll("[data-midi]").forEach((key) => {
     key.addEventListener("pointerdown", (event) => {
       event.preventDefault();
@@ -4081,12 +4088,17 @@ function startLabArpeggio() {
   if (state.currentView !== "lab") return;
   if(!sampledInstrumentReady(labState.instrument,getAudioContext())){prepareSampledInstrument(labState.instrument).then(()=>{if(state.currentView==="lab")startLabArpeggio();}).catch(error=>showToast(error.message));return;}
   stopLabPlayback();
-  const notes = [60, 63, 67, 70, 72, 75, 79, 84];
+  const source = window.MeldSourceInstruments;
+  const pads = source?.drumPads?.(labState.instrument);
+  const base = labKeyboardBase();
+  const harmony = MeldPianoRollCore.harmonyData(labKeyboardKey());
+  const intervals = harmony ? [0,harmony.scale[2],harmony.scale[4],harmony.scale[6]] : [0,3,7,10];
+  const notes = pads ? [60,63,67,70,72,75,79,84].map(midi=>source.labMidi(labState.instrument,midi)) :
+    [...intervals,...intervals.slice(0,3).map(interval=>interval+12),24].map(interval=>base+interval).filter(midi=>midi<=127);
   els.labStatusText.textContent = "琶音演奏中 · 让空间慢慢展开";
   notes.forEach((midi, index) => {
     const timer = window.setTimeout(() => {
-      const source = window.MeldSourceInstruments;
-      playLabNote(source?.drumPads?.(labState.instrument)?source.labMidi(labState.instrument,midi):midi+labKeyboardOffset(), 0.34);
+      playLabNote(midi,0.34);
     }, index * 145);
     labTimeouts.push(timer);
   });
@@ -4753,6 +4765,16 @@ function setupEventListeners() {
     stopLabPlayback();
     labOctaveOverride=Number(event.target.value);
     renderLabKeyboard();
+  });
+  for(const id of ['labTonic','labScaleMode'])document.getElementById(id).addEventListener('change',()=>{
+    stopLabPlayback();
+    labKeyOverride=MeldPianoRollCore.key({tonic:document.getElementById('labTonic').value,mode:document.getElementById('labScaleMode').value});
+    renderLabKeyboard();
+  });
+  document.getElementById('labChordShape').addEventListener('change',renderLabKeyboard);
+  document.getElementById('labChordPlay').addEventListener('click',()=>{
+    stopLabPlayback();
+    for(const midi of labChordNotes())playLabNote(midi,.85);
   });
   setupPitchEditor();
   setupRecognitionControls();

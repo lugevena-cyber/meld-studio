@@ -26,7 +26,7 @@
     <link rel="stylesheet" href="night-pocket.css?v=afterglow1" />
     <link rel="stylesheet" href="arrangement-studio.css?v=7" />
     <link rel="stylesheet" href="production-workspaces.css?v=3" />
-    <link rel="stylesheet" href="system-theme.css?v=11" />
+    <link rel="stylesheet" href="system-theme.css?v=12" />
   </head>
   <body>
     <div class="page-noise" aria-hidden="true"></div>
@@ -486,9 +486,16 @@
                 <div class="lab-keyboard-wrap">
                   <div class="keyboard-hint">
                     <span>演奏键盘</span>
+                    <label>主音 <select id="labTonic" aria-label="实验室主音"></select></label>
+                    <label>调式 <select id="labScaleMode" aria-label="实验室调式"><option value="major">自然大调</option><option value="minor">自然小调</option><option value="dorian">多利亚</option><option value="chromatic">半音阶</option></select></label>
                     <label>音域 <select id="labOctave" aria-label="演奏键盘音域"></select></label>
                   </div>
                   <div class="piano-keyboard" id="labKeyboard"></div>
+                  <div class="lab-chord-guide" id="labChordGuide">
+                    <label>和弦指法 <select id="labChordShape" aria-label="和弦指法"><option value="">请选择和弦</option><optgroup label="三和弦"><option value="major">大三</option><option value="minor">小三</option><option value="dim">减三</option><option value="aug">增三</option></optgroup><optgroup label="七和弦"><option value="7">属七</option><option value="m7">小七</option><option value="maj7">大七</option><option value="mMaj7">小大七</option><option value="m7b5">半减七</option><option value="dim7">减七</option></optgroup></select></label>
+                    <output id="labChordName"></output>
+                    <button type="button" class="outline-action" id="labChordPlay" disabled>试听和弦</button>
+                  </div>
                 </div>
 
                 <footer class="lab-transport">
@@ -918,6 +925,10 @@
                 <button type="button" data-assistant-task="chat" aria-pressed="true">通用问答</button>
                 <button type="button" data-assistant-task="compose" aria-pressed="false">AI 成曲</button>
               </div>
+              <div class="assistant-task-tabs" id="assistantComposeScope" role="group" aria-label="创作范围" hidden>
+                <button type="button" data-compose-scope="track" aria-pressed="true">单轨创作</button>
+                <button type="button" data-compose-scope="song" aria-pressed="false">全曲编排</button>
+              </div>
               <output class="assistant-status" id="assistantStatus" aria-live="polite">本地示例模式 · 尚未接入模型</output>
               <select id="assistantMode" hidden aria-label="助手服务状态"><option value="demo">本机示例</option><option value="online" disabled>在线服务</option></select>
               <details class="assistant-options"><summary>助手设置与快捷示例</summary>
@@ -1136,22 +1147,22 @@
     <script src="instruments.js?v=20261107-type1"></script>
     <script src="dx7-presets.js?v=20261105-play1"></script>
     <script src="drums.js?v=pattern-highlight1"></script>
-    <script src="performance.js?v=external-midi1"></script>
+    <script src="performance.js?v=keyboard-harmony1"></script>
     <script src="pitch-detector.js?v=yin3"></script>
     <script src="pitch-client.js?v=vocal-body1"></script>
     <script src="pitch-analysis.js?v=vocal-body1"></script>
     <script src="recognition.js?v=vocal-body1"></script>
-    <script src="piano-roll.js?v=key-harmony1"></script>
+    <script src="piano-roll.js?v=shared-harmony1"></script>
     <script src="pitch-editor.js?v=harmony-midi1"></script>
     <script src="templates.js?v=track-loop1"></script>
     <script src="ai-config.js?v=20261107-type1"></script>
-    <script src="assistant-engine.js?v=20261110-song"></script>
+    <script src="assistant-engine.js?v=20261125-track-edit"></script>
     <script src="channel-core.js?v=20261107-type1"></script>
     <script src="channel-audio.js?v=20261107-type1"></script>
     <script src="track-layout.js?v=track-delete1"></script>
     <script src="channel-strip.js?v=track-selection1"></script>
     <script src="effects.js?v=20261107-type1"></script>
-    <script src="arrangement-assistant.js?v=task-modes1"></script>
+    <script src="arrangement-assistant.js?v=task-modes2"></script>
     <script src="transport.js?v=20261107-type1"></script>
     <script src="material-core.js?v=20261107-type1"></script>
     <script src="materials.js?v=section-loop1"></script>
@@ -1166,13 +1177,13 @@
     <script src="afterglow-drive.js?v=arrangement-load1"></script>
     <script src="open-sample-instruments.js?v=pack1"></script>
     <script src="lab-recording.js?v=1"></script>
-    <script src="app.js?v=track-actions2"></script>
+    <script src="app.js?v=lab-harmony1"></script>
     <script src="sound-library.js?v=fischer808-1"></script>
     <script src="song-study.js?v=20261107-type1"></script>
     <script src="stem-session.js?v=20261107-type1"></script>
     <script src="instrument-portraits.js?v=20261107-type1"></script>
     <script src="source-instruments.js?v=sample-packs1"></script>
-  <script src="dx7-playable-library.js?v=afterglow1"></script><script src="arrangement-piano-roll.js?v=key-harmony1"></script><script src="workspace-pages.js?v=open-samples1"></script><script src="local-audio-workers.js?v=3"></script><script src="transcription-core.js?v=20261113"></script><script src="transcription.js?v=recording-midi1"></script><script src="external-midi.js?v=1"></script><script src="arrangement-additions.js?v=2"></script>
+  <script src="dx7-playable-library.js?v=afterglow1"></script><script src="arrangement-piano-roll.js?v=shared-harmony1"></script><script src="workspace-pages.js?v=open-samples1"></script><script src="local-audio-workers.js?v=3"></script><script src="transcription-core.js?v=20261113"></script><script src="transcription.js?v=recording-midi1"></script><script src="external-midi.js?v=1"></script><script src="arrangement-additions.js?v=2"></script>
   <script src="stem-separation.js?v=3"></script>
   </body>
 </html>

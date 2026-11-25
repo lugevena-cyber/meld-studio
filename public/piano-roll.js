@@ -59,12 +59,20 @@
   const progression=mode==='major'?[1,4,0,5]:mode==='minor'?[0,5,2,6]:[0,3,0,6];
   return `${pitches[0]} ${{major:'自然大调',minor:'自然小调',dorian:'多利亚'}[mode]} · ${pitches.join(' ')}\n和弦进行 · ${progression.map(index=>chords[index]).join(' → ')}`;
  }
+ function harmonyAt(data,midi){
+  const degree=data?.scale.indexOf((midi-data.tonic+120)%12);
+  if(!(degree>=0))return {note:label(midi),chord:'',symbol:''};
+  const pitch=data.pitches[degree];
+  const octave=Math.floor(midi/12)-1+(pitch.startsWith('C♭')?1:/^B♯/.test(pitch)?-1:0);
+  const chord=data.chords[degree];
+  return {note:pitch+octave,chord,symbol:chord.split(' ')[1]};
+ }
  function renderHarmonyReference(element,scale){
   const reference=harmonyReference(scale);
   element.textContent=reference;
   element.hidden=!reference;
  }
- root.MeldPianoRollCore={key,inScale,snapPitch,label,moveNote,slideOffsets,applySlide,harmonyReference,renderHarmonyReference};
+ root.MeldPianoRollCore={key,inScale,snapPitch,label,moveNote,slideOffsets,applySlide,harmonyData,harmonyAt,harmonyReference,renderHarmonyReference};
  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  let rollCount=0;
  function mount(host,initial){
@@ -116,9 +124,9 @@
    let content=`<defs><clipPath id="${clipId}"><rect x="${left}" y="0" width="${width}" height="${h-22}"/></clipPath></defs>`;
    for(const midi of rows){
     const yy=y(midi),valid=lanes||inScale(midi,scale),black=!lanes&&[1,3,6,8,10].includes(midi%12);
-    const name=esc(opts.laneNames?.[midi]||label(midi));
-    const degree=harmony?.scale.indexOf((midi-harmony.tonic+120)%12);
-    const chord=degree>=0?harmony.chords[degree]:'';
+    const keyInfo=harmonyAt(harmony,midi);
+    const name=esc(opts.laneNames?.[midi]||keyInfo.note);
+    const chord=keyInfo.chord;
     const chordText=chord?`<text class="roll-key-harmony" x="5" y="${yy+4}" font-size="9">${esc(chord)}</text>`:'';
     content+=`<rect x="${left}" y="${yy-12}" width="${width}" height="${rowHeight}" fill="${valid?'#21332d':'#182622'}"/><path d="M${left} ${yy-12}H${left+width}" stroke="#afc5b6" opacity="${midi%12===0?.34:.12}"/>`;
     if(opts.auditionPitch){
